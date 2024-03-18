@@ -1,72 +1,73 @@
 import { initializeApp } from "firebase/app";
-require("dotenv").config();
+// require("dotenv").config();
 
-import {
-    getAuth,
-    connectAuthEmulator,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-} from "firebase/auth";
+// import {
+//     getAuth,
+//     connectAuthEmulator,
+//     signInWithEmailAndPassword,
+//     createUserWithEmailAndPassword,
+//     onAuthStateChanged,
+//     signOut,
+// } from "firebase/auth";
 
-const firebaseConfig = {
-    // stuffs here
-    apiKey: keys.env.apiKey,
-    authDomain: keys.env.authDomain,
-    projectId: keys.env.projectId,
-    storageBucket: keys.env.storageBucket,
-    messagingSenderId: keys.env.messagingSenderId,
-    appId: keys.env.appId,
-};
+// const firebaseConfig = {
+//     // stuffs here
+//     apiKey: keys.env.apiKey,
+//     authDomain: keys.env.authDomain,
+//     projectId: keys.env.projectId,
+//     storageBucket: keys.env.storageBucket,
+//     messagingSenderId: keys.env.messagingSenderId,
+//     appId: keys.env.appId,
+// };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
+// const firebaseApp = initializeApp(firebaseConfig);
+// const auth = getAuth(firebaseApp);
 
-export default firebaseApp;
-connectAuthEmulator(auth, "http://localhost:9099");
+// export default firebaseApp;
 
-const loginEmailPassword = async () => {
-    const loginEmail = txtEmail.value;
-    const loginPassowrd = txtPassword.value;
+// connectAuthEmulator(auth, "http://localhost:9099");
 
-    const userCredential = await signInWithEmailAndPassword(
-        auth,
-        loginEmail,
-        loginPassowrd
-    );
-    console.log(userCredential.user); // remove this line
-};
+// const loginEmailPassword = async () => {
+//     const loginEmail = txtEmail.value;
+//     const loginPassowrd = txtPassword.value;
 
-const createAccount = async () => {
-    const loginEmail = txtEmail.value;
-    const loginPassowrd = txtPassword.value;
+//     const userCredential = await signInWithEmailAndPassword(
+//         auth,
+//         loginEmail,
+//         loginPassowrd
+//     );
+//     console.log(userCredential.user); // remove this line
+// };
 
-    const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        loginEmail,
-        loginPassowrd
-    );
-};
+// const createAccount = async () => {
+//     const loginEmail = txtEmail.value;
+//     const loginPassowrd = txtPassword.value;
 
-const monitorAuthState = async() => {
-    onAuthStateChanged(auth, user => {
-        if (user) => {
-            console.log(user)
-            showApp();
-            showLoginState(user);
+//     const userCredential = await createUserWithEmailAndPassword(
+//         auth,
+//         loginEmail,
+//         loginPassowrd
+//     );
+// };
 
-            hideLoginError();
-        } 
-        else {
-            showLoginForm();
-            //lblAuthState.innterHTML = "You're not logged in"
-        }
-    })
-}
+// const monitorAuthState = async() => {
+//     onAuthStateChanged(auth, user => {
+//         if (user) => {
+//             console.log(user)
+//             showApp();
+//             showLoginState(user);
 
-const logout = async() => {
-    await signOut(auth);
-}
+//             hideLoginError();
+//         }
+//         else {
+//             showLoginForm();
+//             //lblAuthState.innterHTML = "You're not logged in"
+//         }
+//     })
+// }
 
-btnLogout.addEventListener("click", logout);
+// const logout = async() => {
+//     await signOut(auth);
+// }
+
+// btnLogout.addEventListener("click", logout);

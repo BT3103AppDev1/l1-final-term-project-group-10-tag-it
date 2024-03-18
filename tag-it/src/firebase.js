@@ -1,13 +1,15 @@
 import { initializeApp } from "firebase/app";
 
-// import {
-//     getAuth,
-//     connectAuthEmulator,
-//     signInWithEmailAndPassword,
-//     createUserWithEmailAndPassword,
-//     onAuthStateChanged,
-//     signOut,
-// } from "firebase/auth";
+import {
+    getAuth,
+    // GoogleAuthProvider,
+    // connectAuthEmulator,
+    // signInWithEmailAndPassword,
+    // createUserWithEmailAndPassword,
+    // onAuthStateChanged,
+    // signOut,
+    // signInWithPopup,
+} from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_apiKey,
@@ -19,7 +21,7 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-// const auth = getAuth(firebaseApp);
+export const auth = getAuth(firebaseApp);
 
 export default firebaseApp;
 

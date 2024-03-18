@@ -2,17 +2,20 @@
     <h1>Tag-IT</h1>
     hello hi
     <!-- <Login /> -->
-    <testLogin />
+    <Login />
+    <SignUp />
 </template>
 
 <script>
 //import Login from "@/components/Login.vue";
-import testLogin from "@/components/testLogin.vue";
+import Login from "@/components/Login.vue";
+import SignUp from "@/components/SignUp.vue";
 
 export default {
     name: "App",
     components: {
-        testLogin,
+        Login,
+        SignUp,
     },
 };
 </script>

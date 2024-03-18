@@ -2,6 +2,9 @@
 export default {
     name: "testLogin",
 };
+
+// console.log(import.meta.env.VITE_APP_CREATOR);
+// console.log(import.meta.env.apiKey);
 </script>
 
 <template>
@@ -16,7 +19,6 @@ export default {
                 <h2>WELCOME BACK TO</h2>
                 <h1>Tag-IT</h1>
                 <form>
-                    <!-- <label for="email">Email:</label> -->
                     <input
                         type="text"
                         placeholder="Email"
@@ -24,7 +26,6 @@ export default {
                         required="yes"
                     /><br />
 
-                    <!-- <label for="password">Password:</label> -->
                     <input
                         type="text"
                         placeholder="Password"

@@ -1,5 +1,4 @@
 import { initializeApp } from "firebase/app";
-// require("dotenv").config();
 
 // import {
 //     getAuth,
@@ -10,20 +9,19 @@ import { initializeApp } from "firebase/app";
 //     signOut,
 // } from "firebase/auth";
 
-// const firebaseConfig = {
-//     // stuffs here
-//     apiKey: keys.env.apiKey,
-//     authDomain: keys.env.authDomain,
-//     projectId: keys.env.projectId,
-//     storageBucket: keys.env.storageBucket,
-//     messagingSenderId: keys.env.messagingSenderId,
-//     appId: keys.env.appId,
-// };
+const firebaseConfig = {
+    apiKey: import.meta.env.VITE_apiKey,
+    authDomain: import.meta.env.VITE_authDomain,
+    projectId: import.meta.env.VITE_projectId,
+    storageBucket: import.meta.env.VITE_storageBucket,
+    messagingSenderId: import.meta.env.VITE_messagingSenderId,
+    appId: import.meta.env.VITE_appId,
+};
 
-// const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 // const auth = getAuth(firebaseApp);
 
-// export default firebaseApp;
+export default firebaseApp;
 
 // connectAuthEmulator(auth, "http://localhost:9099");
 

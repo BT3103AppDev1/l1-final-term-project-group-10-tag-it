@@ -28,3 +28,17 @@ h2 {
     border-radius: 25px;
     padding: 20px;
 }
+
+/* custom fonts */
+@font-face {
+    font-family: 'cabin';
+    src: url('../assets/fonts/Cabin-VariableFont_wdth,wght.ttf') format('truetype');
+  }
+
+@font-face {
+    font-family: 'cabin-italic';
+    src: url('../assets/fonts/Cabin-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  }
+
+
+  

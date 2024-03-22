@@ -1,10 +1,15 @@
 <template>
+    <!-- <Login /> -->
+    <Navbar />
+    
+
     <h1>Tag-IT</h1>
     hello hi
-    <!-- <Login /> -->
     <Login />
     <SignUp />
     <AllTags />
+    <Footer />
+    
 </template>
 
 <script>
@@ -12,6 +17,8 @@
 import Login from "@/components/Login.vue";
 import SignUp from "@/components/SignUp.vue";
 import AllTags from "@/components/AllTags.vue";
+import Navbar from "./components/Navbar.vue";
+import Footer from "./components/Footer.vue";
 
 export default {
     name: "App",
@@ -19,6 +26,8 @@ export default {
         Login,
         SignUp,
         AllTags,
+        Navbar,
+        Footer
     },
 };
 </script>

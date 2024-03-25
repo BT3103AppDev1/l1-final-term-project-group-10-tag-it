@@ -4,7 +4,8 @@
     <!-- <Login /> -->
     <Login />
     <SignUp />
-    <AllTags />
+
+    <router-view />
 </template>
 
 <script>

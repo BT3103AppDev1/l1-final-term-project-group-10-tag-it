@@ -4,6 +4,8 @@
     <!-- <Login /> -->
     <Login />
     <SignUp />
+
+    <router-view />
 </template>
 
 <script>

@@ -30,8 +30,7 @@ export default {
         async loginEmailPassword() {
             console.log("logging in");
             const loginEmail = document.getElementById("inputEmail").value;
-            const loginPassword =
-                document.getElementById("inputPassword").value;
+            const loginPassword = document.getElementById("inputPassword").value;
             try {
                 const userCredential = await signInWithEmailAndPassword(
                     auth,
@@ -171,7 +170,7 @@ input {
 .errorlabel {
     font-size: 18px;
     padding: 10px 10px 10px 5px;
-    -webkit-appearance: none;
+    /* -webkit-appearance: none; */
     display: block;
     background: #fafafa;
     color: #ff0000;

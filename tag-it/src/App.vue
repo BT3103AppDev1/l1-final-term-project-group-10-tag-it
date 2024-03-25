@@ -12,12 +12,14 @@
 //import Login from "@/components/Login.vue";
 import Login from "@/components/Login.vue";
 import SignUp from "@/components/SignUp.vue";
+import AllTags from "@/components/AllTags.vue";
 
 export default {
     name: "App",
     components: {
         Login,
         SignUp,
+        AllTags,
     },
 };
 </script>

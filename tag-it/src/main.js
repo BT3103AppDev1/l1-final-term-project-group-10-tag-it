@@ -5,6 +5,7 @@ import App from "./App.vue";
 import router from "./router"
 import Login from "./components/Login.vue";
 import SignUp from "./components/SignUp.vue";
+import AllTags from "./components/AllTags.vue"
 
 const app = createApp(App)
 

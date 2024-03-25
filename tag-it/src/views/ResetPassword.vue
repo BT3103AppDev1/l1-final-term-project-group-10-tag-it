@@ -1,5 +1,5 @@
 <template>
-<div id="passwordContainer">
+  <div id="passwordContainer" v-if="validToken">
     <div id="passwordPage">RESET PASSWORD</div>
     <div id="passwordMessage">Please enter your new password</div>
     <form @submit.prevent="resetPassword">
@@ -7,6 +7,9 @@
       <input type="password" id="password" v-model="password" required />
       <button id="passwordButton" type="submit">Reset password</button>
     </form>
+  </div>
+  <div v-else>
+    <p>Invalid or expired reset link.</p>
   </div>
 </template>
 
@@ -18,14 +21,24 @@ export default {
     return {
       password: '',
       oobCode: '',
+      validToken: false
     };
   },
   mounted() {
     const urlParams = new URLSearchParams(window.location.search);
     this.oobCode = urlParams.get('oobCode');
+    this.validateResetToken();
   },
   methods: {
+    validateResetToken() {
+      if (this.oobCode) {
+        this.validToken = true;
+      }
+    },
     resetPassword() {
+      if (!this.validToken) {
+        return;
+      }
       const auth = getAuth();
       confirmPasswordReset(auth, this.oobCode, this.password)
         .then(() => {

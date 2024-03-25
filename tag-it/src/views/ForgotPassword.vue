@@ -11,15 +11,19 @@
       sendPasswordReset() {
         const auth = getAuth();
         sendPasswordResetEmail(auth, this.email)
-        .then(function() {
-          alert("Reset Password Email Sent!")
+        .then(() => {
+          alert("Reset Password Email Sent!");
           this.$router.push('/');
         })
           .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.error(errorCode, errorMessage);
-            alert("Invalid Email Address")
+            if (errorCode === "auth/invalid-email") {
+              alert("Invalid Email Address");
+            } else {
+              alert("An error occurred. Please try again later.");
+            }
           });
       },
     },

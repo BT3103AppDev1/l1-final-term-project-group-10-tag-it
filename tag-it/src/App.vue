@@ -5,6 +5,8 @@
     <Login />
     <SignUp />
     <AllTags />
+    <ExpandedTagEntry />
+    <MiscellaneousTags />
 </template>
 
 <script>
@@ -12,6 +14,8 @@
 import Login from "@/components/Login.vue";
 import SignUp from "@/components/SignUp.vue";
 import AllTags from "@/components/AllTags.vue";
+import ExpandedTagEntry from '@/components/ExpandedTagEntry.vue';
+import MiscellaneousTags from '@/components/MiscellaneousTags.vue';
 
 export default {
     name: "App",
@@ -19,6 +23,8 @@ export default {
         Login,
         SignUp,
         AllTags,
+        ExpandedTagEntry,
+        MiscellaneousTags,
     },
 };
 </script>
@@ -42,5 +48,6 @@ export default {
 
 #nav a.router-link-exact-active {
     color: #42b983;
+    width: 50%;
 }
 </style>

@@ -117,7 +117,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 #testC {
     display: inline;
     width: 100%;

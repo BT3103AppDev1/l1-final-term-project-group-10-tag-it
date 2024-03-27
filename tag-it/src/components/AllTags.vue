@@ -209,8 +209,8 @@
             </tr>
 
             -->
-
-        </table> <br><br>
+                <br><br>
+        </table> 
     </div> 
 
 </template>
@@ -249,9 +249,9 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
+
     @import '@/assets/main.css';
-    
 
     table{
         background-color:#f5f5f5;
@@ -263,18 +263,18 @@ export default{
         border-spacing: 0;
         border:0.5px solid #f5f5f5;
         border-radius:25px;
-        padding: 8px;
+        padding: 10px;
         /* need something to fix the height of the table */
     }
 
     th{
-        padding: 10px;
+        padding: 15px;
         font-family: cabin;
         border-bottom: 1px solid #000000
     }
 
     td{
-        padding: 8px;
+        padding: 10px;
         height: 30px;
         font-family: cabin;
         border-bottom: 1px solid #2e2e2e

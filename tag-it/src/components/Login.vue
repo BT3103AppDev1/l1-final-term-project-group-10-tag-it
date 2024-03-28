@@ -1,14 +1,14 @@
 <script>
 import {
-    // GoogleAuthProvider,
-    // signInWithPopup,
-    // getAuth,
     signInWithEmailAndPassword,
     AuthErrorCodes,
     onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
 } from "firebase/auth";
 
 import { auth } from "../firebase.js";
+import router from "../router/index.js";
 
 export default {
     name: "Login",
@@ -21,19 +21,13 @@ export default {
         async function hideLoginError() {
             console.log("hiding");
 
-            // const divLoginError = document.querySelector("#divLoginError");
-            // const lblLoginErrorMessage = document.querySelector(
-            //     "#lblLoginErrorMessage"
-            // );
+            const divLoginError = document.querySelector("#divLoginError");
+            const lblLoginErrorMessage = document.querySelector(
+                "#lblLoginErrorMessage"
+            );
             divLoginError.style.display = "none";
             lblLoginErrorMessage.innerHTML = "";
         }
-
-        // async function hideLoginError() {
-        //     console.log("hiding");
-        //     this.showLoginError = false;
-        //     this.loginErrorMessage = "";
-        // }
 
         hideLoginError();
 
@@ -43,8 +37,8 @@ export default {
                     console.log(user);
                     // showApp();
                     // showLoginState();
-
-                    // hideLoginError();
+                    hideLoginError();
+                    router.push({ name: "Home" });
                 } else {
                     console.log("You're not logged in");
                     // showLoginForm();
@@ -99,24 +93,17 @@ export default {
             }
         },
 
-        showLoginError(error) {
-            console.log("method works!!");
-            // console.log(error);
-            this.showLoginError = true;
-            this.loginErrorMessage = "Error: ${error.message}";
+        async googleLogin() {
+            console.log("logging in with google");
+            const provider = await new GoogleAuthProvider();
+            return signInWithPopup(auth, provider);
         },
     },
-    // methods: {
-    //     async googleLogin() {
-    //         const provider = new GoogleAuthProvider();
-    //         return signInWithPopup(auth, provider);
-    //     },
-    // },
 };
 </script>
 
 <template>
-    <h3>this is a testlogin page</h3>
+    <!-- <h3>this is a testlogin page</h3> -->
     <div class="container">
         <div class="container" id="testC">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />

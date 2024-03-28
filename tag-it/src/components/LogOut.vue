@@ -29,6 +29,8 @@ export default {
 };
 </script>
 
-<template></template>
+<template>
+    <button id="btn" @click="SignOut()" v-if="user">LogOut</button>
+</template>
 
 <style></style>

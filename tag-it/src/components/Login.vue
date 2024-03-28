@@ -5,6 +5,7 @@ import {
     // getAuth,
     signInWithEmailAndPassword,
     AuthErrorCodes,
+    onAuthStateChanged,
 } from "firebase/auth";
 
 import { auth } from "../firebase.js";
@@ -12,25 +13,71 @@ import { auth } from "../firebase.js";
 export default {
     name: "Login",
 
+    data() {
+        return {};
+    },
+
     mounted() {
-        console.log("mounted!");
         async function hideLoginError() {
             console.log("hiding");
-            const divLoginError = document.querySelector("#divLoginError");
-            const lblLoginErrorMessage = document.querySelector(
-                "#lblLoginErrorMessage"
-            );
+
+            // const divLoginError = document.querySelector("#divLoginError");
+            // const lblLoginErrorMessage = document.querySelector(
+            //     "#lblLoginErrorMessage"
+            // );
             divLoginError.style.display = "none";
             lblLoginErrorMessage.innerHTML = "";
         }
 
+        // async function hideLoginError() {
+        //     console.log("hiding");
+        //     this.showLoginError = false;
+        //     this.loginErrorMessage = "";
+        // }
+
         hideLoginError();
+
+        async function monitorAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log(user);
+                    // showApp();
+                    // showLoginState();
+
+                    // hideLoginError();
+                } else {
+                    console.log("You're not logged in");
+                    // showLoginForm();
+                    // lnlAuthState.innerHTML = "You're not logged in"
+                }
+            });
+        }
+
+        monitorAuthState();
+
+        async function showLoginError(error) {
+            console.log(error);
+
+            const divLoginError = document.querySelector("#divLoginError");
+            const lblLoginErrorMessage = document.querySelector(
+                "#lblLoginErrorMessage"
+            );
+
+            divLoginError.style.display = "block";
+
+            if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
+                lblLoginErrorMessage.innerHTML = "Wrong Password. Try Again!";
+            } else {
+                lblLoginErrorMessage.innerHTML = "Error: ${error.message}";
+            }
+        }
     },
     methods: {
         async loginEmailPassword() {
             console.log("logging in");
             const loginEmail = document.getElementById("inputEmail").value;
-            const loginPassword = document.getElementById("inputPassword").value;
+            const loginPassword =
+                document.getElementById("inputPassword").value;
             try {
                 const userCredential = await signInWithEmailAndPassword(
                     auth,
@@ -39,7 +86,8 @@ export default {
                 );
                 console.log(userCredential.user); // remove this line
             } catch (error) {
-                console.log(error);
+                console.log("CAUGHT ERROR!");
+                // console.log(error);
                 // divLoginError.style.display = "block";
                 // if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
                 //     lblLoginErrorMessage.innerHTML =
@@ -47,8 +95,15 @@ export default {
                 // } else {
                 //     lblLoginErrorMessage.innerHTML = "Error: ${error.message}";
                 // }
-                // // showLoginError(error);
+                showLoginError(error);
             }
+        },
+
+        showLoginError(error) {
+            console.log("method works!!");
+            // console.log(error);
+            this.showLoginError = true;
+            this.loginErrorMessage = "Error: ${error.message}";
         },
     },
     // methods: {
@@ -89,7 +144,7 @@ export default {
                     /><br />
                     <div id="divLoginError">
                         <div id="lblLoginErrorMessage" class="errorlabel">
-                            Error message
+                            ERROR MESSAGE
                         </div>
                     </div>
                     Forget password?
@@ -97,27 +152,43 @@ export default {
 
                     <button
                         id="loginButton"
+                        class="blueButton"
                         type="button"
                         v-on:click="loginEmailPassword"
                     >
-                        LOGIN</button
-                    ><br /><br />
-                    <button
-                        id="googleLoginButton"
-                        type="button"
-                        v-on:click="googleLogin"
-                    >
-                        LOGIN WITH GOOGLE</button
-                    ><br /><br />
-                    Don't have an account?<br />
-                    Sign up here
+                        LOGIN
+                    </button>
                 </form>
+                <br />
+
+                <button
+                    id="googleLoginButton"
+                    type="button"
+                    v-on:click="googleLogin"
+                >
+                    <span>
+                        <img
+                            class="icon"
+                            alt=""
+                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                        />
+                    </span>
+                    <span> LOGIN WITH GOOGLE</span></button
+                ><br /><br />
+
+                Don't have an account?<br />
+                Sign up here
             </div>
         </div>
     </div>
 </template>
 
 <style>
+.icon {
+    border: none;
+    height: 18px;
+    vertical-align: middle;
+}
 #testC {
     display: inline;
     width: 100%;
@@ -150,33 +221,31 @@ input {
     border-width: 2px;
 }
 
-#loginButton {
-    width: 190px;
-    height: 35px;
-    background-color: #406cbe;
-    border-radius: 10px;
-    border-width: 2px;
-    color: white;
-    font-size: medium;
-}
-
 #googleLoginButton {
     background-color: white;
     height: 35px;
     width: 250px;
     border-radius: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
 .errorlabel {
     font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    /* -webkit-appearance: none; */
+    padding: 10px;
     display: block;
-    background: #fafafa;
+    /* background: #fafafa; */
     color: #ff0000;
-    width: 100%;
+    /* width: 100%; */
     border: none;
     border-radius: 0;
-    border-bottom: 1px solid #ff0000;
+    /* border-bottom: 1px solid #ff0000; */
+}
+
+button {
+    vertical-align: middle;
+    /* align-items: center;
+    justify-content: center; */
+    /* display: flex; */
 }
 </style>

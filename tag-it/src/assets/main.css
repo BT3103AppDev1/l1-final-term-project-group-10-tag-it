@@ -29,16 +29,26 @@ h2 {
     padding: 20px;
 }
 
+.blueButton {
+    /* width: 190px; */
+    width: 65%;
+    height: 35px;
+    background-color: #406cbe;
+    border-radius: 10px;
+    border-width: 2px;
+    color: #fcfbf4;
+    font-size: medium;
+}
+
 /* custom fonts */
 @font-face {
-    font-family: 'cabin';
-    src: url('../assets/fonts/Cabin-VariableFont_wdth,wght.ttf') format('truetype');
-  }
+    font-family: "cabin";
+    src: url("../assets/fonts/Cabin-VariableFont_wdth,wght.ttf")
+        format("truetype");
+}
 
 @font-face {
-    font-family: 'cabin-italic';
-    src: url('../assets/fonts/Cabin-Italic-VariableFont_wdth,wght.ttf') format('truetype');
-  }
-
-
-  
+    font-family: "cabin-italic";
+    src: url("../assets/fonts/Cabin-Italic-VariableFont_wdth,wght.ttf")
+        format("truetype");
+}

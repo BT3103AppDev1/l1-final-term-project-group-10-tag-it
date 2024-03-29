@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+// VIEWS
+import EditProfile from "@/views/EditProfile.vue";
+import ForgotPassword from "@/views/ForgotPassword.vue";
 import Home from "@/views/Home.vue";
+import ResetPassword from "@/views/ResetPassword.vue";
+
+// COMPONENTS
 import Login from "@/components/Login.vue";
 import SignUp from "@/components/SignUp.vue";
-import ForgotPassword from "@/views/ForgotPassword.vue";
-import ResetPassword from "@/views/ResetPassword.vue";
-import EditProfile from "@/views/EditProfile.vue";
 
 const routes = [
     {

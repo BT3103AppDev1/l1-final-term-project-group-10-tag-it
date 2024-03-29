@@ -15,13 +15,16 @@
         <div class="center-nav justify-content-between">
             <ul class="navbar-nav justify-content-between flex-row" aria-expanded="false">
                 <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="#">Home</a>
+                    <router-link to="/">Login</router-link> 
+                </li>
+                <li class="nav-item">
+                    <router-link to="/home">Home</router-link> 
                 </li>
                 <li class="nav-item">
                 <a class="nav-link ml-10" href="#">Calendar</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="#">All Tags</a>
+                    <router-link to="/alltags">All Tags</router-link> 
                 </li>
                 <li class="nav-item-group">
                 <a class="nav-link ml-10" href="#">Groups</a>
@@ -30,7 +33,14 @@
         </div></span>
     </div>
     <hr></hr>
+    
 </template>
+
+<script>
+export default {
+    name: "Navbar"
+}
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');

@@ -1,6 +1,7 @@
 <template>
-    <!-- <Login /> -->
     <Navbar />
+    <router-view/>
+    <!-- <Navbar />
     
 
     <h1>Tag-IT</h1>
@@ -8,26 +9,26 @@
     <Login />
     <SignUp />
     <AllTags />
-    <Footer />
+    <Footer /> -->
     
 </template>
 
 <script>
-//import Login from "@/components/Login.vue";
-import Login from "@/components/Login.vue";
-import SignUp from "@/components/SignUp.vue";
-import AllTags from "@/components/AllTags.vue";
+// import Login from "@/components/Login.vue";
+// import SignUp from "@/components/SignUp.vue";
+// import AllTags from "@/components/AllTags.vue";
 import Navbar from "./components/Navbar.vue";
-import Footer from "./components/Footer.vue";
+// import Footer from "./components/Footer.vue";
 
 export default {
     name: "App",
     components: {
-        Login,
-        SignUp,
-        AllTags,
-        Navbar,
-        Footer
+    //     Login,
+    //     SignUp,
+    //     AllTags,
+         Navbar,
+    //     Footer
+        
     },
 };
 </script>

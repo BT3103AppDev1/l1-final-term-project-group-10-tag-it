@@ -1,15 +1,6 @@
 <template>
     <Navbar />
     <router-view />
-    <!-- <Navbar />
-    
-
-    <h1>Tag-IT</h1>
-    hello hi
-    <Login />
-    <SignUp />
-    <AllTags />
-    <Footer /> -->
 </template>
 
 <script>

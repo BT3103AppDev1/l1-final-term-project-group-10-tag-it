@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // VIEWS
-import AllTags from "@/views/AllTags.vue";
+import AllTags from "@/views/AllTagsView.vue";
 import Calendar from "@/views/Calendar.vue";
 import EditProfile from "@/views/EditProfile.vue";
 import Home from "@/views/Home.vue";

@@ -165,7 +165,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 .icon {
     border: none;
     height: 18px;

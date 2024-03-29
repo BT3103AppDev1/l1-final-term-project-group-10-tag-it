@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import NavBar from "@/components/NavBar.vue";
+import NavBar from "@/components/Navbar.vue";
 import LogOut from "@/components/LogOut.vue";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";

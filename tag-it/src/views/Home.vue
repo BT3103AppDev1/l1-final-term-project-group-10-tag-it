@@ -10,19 +10,22 @@
                 <!-- number of Tags will be accessed from the database -->
             </h1>
         </div>
+        <Footer2/>
     </div>
 </template>
 
 <script>
+import Footer2 from '@/components/Footer2.vue';
 export default {
     name: "Home",
     components: {
-        
+        Footer2,
     }
 }
 </script>
 
 <style>
+
 .texts {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,6 @@
 <template>
     <Navbar />
-    <router-view/>
+    <router-view />
     <!-- <Navbar />
     
 
@@ -10,25 +10,15 @@
     <SignUp />
     <AllTags />
     <Footer /> -->
-    
 </template>
 
 <script>
-// import Login from "@/components/Login.vue";
-// import SignUp from "@/components/SignUp.vue";
-// import AllTags from "@/components/AllTags.vue";
 import Navbar from "./components/Navbar.vue";
-// import Footer from "./components/Footer.vue";
 
 export default {
     name: "App",
     components: {
-    //     Login,
-    //     SignUp,
-    //     AllTags,
-         Navbar,
-    //     Footer
-        
+        Navbar,
     },
 };
 </script>

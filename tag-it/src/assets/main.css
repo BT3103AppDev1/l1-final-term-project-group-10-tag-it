@@ -3,17 +3,23 @@ div {
     text-align: center;
 }
 
-h1 {
+.header1 {
     color: #0641ad;
     margin: 0;
+    display: block;
+    font-size: 2em;
+    font-weight: bold;
 }
 
-h2 {
+.header2 {
     color: #406cbe;
     margin: 0;
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
-.container {
+.myContainer {
     display: flex;
     width: 100%;
     align-items: center;

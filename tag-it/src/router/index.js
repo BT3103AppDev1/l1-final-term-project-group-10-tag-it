@@ -1,25 +1,26 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import Login from "@/components/Login.vue";
-import Home from "@/views/Home.vue";
-import AllTags from '@/views/AllTags.vue';
-import Login from '@/components/Login.vue';
-import AllTagsComp from '@/components/AllTags.vue';
+
+// VIEWS
+import AllTags from "@/views/AllTags.vue";
 import Calendar from "@/views/Calendar.vue";
-import ExpandedTagEntry from '@/components/ExpandedTagEntry.vue';
-import MiscellaneousTags from '@/components/MiscellaneousTags.vue';
-import ForgotPassword from "@/views/ForgotPassword.vue";
-import ResetPassword from "@/views/ResetPassword.vue";
 import EditProfile from "@/views/EditProfile.vue";
+import Home from "@/views/Home.vue";
+
+// COMPONENTS
+import AllTagsComp from "@/components/AllTags.vue";
+import ExpandedTagEntry from "@/components/ExpandedTagEntry.vue";
+import ForgotPassword from "@/components/ForgotPassword.vue";
+import Login from "@/components/Login.vue";
+import MiscellaneousTags from "@/components/MiscellaneousTags.vue";
+import ResetPassword from "@/components/ResetPassword.vue";
 import SignUp from "@/components/SignUp.vue";
-
-
 
 const routes = [
     {
         path: "/",
         name: "Login",
-        component: Login, 
-      },
+        component: Login,
+    },
     {
         path: "/home",
         name: "Home",
@@ -28,12 +29,15 @@ const routes = [
     {
         path: "/alltags",
         name: "AllTags",
-        component: AllTags, AllTagsComp,
+        component: AllTags,
+        AllTagsComp,
     },
     {
-      path: "/calendar",
-      name: "Calendar",
-      component: Calendar, ExpandedTagEntry, MiscellaneousTags,
+        path: "/calendar",
+        name: "Calendar",
+        component: Calendar,
+        ExpandedTagEntry,
+        MiscellaneousTags,
     },
     {
         path: "/forgot-password",
@@ -59,8 +63,8 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+    history: createWebHistory(),
+    routes,
 });
 
 export default router;

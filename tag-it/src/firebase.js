@@ -1,15 +1,6 @@
 import { initializeApp } from "firebase/app";
 
-import {
-    getAuth,
-    // GoogleAuthProvider,
-    // connectAuthEmulator,
-    // signInWithEmailAndPassword,
-    // createUserWithEmailAndPassword,
-    // onAuthStateChanged,
-    // signOut,
-    // signInWithPopup,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_apiKey,
@@ -24,50 +15,3 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 
 export default firebaseApp;
-
-// connectAuthEmulator(auth, "http://localhost:9099");
-
-// const loginEmailPassword = async () => {
-//     const loginEmail = txtEmail.value;
-//     const loginPassowrd = txtPassword.value;
-
-//     const userCredential = await signInWithEmailAndPassword(
-//         auth,
-//         loginEmail,
-//         loginPassowrd
-//     );
-//     console.log(userCredential.user); // remove this line
-// };
-
-// const createAccount = async () => {
-//     const loginEmail = txtEmail.value;
-//     const loginPassowrd = txtPassword.value;
-
-//     const userCredential = await createUserWithEmailAndPassword(
-//         auth,
-//         loginEmail,
-//         loginPassowrd
-//     );
-// };
-
-// const monitorAuthState = async() => {
-//     onAuthStateChanged(auth, user => {
-//         if (user) => {
-//             console.log(user)
-//             showApp();
-//             showLoginState(user);
-
-//             hideLoginError();
-//         }
-//         else {
-//             showLoginForm();
-//             //lblAuthState.innterHTML = "You're not logged in"
-//         }
-//     })
-// }
-
-// const logout = async() => {
-//     await signOut(auth);
-// }
-
-// btnLogout.addEventListener("click", logout);

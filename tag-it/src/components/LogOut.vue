@@ -1,5 +1,7 @@
 <script>
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import router from "../router/index.js";
+import { pushScopeId } from "vue";
 
 export default {
     name: "LogOut",
@@ -19,18 +21,19 @@ export default {
     },
 
     methods: {
-        signOut() {
+        async signOut() {
             const auth = getAuth();
             const user = auth.currentUser;
             signOut(auth, user);
             // this.$router.push({name: 'Login'})
+            router.push({ name: "Login" });
         },
     },
 };
 </script>
 
 <template>
-    <button id="btn" @click="SignOut()" v-if="user">LogOut</button>
+    <button id="btn" @click="signOut()" v-if="user">LogOut</button>
 </template>
 
 <style></style>

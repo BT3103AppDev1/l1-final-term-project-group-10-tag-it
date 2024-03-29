@@ -1,15 +1,6 @@
 import { initializeApp } from "firebase/app";
 
-import {
-    getAuth,
-    // GoogleAuthProvider,
-    // connectAuthEmulator,
-    // signInWithEmailAndPassword,
-    // createUserWithEmailAndPassword,
-    // onAuthStateChanged,
-    // signOut,
-    // signInWithPopup,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_apiKey,

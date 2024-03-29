@@ -14,13 +14,13 @@ export default {
     name: "Login",
 
     data() {
-        return {};
+        return {
+            errorMessage: "",
+        };
     },
 
     mounted() {
         async function hideLoginError() {
-            console.log("hiding");
-
             const divLoginError = document.querySelector("#divLoginError");
             const lblLoginErrorMessage = document.querySelector(
                 "#lblLoginErrorMessage"
@@ -39,19 +39,14 @@ export default {
                     // showLoginState();
                     hideLoginError();
                     router.push({ name: "Home" });
-                } else {
-                    console.log("You're not logged in");
-                    // showLoginForm();
-                    // lnlAuthState.innerHTML = "You're not logged in"
                 }
             });
         }
 
         monitorAuthState();
-
-        async function showLoginError(error) {
-            console.log(error);
-
+    },
+    methods: {
+        async showLoginError(error) {
             const divLoginError = document.querySelector("#divLoginError");
             const lblLoginErrorMessage = document.querySelector(
                 "#lblLoginErrorMessage"
@@ -62,11 +57,12 @@ export default {
             if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
                 lblLoginErrorMessage.innerHTML = "Wrong Password. Try Again!";
             } else {
-                lblLoginErrorMessage.innerHTML = "Error: ${error.message}";
+                console.log(error);
+                console.log(error.message);
+                this.errorMessage = error.message;
             }
-        }
-    },
-    methods: {
+        },
+
         async loginEmailPassword() {
             console.log("logging in");
             const loginEmail = document.getElementById("inputEmail").value;
@@ -81,15 +77,7 @@ export default {
                 console.log(userCredential.user); // remove this line
             } catch (error) {
                 console.log("CAUGHT ERROR!");
-                // console.log(error);
-                // divLoginError.style.display = "block";
-                // if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
-                //     lblLoginErrorMessage.innerHTML =
-                //         "Wrong password. Try again";
-                // } else {
-                //     lblLoginErrorMessage.innerHTML = "Error: ${error.message}";
-                // }
-                showLoginError(error);
+                this.showLoginError(error);
             }
         },
 
@@ -98,12 +86,15 @@ export default {
             const provider = await new GoogleAuthProvider();
             return signInWithPopup(auth, provider);
         },
+
+        goToSignUp() {
+            router.push({ name: "SignUp" });
+        },
     },
 };
 </script>
 
 <template>
-    <!-- <h3>this is a testlogin page</h3> -->
     <div class="container">
         <div class="container" id="testC">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />
@@ -121,6 +112,7 @@ export default {
                         placeholder="Email"
                         id="inputEmail"
                         required="yes"
+                        @keyup.enter="loginEmailPassword"
                     /><br />
 
                     <input
@@ -128,14 +120,17 @@ export default {
                         placeholder="Password"
                         id="inputPassword"
                         required="yes"
+                        @keyup.enter="loginEmailPassword"
                     /><br />
                     <div id="divLoginError">
                         <div id="lblLoginErrorMessage" class="errorlabel">
-                            ERROR MESSAGE
+                            ERROR: {{ this.errorMessage }}
                         </div>
                     </div>
-                    Forget password?
-                    <br /><br />
+                    <div @click="goToSignUp" class="clickable">
+                        Forget password?
+                    </div>
+                    <br />
 
                     <button
                         id="loginButton"
@@ -164,7 +159,7 @@ export default {
                 ><br /><br />
 
                 Don't have an account?<br />
-                Sign up here
+                <div @click="goToSignUp" class="clickable">Sign up here</div>
             </div>
         </div>
     </div>
@@ -181,16 +176,10 @@ export default {
     width: 100%;
     padding: 10px;
     border-radius: 25px;
-    /* background-color: #1f497d; */
     height: 100%;
 }
 
 #loginContainer {
-    /* background-color: #f2f2f2;
-    color: #686868;
-    filter: drop-shadow(2px 2px);
-    border-radius: 25px;
-    padding: 20px; */
     width: 50%;
 }
 
@@ -201,7 +190,7 @@ form {
 input {
     height: 30px;
     margin-left: 10px;
-    width: 250px;
+    width: 75%;
     text-align: left;
     margin-bottom: 10px;
     border-radius: 10px;
@@ -210,29 +199,29 @@ input {
 
 #googleLoginButton {
     background-color: white;
-    height: 35px;
-    width: 250px;
+    padding: 5px;
+    width: 75%;
     border-radius: 10px;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .errorlabel {
     font-size: 18px;
     padding: 10px;
     display: block;
-    /* background: #fafafa; */
     color: #ff0000;
-    /* width: 100%; */
     border: none;
     border-radius: 0;
-    /* border-bottom: 1px solid #ff0000; */
 }
 
 button {
+    cursor: pointer;
     vertical-align: middle;
-    /* align-items: center;
-    justify-content: center; */
-    /* display: flex; */
+}
+
+.clickable {
+    cursor: pointer;
 }
 </style>

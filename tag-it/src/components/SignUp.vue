@@ -2,11 +2,11 @@
     here is the sign up page
     <div class="container">
         <div id="signupPage" class="curvedRectangle">
-            <br />
             <h2>SIGN UP WITH</h2>
             <h1>Tag-IT</h1>
 
             <div id="signupContainer">
+                <button @click="goBack" class="closeButton">X</button>
                 <form id="signupForm">
                     <div class="grid-container">
                         <div class="form-group">
@@ -80,12 +80,16 @@
 
 <script>
 import { createUserWithEmailAndPassword } from "firebase/auth";
-
+import router from "../router/index.js";
 import { auth } from "../firebase.js";
 
 export default {
     name: "SignUp",
     methods: {
+        goBack() {
+            // Using Vue Router to go back to the previous page
+            router.go(-1);
+        },
         async createAccount() {
             // STEP 1: CHECK IF EMAIL / USERNAME TAKEN!
             // STEP 2: CHECK IF PASSWORD MATCHES [ done ]
@@ -135,7 +139,7 @@ export default {
 }
 
 #signupPage {
-    height: 400px;
+    padding: 3%;
     vertical-align: middle;
     display: inline-block;
 }
@@ -157,6 +161,10 @@ export default {
     width: 80%;
 }
 
+#signupButton {
+    width: 30%;
+}
+
 input {
     height: 30px;
     margin-left: 10px;
@@ -165,5 +173,17 @@ input {
     margin-bottom: 10px;
     border-radius: 10px;
     border-width: 2px;
+}
+
+.closeButton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 20px;
+    color: #0641ad;
+    padding: 15px;
 }
 </style>

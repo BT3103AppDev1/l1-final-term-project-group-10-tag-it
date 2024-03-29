@@ -1,21 +1,26 @@
 <script>
 import {
-    // GoogleAuthProvider,
-    // signInWithPopup,
-    // getAuth,
     signInWithEmailAndPassword,
     AuthErrorCodes,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
 } from "firebase/auth";
 
 import { auth } from "../firebase.js";
+import router from "../router/index.js";
 
 export default {
     name: "Login",
 
+    data() {
+        return {
+            errorMessage: "",
+        };
+    },
+
     mounted() {
-        console.log("mounted!");
         async function hideLoginError() {
-            console.log("hiding");
             const divLoginError = document.querySelector("#divLoginError");
             const lblLoginErrorMessage = document.querySelector(
                 "#lblLoginErrorMessage"
@@ -25,12 +30,44 @@ export default {
         }
 
         hideLoginError();
+
+        async function monitorAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log(user);
+                    // showApp();
+                    // showLoginState();
+                    hideLoginError();
+                    router.push({ name: "Home" });
+                }
+            });
+        }
+
+        monitorAuthState();
     },
     methods: {
+        async showLoginError(error) {
+            const divLoginError = document.querySelector("#divLoginError");
+            const lblLoginErrorMessage = document.querySelector(
+                "#lblLoginErrorMessage"
+            );
+
+            divLoginError.style.display = "block";
+
+            if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
+                lblLoginErrorMessage.innerHTML = "Wrong Password. Try Again!";
+            } else {
+                console.log(error);
+                console.log(error.message);
+                this.errorMessage = error.message;
+            }
+        },
+
         async loginEmailPassword() {
             console.log("logging in");
             const loginEmail = document.getElementById("inputEmail").value;
-            const loginPassword = document.getElementById("inputPassword").value;
+            const loginPassword =
+                document.getElementById("inputPassword").value;
             try {
                 const userCredential = await signInWithEmailAndPassword(
                     auth,
@@ -39,29 +76,25 @@ export default {
                 );
                 console.log(userCredential.user); // remove this line
             } catch (error) {
-                console.log(error);
-                // divLoginError.style.display = "block";
-                // if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
-                //     lblLoginErrorMessage.innerHTML =
-                //         "Wrong password. Try again";
-                // } else {
-                //     lblLoginErrorMessage.innerHTML = "Error: ${error.message}";
-                // }
-                // // showLoginError(error);
+                console.log("CAUGHT ERROR!");
+                this.showLoginError(error);
             }
         },
+
+        async googleLogin() {
+            console.log("logging in with google");
+            const provider = await new GoogleAuthProvider();
+            return signInWithPopup(auth, provider);
+        },
+
+        goToSignUp() {
+            router.push({ name: "SignUp" });
+        },
     },
-    // methods: {
-    //     async googleLogin() {
-    //         const provider = new GoogleAuthProvider();
-    //         return signInWithPopup(auth, provider);
-    //     },
-    // },
 };
 </script>
 
 <template>
-    <h3>this is a testlogin page</h3>
     <div class="container">
         <div class="container" id="testC">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />
@@ -79,6 +112,7 @@ export default {
                         placeholder="Email"
                         id="inputEmail"
                         required="yes"
+                        @keyup.enter="loginEmailPassword"
                     /><br />
 
                     <input
@@ -86,53 +120,66 @@ export default {
                         placeholder="Password"
                         id="inputPassword"
                         required="yes"
+                        @keyup.enter="loginEmailPassword"
                     /><br />
                     <div id="divLoginError">
                         <div id="lblLoginErrorMessage" class="errorlabel">
-                            Error message
+                            ERROR: {{ this.errorMessage }}
                         </div>
                     </div>
-                    Forget password?
-                    <br /><br />
+                    <div @click="goToSignUp" class="clickable">
+                        Forget password?
+                    </div>
+                    <br />
 
                     <button
                         id="loginButton"
+                        class="blueButton"
                         type="button"
                         v-on:click="loginEmailPassword"
                     >
-                        LOGIN</button
-                    ><br /><br />
-                    <button
-                        id="googleLoginButton"
-                        type="button"
-                        v-on:click="googleLogin"
-                    >
-                        LOGIN WITH GOOGLE</button
-                    ><br /><br />
-                    Don't have an account?<br />
-                    Sign up here
+                        LOGIN
+                    </button>
                 </form>
+                <br />
+
+                <button
+                    id="googleLoginButton"
+                    type="button"
+                    v-on:click="googleLogin"
+                >
+                    <span>
+                        <img
+                            class="icon"
+                            alt=""
+                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                        />
+                    </span>
+                    <span> LOGIN WITH GOOGLE</span></button
+                ><br /><br />
+
+                Don't have an account?<br />
+                <div @click="goToSignUp" class="clickable">Sign up here</div>
             </div>
         </div>
     </div>
 </template>
 
 <style>
+.icon {
+    border: none;
+    height: 18px;
+    vertical-align: middle;
+}
 #testC {
     display: inline;
     width: 100%;
     padding: 10px;
     border-radius: 25px;
-    /* background-color: #1f497d; */
     height: 100%;
 }
 
 #loginContainer {
-    /* background-color: #f2f2f2;
-    color: #686868;
-    filter: drop-shadow(2px 2px);
-    border-radius: 25px;
-    padding: 20px; */
     width: 50%;
 }
 
@@ -143,40 +190,38 @@ form {
 input {
     height: 30px;
     margin-left: 10px;
-    width: 250px;
+    width: 75%;
     text-align: left;
     margin-bottom: 10px;
     border-radius: 10px;
     border-width: 2px;
 }
 
-#loginButton {
-    width: 190px;
-    height: 35px;
-    background-color: #406cbe;
-    border-radius: 10px;
-    border-width: 2px;
-    color: white;
-    font-size: medium;
-}
-
 #googleLoginButton {
     background-color: white;
-    height: 35px;
-    width: 250px;
+    padding: 5px;
+    width: 75%;
     border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .errorlabel {
     font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    /* -webkit-appearance: none; */
+    padding: 10px;
     display: block;
-    background: #fafafa;
     color: #ff0000;
-    width: 100%;
     border: none;
     border-radius: 0;
-    border-bottom: 1px solid #ff0000;
+}
+
+button {
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.clickable {
+    cursor: pointer;
 }
 </style>

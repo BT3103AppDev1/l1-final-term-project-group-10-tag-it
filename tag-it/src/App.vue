@@ -1,7 +1,6 @@
 <template>
     <h1>Tag-IT</h1>
     hello hi
-    <br />
     <router-view />
 </template>
 

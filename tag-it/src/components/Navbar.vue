@@ -21,7 +21,7 @@
                     <router-link to="/home">Home</router-link> 
                 </li>
                 <li class="nav-item">
-                <a class="nav-link ml-10" href="#">Calendar</a>
+                    <router-link to="/calendar">Calendar</router-link> 
                 </li>
                 <li class="nav-item">
                     <router-link to="/alltags">All Tags</router-link> 

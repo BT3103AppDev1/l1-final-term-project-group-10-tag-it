@@ -1,12 +1,26 @@
 <template>
+<<<<<<< HEAD
     <h1>Tag-IT</h1>
     hello hi
+=======
+    <Navbar />
+>>>>>>> 965cf876017fe03dea863e340c1790c02372aad3
     <router-view />
 </template>
 
 <script>
+<<<<<<< HEAD
 export default {
     name: "App",
+=======
+import Navbar from "./components/Navbar.vue";
+
+export default {
+    name: "App",
+    components: {
+        Navbar,
+    },
+>>>>>>> 965cf876017fe03dea863e340c1790c02372aad3
 };
 </script>
 

@@ -1,9 +1,9 @@
 <template>
     here is the sign up page
-    <div class="container">
+    <div class="myContainer">
         <div id="signupPage" class="curvedRectangle">
-            <h2>SIGN UP WITH</h2>
-            <h1>Tag-IT</h1>
+            <div class="header2">SIGN UP WITH</div>
+            <div class="header1">Tag-IT</div>
 
             <div id="signupContainer">
                 <button @click="goBack" class="closeButton">X</button>
@@ -12,6 +12,7 @@
                         <div class="form-group">
                             <label for="signupEmail">Email: </label><br />
                             <input
+                                class="signUpInput"
                                 type="text"
                                 placeholder="Email"
                                 id="signupEmail"
@@ -22,6 +23,7 @@
                         <div class="form-group">
                             <label for="signupUsername">Username: </label><br />
                             <input
+                                class="signUpInput"
                                 type="text"
                                 placeholder="Username"
                                 id="signupUsername"
@@ -37,6 +39,7 @@
                             <label for="signupPassword1">Password: </label
                             ><br />
                             <input
+                                class="signUpInput"
                                 type="password"
                                 placeholder="Password"
                                 id="signupPassword1"
@@ -54,6 +57,7 @@
                                 >Confirm Password: </label
                             ><br />
                             <input
+                                class="signUpInput"
                                 type="password"
                                 placeholder="Confirm Password"
                                 id="signupPassword2"
@@ -120,7 +124,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -165,8 +169,8 @@ export default {
     width: 30%;
 }
 
-input {
-    height: 30px;
+.signUpInput {
+    height: 2.5em;
     margin-left: 10px;
     width: 80%;
     text-align: left;

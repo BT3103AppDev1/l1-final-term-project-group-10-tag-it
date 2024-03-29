@@ -90,24 +90,29 @@ export default {
         goToSignUp() {
             router.push({ name: "SignUp" });
         },
+
+        goToForgotPassword() {
+            router.push({ name: "ForgotPassword" });
+        },
     },
 };
 </script>
 
 <template>
-    <div class="container">
-        <div class="container" id="testC">
+    <div class="myContainer">
+        <div class="myContainer" id="testC">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />
             <h3>Tag-IT, don't forget it!</h3>
         </div>
-        <div class="container">
+        <div class="myContainer">
             <div id="loginContainer" class="curvedRectangle">
                 <br />
-                <h2>WELCOME BACK TO</h2>
-                <h1>Tag-IT</h1>
+                <div class="header2">WELCOME BACK TO</div>
+                <div class="header1">Tag-IT</div>
                 <br />
                 <form>
                     <input
+                        class="loginInput"
                         type="text"
                         placeholder="Email"
                         id="inputEmail"
@@ -116,6 +121,7 @@ export default {
                     /><br />
 
                     <input
+                        class="loginInput"
                         type="password"
                         placeholder="Password"
                         id="inputPassword"
@@ -127,7 +133,7 @@ export default {
                             ERROR: {{ this.errorMessage }}
                         </div>
                     </div>
-                    <div @click="goToSignUp" class="clickable">
+                    <div @click="goToForgotPassword" class="clickable">
                         Forget password?
                     </div>
                     <br />
@@ -187,8 +193,8 @@ form {
     text-align: center;
 }
 
-input {
-    height: 30px;
+.loginInput {
+    height: 2.5em;
     margin-left: 10px;
     width: 75%;
     text-align: left;

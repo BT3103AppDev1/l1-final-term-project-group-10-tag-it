@@ -36,4 +36,4 @@ export default {
     <button id="btn" @click="signOut()" v-if="user">LogOut</button>
 </template>
 
-<style></style>
+<style scoped></style>

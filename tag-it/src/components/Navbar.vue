@@ -29,6 +29,9 @@
                 <li class="nav-item-group">
                 <a class="nav-link ml-10" href="#">Groups</a>
                 </li>
+                <li class="nav-item" id="logOut">
+                    <div @click="signOut()">LogOut</div>
+                </li>
             </ul>
         </div></span>
     </div>
@@ -37,13 +40,41 @@
 </template>
 
 <script>
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import router from "../router/index.js";
+
+
 export default {
-    name: "Navbar"
+    name: "Navbar",
+
+    mounted() {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                this.user = user;
+            } else {
+                router.push({ name: "Login" });
+            }
+        });
+    },
+
+    methods: {
+        async signOut() {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            signOut(auth, user);    
+            router.push({ name: "Login" });
+        },
+    }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+#logOut {
+    cursor: pointer;
+}
 
 .nav-item{
     font-family: 'Montserrat', sans-serif;

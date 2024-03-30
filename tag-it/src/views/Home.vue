@@ -1,31 +1,43 @@
 <template>
-    <div class="full-page-bg">
-        <div class="texts">
-            <h1 class="welcome-msg">
-                Welcome Mervyn! 
-                <!-- name will be accessed from the database -->
-            </h1>
-            <h1 class="tags-msg">
-                Your have 4 Tags today! 
-                <!-- number of Tags will be accessed from the database -->
-            </h1>
+    <div>
+        <!-- <Navbar /> -->
+        <div class="full-page-bg">
+            <div class="texts">
+                <h1 class="welcome-msg">
+                    Welcome {{ username }}!
+                    <!-- name will be accessed from the database -->
+                </h1>
+                <h1 class="tags-msg">
+                    Your have 4 Tags today!
+                    <!-- number of Tags will be accessed from the database -->
+                </h1>
+            </div>
+            <Footer2 />
         </div>
-        <Footer2/>
     </div>
 </template>
 
 <script>
-import Footer2 from '@/components/Footer2.vue';
+import Footer2 from "@/components/Footer2.vue";
+import Navbar from "@/components/Navbar.vue";
 export default {
     name: "Home",
+
+    data() {
+        return {
+            username: "PLACEHOLDER NAME",
+        };
+    },
+
+    mounted() {},
     components: {
+        // Navbar,
         Footer2,
-    }
-}
+    },
+};
 </script>
 
 <style scoped>
-
 .texts {
     display: flex;
     flex-direction: column;
@@ -46,8 +58,8 @@ export default {
 }
 
 .full-page-bg {
-  height: 100vh; /* make sure it covers the full viewport height */
-  /* background-color: #343a40;  */
-  background-image: linear-gradient(#fff, #0A42AD);
-} 
+    height: 100vh; /* make sure it covers the full viewport height */
+    /* background-color: #343a40;  */
+    background-image: linear-gradient(#fff, #0a42ad);
+}
 </style>

@@ -203,6 +203,11 @@ export default{
         color: #bf2a2a;
     } */
 
+    .unchecked{
+        color: #516282;
+        font-size: 30px;
+    }
+
     .check{
         color: #7dab87;
         font-size: 30px;

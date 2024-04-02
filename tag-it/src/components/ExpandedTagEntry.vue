@@ -5,7 +5,8 @@
     <h5>Expanded Tag Entry</h5>
 
     <div class="expandedTEBox">
-        <br><br>
+        <br>
+        <BIconXLg class="cross" @click="closeExpandedTEBox" />
         
             <form class="expandedTEForm">
                 <div class="labelcontainer">
@@ -18,26 +19,39 @@
                         id="inputTagname"
                         required="yes"
                     /> 
-                     <br>
                 </div>
 
                 <div class="labelcontainer">
-                    <label for="inputDate" class="input_label">
-                        <BIconCalendarDateFill /> Date
+                    <label for="inputStartDate" class="input_label">
+                        <BIconCalendarDateFill /> Start Date
                     </label>
+                    <!--DDMMYYYYTHHMM need to replace T with " "-->
                     <input
-                        type="date"
+                        type="datetime-local"           
                         placeholder="DD/MM/YYYY"
-                        id="inputDate"
+                        id="inputStartDate"
                         required="no"
                     /> 
-                    <br>
+                </div>
+
+                <div class="labelcontainer">
+                    <label for="inputEndDate" class="input_label">
+                        <BIconCalendarDateFill /> End Date
+                    </label>
+                    <!--DDMMYYYYTHHMM need to replace T with " "-->
+                    <input
+                        type="datetime-local"           
+                        placeholder="DD/MM/YYYY"
+                        id="inputEndDate"
+                        required="no"
+                    /> 
                 </div>
 
                 <div class="labelcontainer">
                     <label for="inputCategory" class="input_label">
                         <BIconCollectionFill /> Categories
                     </label>
+                    <!--should this be a drop down?-->
                     <input
                         type="text" 
                         placeholder="Select Category"
@@ -45,6 +59,17 @@
                         required="no"
                     /> 
                 </div>
+
+                <!-- <div class="labelcontainer">
+                    <label for="inputDescription" class="input_label">
+                        <BIconCollectionFill /> Description
+                    </label>
+                    <textarea
+                        type="text" 
+                        id="inputDescription"
+                        required="no"
+                    ></textarea> 
+                </div> -->
 
                 <div class="checkboxcontainer">
                     <input
@@ -55,7 +80,6 @@
                     <label for="selectCheckbox" id="selectCheckbox">
                         Mark as important <BIconFlagFill class="flagged"/>
                     </label>
-                    
                 </div>
 
                     <button
@@ -76,7 +100,8 @@
 
 <script>
 
-import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill } from 'bootstrap-icons-vue';
+import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg } from 'bootstrap-icons-vue';
+import { deleteAllPersistentCacheIndexes } from 'firebase/firestore';
 
 export default {
     components: {
@@ -84,11 +109,17 @@ export default {
         BIconCalendarDateFill,
         BIconCollectionFill,
         BIconFlagFill,
+        BIconXLg,
     },
     methods: {
         saveEntryButton(entry) {
             console.log('saving')
             alert('saving entry, to sync with firebase')
+        },
+        closeExpandedTEBox(event){
+            console.log('close expanded tag entry box')
+            alert('contents will not be saved. Continue?')
+            //reroute to miscellaneous tags page
         }
     }
 
@@ -111,7 +142,14 @@ export default {
         font-family: cabin;
         font-size: 18px;
         position: relative;
+    }
 
+    .cross{
+        color: white;
+        font-size: 25px;
+        right: 25px;
+        top: 20px;
+        position: absolute;
     }
 
 
@@ -120,13 +158,13 @@ export default {
         text-align: left;
         color: white;
         font-family: cabin;
-        font-size: 18px
+        font-size: 16px
     }
 
     .input_label{
         left: 8%;
         margin-left: 35px;
-        margin-bottom: 5px;
+        margin-bottom: 1px;
         margin-right: 10px;
         text-align: left;
     }
@@ -140,25 +178,43 @@ export default {
         display:flex;
     }
 
-    input[type=text], input[type=date] {
+    input[type=text], input[type=datetime-local] {
         padding: 0px 5px 0px 5px;
         height: 45px;
-        margin: auto;
         width: 320px;
         text-align: left;
         border-radius: 10px ;
         border-width: 1px;
         border-color: #919191;
         font-family: cabin;
-        font-size: 18px;
+        font-size: 13px;
         color: #919191;
+        margin: auto;
+        margin-bottom: 5px;
+    }
+
+    textarea {
+        padding: 0px 5px 0px 5px;
+        height: 60px;
+        width: 320px;
+        min-height: 60px;
+        max-height: 120px;
+        text-align: left;
+        border-radius: 10px ;
+        border-width: 1px;
+        border-color: #919191;
+        font-family: cabin;
+        font-size: 13px;
+        color: #919191;
+        margin: auto;
+        margin-bottom: 3px;
     }
 
     input[type=checkbox] {
         width: 5%;
         left: 8%;
         text-align: left;
-        margin-top: 10px;
+        margin-top: 5px;
         margin-left: 35px;
 
     }
@@ -167,7 +223,7 @@ export default {
     #selectCheckbox{
         font-size: 12px;
         font-family: cabin;
-        margin-top: 10px;
+        margin-top: 5px;
     }
 
     button{

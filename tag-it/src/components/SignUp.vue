@@ -1,5 +1,4 @@
 <template>
-    here is the sign up page
     <div class="myContainer">
         <div id="signupPage" class="curvedRectangle">
             <div class="header2">SIGN UP WITH</div>
@@ -15,7 +14,7 @@
                                 class="signUpInput"
                                 type="text"
                                 placeholder="First Name"
-                                id="firstName"
+                                id="signUpFirstName"
                                 required="yes"
                             />
                         </div>
@@ -25,7 +24,7 @@
                                 class="signUpInput"
                                 type="text"
                                 placeholder="Last Name"
-                                id="lastName"
+                                id="signUpLastName"
                                 required="yes"
                             />
                         </div>
@@ -66,9 +65,9 @@
                                 required="yes"
                             />
                             <div class="footnote">
-                                Your password must contain a minimum of 8
-                                characters with no spaces with at least 1
-                                uppercase, 1 lowercase and 1 number
+                                Your password must be at least 8 characters long
+                                and a combination of uppercase letters,
+                                lowercase letters, numbers and symbols
                             </div>
                         </div>
 
@@ -84,8 +83,28 @@
                                 required="yes"
                             /><br />
                         </div>
-                    </div>
 
+                        <div class="form-group">
+                            <label for="signupMobile">Mobile Number: </label
+                            ><br />
+                            <input
+                                class="signUpInput"
+                                type="number"
+                                placeholder="Mobile Number"
+                                id="signupMobile"
+                                required="yes"
+                            />
+                            <div class="footnote">
+                                Valid Singapore numbers only, without Country
+                                Code
+                            </div>
+                        </div>
+                    </div>
+                    <div id="signUpError">
+                        <div id="signUpErrorMessage" class="errorLabel">
+                            ERROR:
+                        </div>
+                    </div>
                     <div>
                         <button
                             id="signupButton"
@@ -106,39 +125,191 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import router from "../router/index.js";
 import { auth } from "../firebase.js";
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+} from "firebase/firestore";
 
 export default {
     name: "SignUp",
+
+    data() {
+        return { errorMessage: "" };
+    },
+
+    mounted() {
+        async function hideSignUpError() {
+            const signUpError = document.querySelector("#signUpError");
+            const signUpErrorMessage = document.querySelector(
+                "#signUpErrorMessage"
+            );
+            signUpError.style.display = "none";
+            signUpErrorMessage.innerHTML = "";
+        }
+
+        hideSignUpError();
+    },
+
     methods: {
         goBack() {
             router.go(-1);
         },
-        async createAccount() {
-            // STEP 1: CHECK IF EMAIL / USERNAME TAKEN!
-            // STEP 2: CHECK IF PASSWORD MATCHES [ done ]
-            // STEP 3: CHECK IF PASSWORD MATCHES CRITERIA
 
+        checkProfile(signupEmail, signupUsername, signupMobile) {
+            const db = getFirestore();
+            const usersCollection = collection(db, "User");
+
+            const queryByEmail = query(
+                usersCollection,
+                where("email", "==", signupEmail)
+            );
+
+            const queryByUsername = query(
+                usersCollection,
+                where("username", "==", signupUsername)
+            );
+            const queryByMobileNumber = query(
+                usersCollection,
+                where("mobile_number", "==", signupMobile)
+            );
+
+            Promise.all([
+                getDocs(queryByEmail),
+                getDocs(queryByUsername),
+                getDocs(queryByMobileNumber),
+            ])
+                .then(
+                    ([
+                        emailSnapshot,
+                        usernameSnapshot,
+                        mobileNumberSnapshot,
+                    ]) => {
+                        if (!emailSnapshot.empty) {
+                            this.addError("Email already exists!");
+                        }
+                        if (!usernameSnapshot.empty) {
+                            this.addError("Username already exists!");
+                        }
+                        if (!mobileNumberSnapshot.empty) {
+                            this.addError("Mobile number already exists!");
+                        }
+                    }
+                )
+                .catch((error) => {
+                    console.error("Error querying database: ", error);
+                });
+        },
+
+        checkPassword(pw) {
+            return (
+                /[A-Z]/.test(pw) &&
+                /[a-z]/.test(pw) &&
+                /[0-9]/.test(pw) &&
+                /[^A-Za-z0-9]/.test(pw) &&
+                pw.length > 8
+            );
+        },
+
+        async createAccount() {
+            const signUpErrorMessage = document.querySelector(
+                "#signUpErrorMessage"
+            );
+            signUpErrorMessage.innerHTML = "";
+
+            // STEP 1: Check if a) email b) username c) mobile number has been taken
+            const signupEmail = document.getElementById("signupEmail").value;
+            const signupUsername =
+                document.getElementById("signupUsername").value;
+            const signupMobile = document.getElementById("signupMobile").value;
+
+            await this.checkProfile(signupEmail, signupUsername, signupMobile);
+
+            // STEP 2a: Check if Password and Confirm Password Matches
             const loginPassword =
                 document.getElementById("signupPassword1").value;
             const loginPassword2 =
                 document.getElementById("signupPassword2").value;
 
-            // if (loginPassword == loginPassword2) {
-            if (true) {
-                console.log("signing up!");
-                const loginEmail = document.getElementById("signupEmail").value;
-
-                const userCredential = await createUserWithEmailAndPassword(
-                    auth,
-                    loginEmail,
-                    loginPassword
-                ); // will also login if successful!
-                console.log(userCredential.user); // remove this line
-                router.push({ name: "Home" });
-            } else {
-                // throw error here!
-                console.log("password does not match!!");
+            if (loginPassword != loginPassword2) {
+                this.addError("Passwords do not match!");
             }
+
+            // STEP 2b: Check if Password Matches Criteria
+            if (!this.checkPassword(loginPassword)) {
+                this.addError("Password does not meet requirements!");
+            }
+
+            // STEP 2c: Check if Mobile Number is valid
+            if (signupMobile.length != 8) {
+                this.addError("Please enter a valid SG mobile number.");
+            }
+
+            // CHECK IF ERRORS
+
+            console.log(signUpErrorMessage.innerHTML);
+
+            if (signUpErrorMessage.innerHTML != "") {
+                console.log("PENDING ERRORS!!");
+                this.showSignUpError();
+                return;
+            } else {
+                // STEP 3: ACTUALLY LOG IN!!
+                const firstName =
+                    document.getElementById("signUpFirstName").value;
+                const lastName =
+                    document.getElementById("signUpLastName").value;
+                try {
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        signupEmail,
+                        loginPassword
+                    );
+
+                    await this.createProfile(
+                        firstName,
+                        lastName,
+                        signupEmail,
+                        signupMobile
+                    );
+                    // router.push({ name: "Home" });
+                } catch (error) {
+                    this.showSignUpError(error);
+                }
+            }
+        },
+
+        addError(error) {
+            const signUpErrorMessage = document.querySelector(
+                "#signUpErrorMessage"
+            );
+
+            if (typeof error == "string") {
+                signUpErrorMessage.innerHTML += error + "<br>";
+            }
+        },
+
+        // UPDATED showSignUpError (in work in conjuction with addError)
+        showSignUpError() {
+            const signUpError = document.querySelector("#signUpError");
+            signUpError.style.display = "block";
+        },
+
+        async createProfile(firstName, lastName, email, mobileNumber) {
+            const newUserData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                mobileNumber: mobileNumber,
+            };
+            const db = getFirestore();
+            const user = auth.currentUser;
+            const userDocRef = doc(db, "User", user.uid);
+            setDoc(userDocRef, newUserData);
         },
     },
 };
@@ -209,5 +380,14 @@ export default {
     font-size: 20px;
     color: #0641ad;
     padding: 15px;
+}
+
+.errorLabel {
+    font-size: 18px;
+    padding: 10px;
+    display: block;
+    color: #ff0000;
+    border: none;
+    border-radius: 0;
 }
 </style>

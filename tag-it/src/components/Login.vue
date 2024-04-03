@@ -35,6 +35,8 @@ export default {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log(user);
+                    // showApp();
+                    // showLoginState();
                     hideLoginError();
                     router.push({ name: "Home" });
                 }

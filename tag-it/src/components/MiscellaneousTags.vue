@@ -24,11 +24,7 @@
     </div>
 </template>
 
-
-
 <script>
-
-
 import QuickTagEntry from '@/components/QuickTagEntry.vue'
 import { BIconFlagFill, BIconTrashFill, BIconCircle, BIconCheckCircleFill, BIconPlusCircleFill } from 'bootstrap-icons-vue';
 

@@ -10,6 +10,26 @@
                 <form id="signupForm">
                     <div class="grid-container">
                         <div class="form-group">
+                            <label for="firstName">First Name: </label><br />
+                            <input
+                                class="signUpInput"
+                                type="text"
+                                placeholder="First Name"
+                                id="firstName"
+                                required="yes"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name: </label><br />
+                            <input
+                                class="signUpInput"
+                                type="text"
+                                placeholder="Last Name"
+                                id="lastName"
+                                required="yes"
+                            />
+                        </div>
+                        <div class="form-group">
                             <label for="signupEmail">Email: </label><br />
                             <input
                                 class="signUpInput"
@@ -91,7 +111,6 @@ export default {
     name: "SignUp",
     methods: {
         goBack() {
-            // Using Vue Router to go back to the previous page
             router.go(-1);
         },
         async createAccount() {
@@ -100,7 +119,7 @@ export default {
             // STEP 3: CHECK IF PASSWORD MATCHES CRITERIA
 
             const loginPassword =
-                document.getElementById("signupPassword").value;
+                document.getElementById("signupPassword1").value;
             const loginPassword2 =
                 document.getElementById("signupPassword2").value;
 
@@ -115,6 +134,7 @@ export default {
                     loginPassword
                 ); // will also login if successful!
                 console.log(userCredential.user); // remove this line
+                router.push({ name: "Home" });
             } else {
                 // throw error here!
                 console.log("password does not match!!");

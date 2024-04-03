@@ -1,16 +1,38 @@
 <template>
-    this is home page
-    <AllTags />
+    <div>
+        <!-- <Navbar /> -->
+        <div class="full-page-bg">
+            <div class="texts">
+                <h1 class="welcome-msg">
+                    Welcome {{ username }}!
+                    <!-- name will be accessed from the database -->
+                </h1>
+                <h1 class="tags-msg">
+                    Your have 4 Tags today!
+                    <!-- number of Tags will be accessed from the database -->
+                </h1>
+            </div>
+            <Footer2 />
+        </div>
+    </div>
 </template>
 <script>
-// ===== LOGIC =====
-// if loggedin -> show dashboard
-// if NOT loggedin -> show login
-
-import AllTags from "@/components/AllTags.vue";
+import Footer2 from "@/components/Footer2.vue";
+import Navbar from "@/components/Navbar.vue";
 export default {
     name: "Home",
-    components: { AllTags },
+
+    data() {
+        return {
+            username: "PLACEHOLDER NAME",
+        };
+    },
+
+    mounted() {},
+    components: {
+        // Navbar,
+        Footer2,
+    },
 };
 </script>
 <<<<<<< HEAD
@@ -18,7 +40,6 @@ export default {
 =======
 
 <style scoped>
-
 .texts {
     display: flex;
     flex-direction: column;
@@ -39,9 +60,17 @@ export default {
 }
 
 .full-page-bg {
+<<<<<<< HEAD
   height: 100vh; /* make sure it covers the full viewport height */
   /* background-color: #343a40;  */
   background-image: linear-gradient(#fff, #0A42AD);
 } 
 </style>
 >>>>>>> 965cf876017fe03dea863e340c1790c02372aad3
+=======
+    height: 100vh; /* make sure it covers the full viewport height */
+    /* background-color: #343a40;  */
+    background-image: linear-gradient(#fff, #0a42ad);
+}
+</style>
+>>>>>>> 1642be490aab84fb9f9035b86cad58f93226ff4b

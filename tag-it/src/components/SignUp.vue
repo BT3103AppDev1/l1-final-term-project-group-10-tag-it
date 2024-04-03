@@ -134,6 +134,8 @@ import {
     where,
     getDocs,
 } from "firebase/firestore";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 export default {
     name: "SignUp",
@@ -249,38 +251,86 @@ export default {
                 this.addError("Please enter a valid SG mobile number.");
             }
 
-            // CHECK IF ERRORS
+            // // CHECK IF ERROR
+            toast.promise(this.checkSignUpErrorThenSignup(), {
+                pending: "Signing up...",
+                success: "Successfully signed up & logged in!",
+                error: "Failed to sign up",
+            });
 
-            console.log(signUpErrorMessage.innerHTML);
+            // // OLD IMPLEMENTATION
+            // if (signUpErrorMessage.innerHTML != "") {
+            //     console.log("PENDING ERRORS!!");
+            //     this.showSignUpError();
+            //     return;
+            // } else {
+            //     // STEP 3: ACTUALLY LOG IN!!
+            // const firstName =
+            //     document.getElementById("signUpFirstName").value;
+            // const lastName =
+            //     document.getElementById("signUpLastName").value;
+            // try {
+            //     await createUserWithEmailAndPassword(
+            //         auth,
+            //         signupEmail,
+            //         loginPassword
+            //     );
 
-            if (signUpErrorMessage.innerHTML != "") {
-                console.log("PENDING ERRORS!!");
-                this.showSignUpError();
-                return;
-            } else {
-                // STEP 3: ACTUALLY LOG IN!!
-                const firstName =
-                    document.getElementById("signUpFirstName").value;
-                const lastName =
-                    document.getElementById("signUpLastName").value;
+            //     await this.createProfile(
+            //         firstName,
+            //         lastName,
+            //         signupUsername,
+            //         signupEmail,
+            //         signupMobile
+            //     );
+            //     // router.push({ name: "Home" });
+            // } catch (error) {
+            //     this.showSignUpError();
+            // }
+            // }
+        },
+
+        async checkSignUpErrorThenSignup() {
+            return new Promise(async (resolve, reject) => {
                 try {
-                    await createUserWithEmailAndPassword(
-                        auth,
-                        signupEmail,
-                        loginPassword
-                    );
+                    console.log(signUpErrorMessage.innerHTML);
+                    if (signUpErrorMessage.innerHTML !== "") {
+                        this.showSignUpError();
+                        reject();
+                    } else {
+                        const signupEmail =
+                            document.getElementById("signupEmail").value;
+                        const signupUsername =
+                            document.getElementById("signupUsername").value;
+                        const signupMobile =
+                            document.getElementById("signupMobile").value;
+                        const firstName =
+                            document.getElementById("signUpFirstName").value;
+                        const lastName =
+                            document.getElementById("signUpLastName").value;
+                        const loginPassword =
+                            document.getElementById("signupPassword1").value;
 
-                    await this.createProfile(
-                        firstName,
-                        lastName,
-                        signupEmail,
-                        signupMobile
-                    );
-                    // router.push({ name: "Home" });
+                        await createUserWithEmailAndPassword(
+                            auth,
+                            signupEmail,
+                            loginPassword
+                        );
+                        await this.createProfile(
+                            firstName,
+                            lastName,
+                            signupUsername,
+                            signupEmail,
+                            signupMobile
+                        );
+
+                        resolve();
+                    }
                 } catch (error) {
-                    this.showSignUpError(error);
+                    this.showSignUpError();
+                    reject(error);
                 }
-            }
+            });
         },
 
         addError(error) {
@@ -299,10 +349,18 @@ export default {
             signUpError.style.display = "block";
         },
 
-        async createProfile(firstName, lastName, email, mobileNumber) {
+        async createProfile(
+            firstName,
+            lastName,
+            username,
+            email,
+
+            mobileNumber
+        ) {
             const newUserData = {
                 firstName: firstName,
                 lastName: lastName,
+                username: username,
                 email: email,
                 mobileNumber: mobileNumber,
             };

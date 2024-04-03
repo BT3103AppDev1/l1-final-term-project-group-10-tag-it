@@ -9,6 +9,8 @@ import {
 
 import { auth } from "../firebase.js";
 import router from "../router/index.js";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 export default {
     name: "Login",
@@ -20,22 +22,28 @@ export default {
     },
 
     mounted() {
-        async function hideLoginError() {
-            const divLoginError = document.querySelector("#divLoginError");
-            const lblLoginErrorMessage = document.querySelector(
-                "#lblLoginErrorMessage"
-            );
-            divLoginError.style.display = "none";
-            lblLoginErrorMessage.innerHTML = "";
-        }
+        // async function hideLoginError() {
+        //     const divLoginError = document.querySelector("#divLoginError");
+        //     const lblLoginErrorMessage = document.querySelector(
+        //         "#lblLoginErrorMessage"
+        //     );
+        //     divLoginError.style.display = "none";
+        //     lblLoginErrorMessage.innerHTML = "";
+        // }
 
-        hideLoginError();
+        // hideLoginError();
+        const divLoginError = document.querySelector("#divLoginError");
+        const lblLoginErrorMessage = document.querySelector(
+            "#lblLoginErrorMessage"
+        );
+        divLoginError.style.display = "none";
+        lblLoginErrorMessage.innerHTML = "";
 
         async function monitorAuthState() {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log(user);
-                    hideLoginError();
+                    // hideLoginError();
                     router.push({ name: "Home" });
                 }
             });
@@ -55,34 +63,77 @@ export default {
             if (error.code == AuthErrorCodes.INVALID_PASSWORD) {
                 lblLoginErrorMessage.innerHTML = "Wrong Password. Try Again!";
             } else {
-                console.log(error);
-                console.log(error.message);
                 this.errorMessage = error.message;
             }
         },
 
+        // // OLD IMPLEMENTATION (WITHOUT PROMISE)
+        // async loginEmailPassword() {
+        //     const loginEmail = document.getElementById("inputEmail").value;
+        //     const loginPassword =
+        //         document.getElementById("inputPassword").value;
+        //     try {
+        //         const userCredential = await signInWithEmailAndPassword(
+        //             auth,
+        //             loginEmail,
+        //             loginPassword
+        //         );
+        //     } catch (error) {
+        //         this.showLoginError(error);
+        //     }
+        // },
+
         async loginEmailPassword() {
-            console.log("logging in");
-            const loginEmail = document.getElementById("inputEmail").value;
-            const loginPassword =
-                document.getElementById("inputPassword").value;
-            try {
-                const userCredential = await signInWithEmailAndPassword(
-                    auth,
-                    loginEmail,
-                    loginPassword
-                );
-                console.log(userCredential.user); // remove this line
-            } catch (error) {
-                console.log("CAUGHT ERROR!");
-                this.showLoginError(error);
-            }
+            return new Promise((resolve, reject) => {
+                const loginEmail = document.getElementById("inputEmail").value;
+                const loginPassword =
+                    document.getElementById("inputPassword").value;
+
+                signInWithEmailAndPassword(auth, loginEmail, loginPassword)
+                    .then((userCredential) => {
+                        resolve(userCredential);
+                    })
+                    .catch((error) => {
+                        this.showLoginError(error);
+                        reject(error);
+                    });
+            });
         },
 
+        async loginToast() {
+            toast.promise(this.loginEmailPassword(), {
+                pending: "Logging in...",
+                success: "Successfully logged in!",
+                error: "Failed to log in",
+            });
+        },
+
+        // // OLD IMPLEMENTATION (without PROMISE)
+        // async googleLogin() {
+        //     console.log("logging in with google");
+        //     const provider = new GoogleAuthProvider();
+        //     return signInWithPopup(auth, provider);
+        // },
+
         async googleLogin() {
-            console.log("logging in with google");
-            const provider = await new GoogleAuthProvider();
-            return signInWithPopup(auth, provider);
+            return new Promise((resolve, reject) => {
+                const provider = new GoogleAuthProvider();
+                signInWithPopup(auth, provider)
+                    .then((userCredential) => {
+                        resolve(userCredential);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
+            });
+        },
+
+        async googleLoginToast() {
+            toast.promise(this.googleLogin(), {
+                pending: "Logging in...",
+                success: "Successfully logged in!",
+                error: "Failed to log in",
+            });
         },
 
         goToSignUp() {
@@ -115,7 +166,7 @@ export default {
                         placeholder="Email"
                         id="inputEmail"
                         required="yes"
-                        @keyup.enter="loginEmailPassword"
+                        @keyup.enter="loginToast"
                     /><br />
 
                     <input
@@ -124,7 +175,7 @@ export default {
                         placeholder="Password"
                         id="inputPassword"
                         required="yes"
-                        @keyup.enter="loginEmailPassword"
+                        @keyup.enter="loginToast"
                     /><br />
                     <div id="divLoginError">
                         <div id="lblLoginErrorMessage" class="errorlabel">
@@ -140,7 +191,7 @@ export default {
                         id="loginButton"
                         class="blueButton"
                         type="button"
-                        v-on:click="loginEmailPassword"
+                        v-on:click="loginToast()"
                     >
                         LOGIN
                     </button>
@@ -150,7 +201,7 @@ export default {
                 <button
                     id="googleLoginButton"
                     type="button"
-                    v-on:click="googleLogin"
+                    v-on:click="googleLoginToast"
                 >
                     <span>
                         <img

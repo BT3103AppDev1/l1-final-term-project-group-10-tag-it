@@ -16,6 +16,8 @@ export default {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 this.user = user;
+            } else {
+                router.push({ name: "Login" });
             }
         });
     },
@@ -26,7 +28,6 @@ export default {
             const user = auth.currentUser;
             signOut(auth, user);
             // this.$router.push({name: 'Login'})
-            router.push({ name: "Login" });
         },
     },
 };

@@ -1,13 +1,9 @@
-<template >
-    <nav class="navbar">
-        
-    <div class="container-fluid" style="padding-left:30px; padding-right:30px;">
-        <a class="navbar-brand " href="#">
-            <img src="../assets/tagit3.png" alt="Bootstrap" width="100" >
-        </a>
-        <button class="navbar-toggler ms-auto border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
+<template>
+    <div id="logged" v-if="user">
+        <div id="nav">
+            <router-link to="/home">Home</router-link> |
+            <router-link to="/login">Login</router-link>
+        </div>
     </div>
     </nav>
     <div class="collapse" id="navbarToggleExternalContent">
@@ -29,6 +25,9 @@
                 <li class="nav-item-group">
                 <a class="nav-link ml-10" href="#">Groups</a>
                 </li>
+                <li class="nav-item" id="logOut">
+                    <div @click="signOut()">LogOut</div>
+                </li>
             </ul>
         </div></span>
     </div>
@@ -37,13 +36,41 @@
 </template>
 
 <script>
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import router from "../router/index.js";
+
+
 export default {
-    name: "Navbar"
+    name: "Navbar",
+
+    mounted() {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                this.user = user;
+            } else {
+                router.push({ name: "Login" });
+            }
+        });
+    },
+
+    methods: {
+        async signOut() {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            signOut(auth, user);    
+            router.push({ name: "Login" });
+        },
+    }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+#logOut {
+    cursor: pointer;
+}
 
 .nav-item{
     font-family: 'Montserrat', sans-serif;

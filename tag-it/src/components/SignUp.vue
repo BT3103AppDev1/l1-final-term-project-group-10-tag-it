@@ -293,7 +293,7 @@ export default {
         async checkSignUpErrorThenSignup() {
             return new Promise(async (resolve, reject) => {
                 try {
-                    console.log(signUpErrorMessage.innerHTML);
+                    // console.log(signUpErrorMessage.innerHTML);
                     if (signUpErrorMessage.innerHTML !== "") {
                         this.showSignUpError();
                         reject();

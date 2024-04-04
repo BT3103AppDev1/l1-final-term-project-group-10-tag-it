@@ -42,7 +42,7 @@ export default {
         async function monitorAuthState() {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    console.log(user);
+                    // console.log(user);
                     // hideLoginError();
                     router.push({ name: "Home" });
                 }

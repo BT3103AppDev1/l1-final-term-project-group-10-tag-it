@@ -1,37 +1,38 @@
 <template>
-    <Navbar />
-    <router-view />
+  <Navbar />
+  <router-view />
 </template>
 
 <script>
 import Navbar from "./components/Navbar.vue";
 
 export default {
-    name: "App",
-    components: {
-        Navbar,
-    },
+  name: "App",
+  components: {
+    Navbar,
+  },
 };
+//test
 </script>
 
 <style>
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: #2c3e50;
-    margin-top: 30px;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  margin-top: 30px;
 }
 #nav {
-    padding: 30px;
+  padding: 30px;
 }
 #nav a {
-    font-weight: bold;
+  font-weight: bold;
 
-    color: #2c3e50;
+  color: #2c3e50;
 }
 
 #nav a.router-link-exact-active {
-    color: #42b983;
+  color: #42b983;
 }
 </style>

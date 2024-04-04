@@ -18,14 +18,21 @@
 </template>
 
 <script>
+import firebaseApp from '../firebase.js';
+import { getFirestore, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Footer2 from "@/components/Footer2.vue";
 import Navbar from "@/components/Navbar.vue";
+
+const db = getFirestore(firebaseApp);
+
 export default {
     name: "Home",
 
     data() {
         return {
-            username: "PLACEHOLDER NAME",
+            username: "",
         };
     },
 
@@ -34,6 +41,17 @@ export default {
         // Navbar,
         Footer2,
     },
+
+    methods: {
+        async mounted() {
+        this.getName(); //add authentication
+        },
+
+        async getName() {
+            let userDoc = await getDocs(collection(db, "User")).data();
+            this.username = userDoc.first_name;
+        }
+    }
 };
 </script>
 

@@ -5,7 +5,8 @@
     <div class="allTagsContainer">
         
         <div id="padding">
-        <table id = "table" class = "auto-index">
+        <!-- <BIconFunnelFill class="filterIcon" @click="filter" /> -->
+        <table id = "AllTagsTable" class = "auto-index">
             <tr>
                 <th></th>
                 <th>TITLE</th>
@@ -13,7 +14,28 @@
                 <th>START</th>
                 <th>END</th>
                 <th></th>
-                <th><i @click="filter"><BIconFunnelFill /></i></th> 
+                <th>
+                    <div class="filter-container">
+                        <BIconFunnelFill class="filterbutton" @click="filter"/> 
+                        <div id="filterDropdown" class="dropdown-content" v-if="active">
+                            <label>
+                                <input type="checkbox" v-model="filterConditions.importance" @change="applyFilters">
+                                Importance
+                                <span class="checkmark"></span>
+                    
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="filterConditions.startDate" @change="applyFilters">
+                                Sort by Start Date
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="filterConditions.endDate" @change="applyFilters">
+                                Sort by End Date
+                            </label>
+                        </div>
+                    </div>
+                </th>
+                
                 <!--need to add a filer-->
             </tr>
 
@@ -33,8 +55,8 @@
                         <option value="select category" class="select-category" >Select Category</option> 
                     </select> -->
                 </td>
-                <td>{{ row.end }}</td>
                 <td>{{ row.start }}</td>
+                <td>{{ row.end }}</td>
                 <td> <i @click="flagbutton(row.id, row.flagged)">
                     <BIconFlag v-if="!row.flagged" />
                     <BIconFlagFill v-else class="flagged" />
@@ -98,9 +120,83 @@ export default{
     data(){
         return {
             tableRows: [],
+            active: false,
+            filterConditions: {
+                importance: false,
+                startDate: false,
+                endDate: false,
+            }
         };
     },
     methods: {
+        async filter() {
+            this.active = !this.active;
+        },
+
+        async applyFilters() {
+            let allDocuments = await getDocs(collection(db, "Tags"));
+            this.tableRows = await Promise.all(
+                allDocuments.docs.map(async (doc) => {
+                    let documentData = doc.data();
+
+                    let title = documentData.title;
+                    let completed = documentData.completed;
+                    let end = documentData.end;
+                    let start = documentData.start;
+                    let category = documentData.class;
+                    let id = documentData.id;
+                    let flagged = documentData.flagged;
+                    
+                    return {
+                        title,
+                        completed,
+                        end,
+                        start,
+                        category,
+                        id,
+                        flagged
+                    };
+                })
+            );
+            let filteredRows = this.tableRows;
+            if (this.filterConditions.importance) {
+                filteredRows = filteredRows.filter(row => row.flagged);
+            }
+            if (this.filterConditions.startDate) {
+                filteredRows = filteredRows.sort((a, b) => {
+                    const dA = new Date(a.start);
+                    const dB = new Date(b.start);
+                    console.log(dA);
+                    if (!isNaN(dA) && !isNaN(dB)) {
+                        return dA - dB;
+                    } else if (isNaN(dA) && isNaN(dB)) {
+                        return 0;
+                    } else if (isNaN(dA) && !isNaN(dB)) {
+                        return 1;
+                    } else if (!isNaN(dA) && isNaN(dB)) {
+                        return -1;
+                    }
+                });            
+            }
+            if (this.filterConditions.endDate) {
+                filteredRows = filteredRows.sort((a, b) => {
+                    const dA = new Date(a.end);
+                    const dB = new Date(b.end);
+                    console.log(dA);
+                    if (!isNaN(dA) && !isNaN(dB)) {
+                        return dA - dB;
+                    } else if (isNaN(dA) && isNaN(dB)) {
+                        return 0;
+                    } else if (isNaN(dA) && !isNaN(dB)) {
+                        return 1;
+                    } else if (!isNaN(dA) && isNaN(dB)) {
+                        return -1;
+                    }
+                });            
+            }
+            this.tableRows = filteredRows;
+        },
+
         async checkbutton(tag_id, completed_status) { //when synced with firestore, change to async + put in export default? under mount?
             console.log('Icon clicked!', tag_id, completed_status);
             try {
@@ -201,6 +297,7 @@ export default{
         border-radius:25px;
     }
 
+
     th{
         padding: 15px;
         height: 40px;
@@ -242,6 +339,41 @@ export default{
 
     .select-category{
         background-color: #cccaca;
+    }
+
+    .filter-container {
+        cursor: pointer;
+        position: relative; 
+        /* display: inline-block;   */
+    }
+
+    .dropdown-content {
+        border-radius: 12px;
+
+        cursor: pointer;
+        position: absolute;
+        left: -300%;
+        top: 100%;
+        /* display:block; */
+        /* position: absolute; */
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 10;
+        font-family: cabin;
+        font-size: medium;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .checkbox-dropdown-content label {
+        display: flex;
+        padding-left: 16px;
+    }
+
+    .checkbox-dropdown-content input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: red;
     }
 
 </style>

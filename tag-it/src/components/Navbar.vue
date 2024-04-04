@@ -29,6 +29,9 @@
                 <li class="nav-item-group">
                 <a class="nav-link ml-10" href="#">Groups</a>
                 </li>
+                <li class="nav-item" id="logOut">
+                    <div @click="signOutToast()">LogOut</div>
+                </li>
             </ul>
         </div></span>
     </div>
@@ -37,8 +40,28 @@
 </template>
 
 <script>
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import router from "../router/index.js";
+import { signOutFunc, signOutToast } from './LogOut.vue';
+
 export default {
-    name: "Navbar"
+    name: "Navbar",
+
+    mounted() {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                this.user = user;
+            } else {
+                router.push({ name: "Login" });
+            }
+        });
+    },
+
+    methods: {
+        signOutFunc,
+        signOutToast
+    }
 }
 </script>
 

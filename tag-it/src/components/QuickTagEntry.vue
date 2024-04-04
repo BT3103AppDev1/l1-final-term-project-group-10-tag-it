@@ -47,7 +47,7 @@ export default{
     .quickAddTagForm i{
         position: absolute;
         top: 50%;
-        right: 8%;
+        right: 10%;
         transform: translateY(-50%);
         pointer-events: auto;
     }
@@ -60,7 +60,16 @@ export default{
         height: 52px;
         /* text-align: left; */
         border-width:1px;
-        padding: 0px 10px 0px 10px
+        padding: 0px 10px 0px 10px;
+
+    }
+
+    input::placeholder{
+        color:#f5f5f5;
+    }
+
+    .expandTag{
+        color: #f5f5f5;
     }
 
 </style>

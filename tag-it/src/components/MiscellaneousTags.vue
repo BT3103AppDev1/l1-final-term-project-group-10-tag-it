@@ -5,16 +5,18 @@
     <div class="miscTagBox">
         <div id="topContents">
             <h3 id="miscTagHeader"> Miscellaneous Tags</h3>
+            <div class="tableDiv">
             <table id = "miscTagTable">
-                <tr>
-                    <td @click="checkbutton"> 
-                        <BIconCircle v-if="isChecked ==='unchecked'" />
+                <tr v-for="(row,index) in tableRows" :key="row.id">
+                    <td><i @click="checkbutton(row.id, row.completed)"> 
+                        <BIconCircle v-if="!row.completed" class="unchecked" />
                         <BIconCheckCircleFill v-else class="check"/>
-                    </td>
-                    <td id="task">Clean dishes</td>
-                    <td @click="deletebutton"><BIconTrashFill class="trash"/></td>
+                    </i></td>
+                    <td> {{ row.title }}</td>
+                    <td><i class="trash" @click="deleteTag(row.id)"><BIconTrashFill /></i></td>
                 </tr>
-            </table>
+                    
+            </table></div>
         </div>
         <div class="quickTagComponent" @click="addQuickTag">
             <BIconPlusCircleFill v-if="addingtag === false" class="addQuickTagButton"/>
@@ -22,11 +24,20 @@
         </div>
         
     </div>
+
+    <br><br>
+
 </template>
 
 <script>
 import QuickTagEntry from '@/components/QuickTagEntry.vue'
 import { BIconFlagFill, BIconTrashFill, BIconCircle, BIconCheckCircleFill, BIconPlusCircleFill } from 'bootstrap-icons-vue';
+import firebaseApp from '../firebase.js';
+import { getFirestore, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+const db = getFirestore(firebaseApp);
 
 export default{
     components: {
@@ -39,27 +50,68 @@ export default{
     },
     data(){
         return {
-            isChecked: 'unchecked', //set intial to unchecked, but this will be obtained from firestore
-            isFlagged: 'unflagged',
-            addingtag: false
+            tableRows: [],
+            addingtag: false 
         };
+    },
+    async mounted() {
+        this.fetchAndUpdateData(); //add authentication
     },
     methods: {
 
-        checkbutton(event) { //when synced with firestore, change to async + put in export default? under mount?
-            console.log('Icon clicked!');
-            console.log("current state: " + this.isChecked);
-            this.isChecked = this.isChecked === 'checked' ? 'unchecked' : 'checked';
+        async checkbutton(tag_id, completed_status) { //when synced with firestore, change to async + put in export default? under mount?
+            console.log('Icon clicked!', tag_id, completed_status);
+            try {
+                let toggle_completed = completed_status === true ? false : true;
+                const fieldToUpdate = { completed: toggle_completed };
+                await updateDoc(doc(db, "Tags", tag_id), fieldToUpdate)
+                console.log("current state: " + toggle_completed);
+
+                await this.fetchAndUpdateData();
+            } catch (error) {
+                console.log("CAUGHT ERROR!", error);
+            }
         },
-        flagbutton(event) { //when synced with firestore, change to async + put in export default? under mount?
-            console.log('Icon clicked!');
-            console.log("current state: " + this.isFlagged);
-            this.isFlagged = this.isFlagged === 'flagged' ? 'unflagged' : 'flagged';
+        async deleteTag(tag_id) {
+            alert("You are going to delete: " + tag_id);
+            await deleteDoc(doc(db, "Tags", tag_id))
+
+            await this.fetchAndUpdateData();
+            console.log('sucessfullly deleted!', tag_id)
+            
         },
-        deletebutton(event) {
-            console.log('deleting tag');
-            alert('deleting tag: to clear from the db')
+        
+        async fetchAndUpdateData() {
+            let allDocuments = await getDocs(collection(db, "Tags"))
+
+            this.tableRows = await Promise.all(
+                allDocuments.docs.map(async (doc) => {
+                    let documentData = doc.data();
+
+                    let title = documentData.title;
+                    let completed = documentData.completed;
+                    let end = documentData.end;
+                    let start = documentData.start;
+                    let category = documentData.class;
+                    let id = documentData.id;
+                    let flagged = documentData.flagged;
+                    
+
+                        return {
+                            title,
+                            completed,
+                            end,
+                            start,
+                            category,
+                            id,
+                            flagged
+                        };
+                })
+            );
+            //filter for those that have no category 
+            this.tableRows = this.tableRows.filter(row => !row.category);
         },
+
         addQuickTag(event) {
             // do we need a cancllation button - or will it auto cancel itself
             console.log('Add Quick Tag');
@@ -88,14 +140,10 @@ export default{
         position: relative;
     }
 
-    /* .quickTagComponent{
-        text-align: center;
-        padding: 15px;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        position: absolute;
-    } */
+    .tableDiv{
+        overflow-y: auto;
+        max-height: 335px;
+    }
 
     .quickTagEntry{
         text-align: center;
@@ -108,12 +156,12 @@ export default{
 
     .addQuickTagButton{
         color:#a0b6db;
-        font-size: 55px;
+        font-size: 80px;
         text-shadow: #788db0;
         text-align: center;
         padding: 15px;
         bottom: 0;
-        right: 0;
+        right: 15px;
         position: absolute;
     }
 
@@ -143,7 +191,7 @@ export default{
     }
 
     td{
-        padding: 0px 0px 10px 0px;
+        padding: 10px 0px 10px 0px;
         height: 30px;
         font-family: cabin;
         border-bottom: 1px solid #a0b6db;
@@ -154,6 +202,16 @@ export default{
     /* .flagged{
         color: #bf2a2a;
     } */
+
+    .unchecked{
+        color: #516282;
+        font-size: 30px;
+    }
+
+    .check{
+        color: #7dab87;
+        font-size: 30px;
+    }
 
     .trash{
         color: #919191;

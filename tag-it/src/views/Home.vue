@@ -1,19 +1,16 @@
 <template>
-    <div>
-        <!-- <Navbar /> -->
-        <div class="full-page-bg">
-            <div class="texts">
-                <h1 class="welcome-msg">
-                    Welcome {{ username }}!
-                    <!-- name will be accessed from the database -->
-                </h1>
-                <h1 class="tags-msg">
-                    Your have 4 Tags today!
-                    <!-- number of Tags will be accessed from the database -->
-                </h1>
-            </div>
-            <Footer2 />
+    <div class="full-page-bg">
+        <div class="texts">
+            <h1 class="welcome-msg">
+                Welcome Mervyn! 
+                <!-- name will be accessed from the database -->
+            </h1>
+            <h1 class="tags-msg">
+                Your have 4 Tags today! 
+                <!-- number of Tags will be accessed from the database -->
+            </h1>
         </div>
+        <Footer2/>
     </div>
 </template>
 
@@ -38,10 +35,8 @@ export default {
 
     mounted() {},
     components: {
-        // Navbar,
         Footer2,
     },
-
     methods: {
         async mounted() {
         this.getName(); //add authentication
@@ -56,6 +51,7 @@ export default {
 </script>
 
 <style scoped>
+
 .texts {
     display: flex;
     flex-direction: column;
@@ -76,8 +72,8 @@ export default {
 }
 
 .full-page-bg {
-    height: 100vh; /* make sure it covers the full viewport height */
-    /* background-color: #343a40;  */
-    background-image: linear-gradient(#fff, #0a42ad);
-}
+  height: 100vh; /* make sure it covers the full viewport height */
+  /* background-color: #343a40;  */
+  background-image: linear-gradient(#fff, #0A42AD);
+} 
 </style>

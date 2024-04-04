@@ -159,6 +159,7 @@ export default {
 
     methods: {
         goBack() {
+            // Using Vue Router to go back to the previous page
             router.go(-1);
         },
 
@@ -233,7 +234,7 @@ export default {
 
             // STEP 2a: Check if Password and Confirm Password Matches
             const loginPassword =
-                document.getElementById("signupPassword1").value;
+                document.getElementById("signupPassword").value;
             const loginPassword2 =
                 document.getElementById("signupPassword2").value;
 
@@ -339,7 +340,7 @@ export default {
             );
 
             if (typeof error == "string") {
-                signUpErrorMessage.innerHTML += error + "<br>";
+                signUpErrorMessage.innerHTML += error + "<br>";            
             }
         },
 

@@ -12,7 +12,13 @@
 
 <script>
 import app from "../firebase.js";
-import { getFirestore, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import VueCal from "vue-cal";
 import "vue-cal/dist/vue-cal.css";
 
@@ -24,8 +30,8 @@ export default {
     return {
       events: [
         {
-          start: "2024-03-28 13:30",
-          end: "2024-03-28 14:30",
+          start: "2024-04-04 13:30",
+          end: "2024-04-04 14:30",
           title: "Need to go shopping",
           content: '<i class="icon material-icons">shopping_cart</i>',
           class: "leisure",
@@ -53,8 +59,8 @@ export default {
       return querySnapshot;
     },
 
-    writeTags() { },
-    
+    writeTags() {},
+
     async addTagToCal() {
       const relevant_tags = await this.readTags();
       relevant_tags.forEach((tag_info) => {
@@ -71,9 +77,7 @@ export default {
     },
 
     // add a delete tag method
-    deleteTag(tagname) {
-
-    },
+    deleteTag(tagname) {},
   },
 };
 

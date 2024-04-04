@@ -13,6 +13,7 @@ export default {
   },
 };
 //test
+//hello2
 </script>
 
 <style>

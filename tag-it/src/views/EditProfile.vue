@@ -194,10 +194,10 @@ export default {
 
     editProfile() {
       const newUserData = {
-        firstName: this.firstName,
-        lastName: this.lastName,
+        first_name: this.firstName,
+        last_name: this.lastName,
         username: this.username,
-        mobileNumber: this.mobileNumber,
+        mobile_number: this.mobileNumber,
       };
 
       const auth = getAuth();

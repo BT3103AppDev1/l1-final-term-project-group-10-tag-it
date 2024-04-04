@@ -3,20 +3,21 @@
     <br><br>
 
     <h5>Expanded Tag Entry</h5>
+    <p> changing the category description </p>
 
     <div class="expandedTEBox">
         <br>
         <BIconXLg class="cross" @click="closeExpandedTEBox" />
         
-            <form class="expandedTEForm">
+            <form class="expandedTEForm" id="expandedTEForm">
                 <div class="labelcontainer">
-                    <label for="inputTagname" class="input_label">
+                    <label for="inputTagName" class="input_label">
                         <BIconTagsFill /> Name of Tag
                     </label>
                     <input
                         type="text"
                         placeholder="Enter Name"
-                        id="inputTagname"
+                        id="inputTagName"
                         required="yes"
                     /> 
                 </div>
@@ -76,6 +77,7 @@
                         type="checkbox"
                         id="selectCheckbox"
                         required="no" 
+                        @change="updateFlagged"
                     />
                     <label for="selectCheckbox" id="selectCheckbox">
                         Mark as important <BIconFlagFill class="flagged"/>
@@ -102,6 +104,12 @@
 
 import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg } from 'bootstrap-icons-vue';
 import { deleteAllPersistentCacheIndexes } from 'firebase/firestore';
+import firebaseApp from '../firebase.js';
+import { getFirestore } from "firebase/firestore"
+import { doc, setDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
+const db = getFirestore(firebaseApp);
 
 export default {
     components: {
@@ -111,11 +119,50 @@ export default {
         BIconFlagFill,
         BIconXLg,
     },
+    data() {
+        return {
+            flagged: false //initialise to false
+        }
+    },
     methods: {
-        saveEntryButton(entry) {
-            console.log('saving')
-            alert('saving entry, to sync with firebase')
+        updateFlagged() {
+            this.flagged = this.flagged === false? true: false;
         },
+
+        async saveEntryButton() {
+            console.log('saving')
+            
+            //maybe can generate a unique id instead?
+            let docId = document.getElementById("inputTagName").value; 
+            let docTitle = document.getElementById("inputTagName").value;
+            let docStart = document.getElementById("inputStartDate").value.replace('T', ' ');
+            let docEnd = document.getElementById("inputEndDate").value.replace('T', ' ');
+            let docCategory = document.getElementById("inputCategory").value;
+            let docCompleted = false;
+            
+
+            //have not synced specific tag to user
+            try {
+                alert('saving entry to database')
+                const docRef = await setDoc(doc(db, "Tags", docId),{
+                    id: docId,
+                    title: docTitle,
+                    start: docStart,
+                    end: docEnd,
+                    class: docCategory,
+                    completed: docCompleted,
+                    flagged: this.flagged,
+                })
+                console.log(docRef);
+                document.getElementById("expandedTEForm").reset();
+                this.$emit("added")
+            } catch(error) {
+                console.error("Error adding document: ", error);
+            }
+
+            //after save reroute to misc tags
+        },
+
         closeExpandedTEBox(event){
             console.log('close expanded tag entry box')
             alert('contents will not be saved. Continue?')
@@ -144,10 +191,18 @@ export default {
         position: relative;
     }
 
+    .expandedTEForm{
+        top: 40px;
+        bottom: 40px;
+        left: 35px;
+        right: 35px;
+        position: absolute;
+    }
+
     .cross{
         color: white;
         font-size: 25px;
-        right: 25px;
+        right: 20px;
         top: 20px;
         position: absolute;
     }
@@ -163,7 +218,6 @@ export default {
 
     .input_label{
         left: 8%;
-        margin-left: 35px;
         margin-bottom: 1px;
         margin-right: 10px;
         text-align: left;
@@ -180,14 +234,14 @@ export default {
 
     input[type=text], input[type=datetime-local] {
         padding: 0px 5px 0px 5px;
-        height: 45px;
+        height: 43px;
         width: 320px;
         text-align: left;
         border-radius: 10px ;
         border-width: 1px;
         border-color: #919191;
         font-family: cabin;
-        font-size: 13px;
+        font-size: 14px;
         color: #919191;
         margin: auto;
         margin-bottom: 5px;
@@ -215,13 +269,11 @@ export default {
         left: 8%;
         text-align: left;
         margin-top: 5px;
-        margin-left: 35px;
-
     }
 
 
     #selectCheckbox{
-        font-size: 12px;
+        font-size: 10px;
         font-family: cabin;
         margin-top: 5px;
     }
@@ -238,8 +290,8 @@ export default {
         width: 80px;
         padding: 5px;
         position: absolute;
-        bottom: 5%;
-        right: 10%;
+        bottom: 0px;
+        right: 0px;
     }
 
     .flagged{

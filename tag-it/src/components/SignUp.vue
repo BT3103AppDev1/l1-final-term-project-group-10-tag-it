@@ -89,7 +89,7 @@
                             ><br />
                             <input
                                 class="signUpInput"
-                                type="number"
+                                type="text"
                                 placeholder="Mobile Number"
                                 id="signupMobile"
                                 required="yes"
@@ -230,11 +230,11 @@ export default {
                 document.getElementById("signupUsername").value;
             const signupMobile = document.getElementById("signupMobile").value;
 
-            await this.checkProfile(signupEmail, signupUsername, signupMobile);
+            this.checkProfile(signupEmail, signupUsername, signupMobile);
 
             // STEP 2a: Check if Password and Confirm Password Matches
-            const loginPassword =
-                document.getElementById("signupPassword").value;
+            const loginPassword = 
+                document.getElementById("signupPassword1").value;
             const loginPassword2 =
                 document.getElementById("signupPassword2").value;
 
@@ -248,7 +248,8 @@ export default {
             }
 
             // STEP 2c: Check if Mobile Number is valid
-            if (signupMobile.length != 8) {
+            var regEx = /^[0-9]{8}$/;
+            if (!regEx.test(signupMobile)) {
                 this.addError("Please enter a valid SG mobile number.");
             }
 

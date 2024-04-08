@@ -10,6 +10,7 @@ import Home from "@/views/Home.vue";
 import AllTagsComp from "@/components/AllTags.vue";
 import ExpandedTagEntry from "@/components/ExpandedTagEntry.vue";
 import ForgotPassword from "@/components/ForgotPassword.vue";
+import GoogleSignUp from "@/components/GoogleSignUp.vue";
 import Groups from "@/components/Groups.vue";
 import Login from "@/components/Login.vue";
 import MiscellaneousTags from "@/components/MiscellaneousTags.vue";
@@ -21,6 +22,11 @@ const routes = [
         path: "/",
         name: "Login",
         component: Login,
+    },
+    {
+        path: "/",
+        name: "GoogleSignUp",
+        component: GoogleSignUp,
     },
     {
         path: "/home",
@@ -64,7 +70,7 @@ const routes = [
     {
         path: "/groups",
         name: "Groups",
-        component: Groups
+        component: Groups,
     },
 ];
 

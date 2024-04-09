@@ -4,7 +4,7 @@
       <img src="../assets/create-group.png" width="120" />
       <p>Create a Group</p>
     </button>
-    <button class="grid-item" v-for="(calendar, index) in calendars" :key="index">
+    <button class="grid-item" v-for="(calendar, index) in calendars" :key="index" @click="openCalendarModal(calendar)">
       <p>{{ calendar.calendar_name }}</p>
       <img src="../assets/group.png" width="120" />
       <p>{{ calendar.users.length }} Members</p>
@@ -14,12 +14,20 @@
       @closeModal="showModal = false"
       :showModal="showModal"
     />
+
+    <EditGroup
+      v-if="showPopup"
+      @closePopup="showPopup = false"
+      :showPopup="showPopup"
+      :calendarData="selectedCalendar"
+    />
   </div>
 </template>
 
 <script>
 // load the data first before page is rendered
 import CreateGroup from "@/components/CreateGroup.vue";
+import EditGroup from "@/components/EditGroup.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   getFirestore,
@@ -30,10 +38,13 @@ import {
 export default {
   components: {
     CreateGroup,
+    EditGroup,
   },
   data() {
     return {
       showModal: false,
+      showPopup: false,
+      selectedCalendar: {},
       calendars: [],
     };
   },
@@ -59,14 +70,12 @@ export default {
         const userDocSnapshot = await getDoc(userDocRef);
         if (userDocSnapshot.exists()) {
           const userData = userDocSnapshot.data();
-          const calendarList = userData.calendars || [];
+          const calendarMap = userData.shared_calendars || [];
 
-          // Iterate over each calendar ID and fetch its document
-          for (const calendarId of calendarList) {
+          for (const calendarId of Object.keys(calendarMap)) {
             const calendarDocRef = doc(db, "Calendar", calendarId);
             const calendarDocSnapshot = await getDoc(calendarDocRef);
             if (calendarDocSnapshot.exists()) {
-              // Push calendar document data into the calendars array
               this.calendars.push({
                 id: calendarDocSnapshot.id,
                 ...calendarDocSnapshot.data(),
@@ -83,6 +92,10 @@ export default {
       } catch (error) {
         console.error("Error fetching calendars:", error);
       }
+    },
+    openCalendarModal(calendar) {
+      this.selectedCalendar = calendar;
+      this.showPopup = true;
     },
   },
 };

@@ -155,11 +155,11 @@ export default {
             if (!userQuerySnapshot.empty) {
               const userDoc = userQuerySnapshot.docs[0].ref;
               const userData = userQuerySnapshot.docs[0].data();
-              const updatedCalendars = userData.calendars || [];
-              updatedCalendars.push(docId);
+              const updatedCalendars = userData.calendars || {};
+              updatedCalendars[docId] = true;
               await setDoc(
                 userDoc,
-                { ...userData, calendars: updatedCalendars },
+                { ...userData, shared_calendars: updatedCalendars },
                 { merge: true }
               );
             }

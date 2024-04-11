@@ -2,6 +2,7 @@
     <h5> ALL TASK LIST</h5>
     <p> reordering of the tasks? yet to enable filter. set specific colors for the specific categories</p>
     <p> also are we able to edit the tags from here?</p>
+    <p>this version doesnt use tag_id but the auto_generated id of the tag</p>
     <div class="allTagsContainer">
         
         <div id="padding">
@@ -10,7 +11,7 @@
             <tr>
                 <th></th>
                 <th>TITLE</th>
-                <th>CATEGORY</th>
+                <th>CALENDAR</th>
                 <th>START</th>
                 <th>END</th>
                 <th></th>
@@ -39,14 +40,14 @@
                 <!--need to add a filer-->
             </tr>
 
-            <tr v-for="(row,index) in tableRows" :key="row.id">
-                <td><i @click="checkbutton(row.id, row.completed)"> 
+            <tr v-for="(row,index) in tableRows" :key="row.tag_id">
+                <td><i @click="checkbutton(row.tag_id, row.completed)"> 
                     <BIconCircle v-if="!row.completed" class="unchecked" />
                     <BIconCheckCircleFill v-else class="check"/>
                 </i></td>
                 <td> {{ row.title }}</td>
                 <td id="category">
-                    {{ row.category }}
+                    {{ row.calendar }}
                     <!--colour should change based on the category -->
                     <!--also need to obtain the categories from the firestore pump and into inputs-->
                     <!-- <label for="category"></label>
@@ -57,12 +58,12 @@
                 </td>
                 <td>{{ row.start }}</td>
                 <td>{{ row.end }}</td>
-                <td> <i @click="flagbutton(row.id, row.flagged)">
+                <td> <i @click="flagbutton(row.tag_id, row.flagged)">
                     <BIconFlag v-if="!row.flagged" />
                     <BIconFlagFill v-else class="flagged" />
                     </i>
                 </td>
-                <td><i class="trash" @click="deleteTag(row.id)"><BIconTrashFill /></i></td>
+                <td><i class="trash" @click="deleteTag(row.tag_id)"><BIconTrashFill /></i></td>
 
             </tr>
 
@@ -143,8 +144,9 @@ export default{
                     let completed = documentData.completed;
                     let end = documentData.end;
                     let start = documentData.start;
-                    let category = documentData.class;
-                    let id = documentData.id;
+                    let calendar = documentData.calendar_name;
+                    // let id = documentData.id;
+                    let tag_id = doc.id;
                     let flagged = documentData.flagged;
                     
                     return {
@@ -152,8 +154,8 @@ export default{
                         completed,
                         end,
                         start,
-                        category,
-                        id,
+                        calendar,
+                        tag_id,
                         flagged
                     };
                 })
@@ -242,8 +244,9 @@ export default{
                     let completed = documentData.completed;
                     let end = documentData.end;
                     let start = documentData.start;
-                    let category = documentData.class;
-                    let id = documentData.id;
+                    let calendar = documentData.calendar_name;
+                    //let id = documentData.id;
+                    let tag_id = doc.id;
                     let flagged = documentData.flagged;
                     
                     return {
@@ -251,8 +254,8 @@ export default{
                         completed,
                         end,
                         start,
-                        category,
-                        id,
+                        calendar,
+                        tag_id,
                         flagged
                     };
                 })

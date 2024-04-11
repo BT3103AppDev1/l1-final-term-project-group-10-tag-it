@@ -7,13 +7,13 @@
             <h3 id="miscTagHeader"> Miscellaneous Tags</h3>
             <div class="tableDiv">
             <table id = "miscTagTable">
-                <tr v-for="(row,index) in tableRows" :key="row.id">
-                    <td><i @click="checkbutton(row.id, row.completed)"> 
+                <tr v-for="(row,index) in tableRows" :key="row.tag_id">
+                    <td><i @click="checkbutton(row.tag_id, row.completed)"> 
                         <BIconCircle v-if="!row.completed" class="unchecked" />
                         <BIconCheckCircleFill v-else class="check"/>
                     </i></td>
                     <td> {{ row.title }}</td>
-                    <td><i class="trash" @click="deleteTag(row.id)"><BIconTrashFill /></i></td>
+                    <td><i class="trash" @click="deleteTag(row.tag_id)"><BIconTrashFill /></i></td>
                 </tr>
                     
             </table></div>
@@ -92,8 +92,8 @@ export default{
                     let completed = documentData.completed;
                     let end = documentData.end;
                     let start = documentData.start;
-                    let category = documentData.class;
-                    let id = documentData.id;
+                    let calendar_id = documentData.calendar_id;
+                    let tag_id = doc.id;
                     let flagged = documentData.flagged;
                     
 
@@ -102,14 +102,14 @@ export default{
                             completed,
                             end,
                             start,
-                            category,
-                            id,
+                            calendar_id,
+                            tag_id,
                             flagged
                         };
                 })
             );
-            //filter for those that have no category 
-            this.tableRows = this.tableRows.filter(row => !row.category);
+            //filter for those that have no calendar 
+            this.tableRows = this.tableRows.filter(row => !row.calendar_id);
         },
 
         addQuickTag(event) {

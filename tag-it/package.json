@@ -14,7 +14,7 @@
     "bootstrap-icons": "^1.11.3",
     "bootstrap-icons-vue": "^1.11.3",
     "cal": "^0.0.4",
-    "firebase": "^10.9.0",
+    "firebase": "^10.6.0",
     "firebaseui": "^6.1.0",
     "router": "^2.0.0-beta.2",
     "vue": "^3.4.21",

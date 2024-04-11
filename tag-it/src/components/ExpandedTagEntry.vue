@@ -48,17 +48,37 @@
                     /> 
                 </div>
 
-                <div class="labelcontainer">
-                    <label for="inputCategory" class="input_label">
+                <div class="categoryContainer">
+                    <label for="selectInputCategory" class="input_label">
                         <BIconCollectionFill /> Categories
                     </label>
-                    <!--should this be a drop down?-->
                     <input
                         type="text" 
                         placeholder="Select Category"
-                        id="inputCategory"
+                        id="selectInputCategory"
+                        v-model="category"
+                        list="categories"
                         required="no"
-                    /> 
+                    />
+                        
+                    <datalist id="categories">
+                        <option v-for="(cat_color, category) in categories_color" :value="category">{{ category }}</option>
+                    </datalist>
+                    <div class="categoryColors">
+                        <input 
+                            type="color"
+                            id="customColor"
+                            v-if="categories_color[category]" :style="{color: categories_color[category]}"
+                            v-model="categories_color[category]"
+                            disabled
+                        >
+                        <input
+                            v-else
+                            type="color"
+                            id="customColor"
+                            value="#cccaca"
+                        />
+                    </div>     
                 </div>
 
                 <!-- <div class="labelcontainer">
@@ -102,11 +122,11 @@
 
 <script>
 
-import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg } from 'bootstrap-icons-vue';
+import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg, BIconTriangleFill, BIconCircleFill } from 'bootstrap-icons-vue';
 import { deleteAllPersistentCacheIndexes } from 'firebase/firestore';
 import firebaseApp from '../firebase.js';
 import { getFirestore } from "firebase/firestore"
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, updateDoc, collection } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(firebaseApp);
@@ -118,15 +138,40 @@ export default {
         BIconCollectionFill,
         BIconFlagFill,
         BIconXLg,
+        BIconTriangleFill,
+        BIconCircleFill,
     },
     data() {
         return {
-            flagged: false //initialise to false
+            flagged: false, //initialise to false
+            category: '',
+            cat_color: '',
+            categories_color: {}, //populate with data from firebase
         }
+    },
+    mounted() {
+        this.fetchData();
     },
     methods: {
         updateFlagged() {
             this.flagged = this.flagged === false? true: false;
+        },
+
+        async fetchData(){
+            // need to get specific calendars of the users
+            let allDocuments = await getDocs(collection(db, "Calendar"));
+            await Promise.all(
+                allDocuments.docs.map(async (doc) => {
+                    let documentData = doc.data();
+                    let category = documentData.calendar_name;
+                    let color = documentData.color;
+        
+                    //setting up the dictionary of category to their specific colors
+                    this.categories_color[category] = color;
+                    
+                })
+            )
+
         },
 
         async saveEntryButton() {
@@ -137,22 +182,64 @@ export default {
             let docTitle = document.getElementById("inputTagName").value;
             let docStart = document.getElementById("inputStartDate").value.replace('T', ' ');
             let docEnd = document.getElementById("inputEndDate").value.replace('T', ' ');
-            let docCategory = document.getElementById("inputCategory").value;
+            let docCategory = document.getElementById("selectInputCategory").value;
+            let docColor = document.getElementById("customColor").value;
             let docCompleted = false;
             
 
             //have not synced specific tag to user
             try {
                 alert('saving entry to database')
+                //create a new tag
                 const docRef = await setDoc(doc(db, "Tags", docId),{
                     id: docId,
                     title: docTitle,
                     start: docStart,
                     end: docEnd,
-                    class: docCategory,
+                    class: docCategory, //class: or category: ? standardise!!
+                    //do we want a class id?
+                    color: docColor,
                     completed: docCompleted,
                     flagged: this.flagged,
                 })
+
+                //if there is a calendar, update in calendar
+                if (docCategory != "") {
+                    // add tag to calendar
+                    console.log("adding to calendar")
+                    const calDocRef = doc(db, "Calendar", docCategory)
+                    const calDoc = await getDoc(calDocRef)
+                    
+                    if (calDoc.exists()) {
+                        //if calendar exists, add tag to calendar
+                        console.log("updating: " + docCategory)
+
+                        ////////////////////////
+                        //update calendar and chagne id to tag id and class to calendar_id / calendar name
+
+
+
+                    } else {
+                        //if calendar does not exist, add to users . 
+                        console.log("creating a new calendar: " + docCategory)
+                        
+                        //create a new calendar
+                        await setDoc(calDocRef, {
+                            calendar_name: docCategory,
+                            calendar_id: docCategory,
+                            color: docColor,
+                            tags: [docId]
+                            //users:[] add current userid in
+                        })
+                        //(update in current user)
+                    }
+
+                }
+
+                // if no category stated, 
+                
+                
+
                 console.log(docRef);
                 document.getElementById("expandedTEForm").reset();
                 this.$emit("added")
@@ -223,7 +310,7 @@ export default {
         text-align: left;
     }
 
-    .labelcontainer{
+    .labelcontainer, .categoryContainer{
         display:flex;
         flex-direction: column;
     }
@@ -247,7 +334,7 @@ export default {
         margin-bottom: 5px;
     }
 
-    textarea {
+    /* textarea {
         padding: 0px 5px 0px 5px;
         height: 60px;
         width: 320px;
@@ -262,7 +349,19 @@ export default {
         color: #919191;
         margin: auto;
         margin-bottom: 3px;
+    } */
+
+    input[type='color'] {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: 265px;
+        right: 10px;
+        transform: translateY(-50%);
+        pointer-events: auto;
     }
+
 
     input[type=checkbox] {
         width: 5%;

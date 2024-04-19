@@ -1,11 +1,10 @@
 <template>
     <div class="myContainer">
         <div id="signupPage" class="curvedRectangle">
-            <div class="header2">SIGN UP WITH</div>
+            <div class="header2">testing... SIGN UP WITH</div>
             <div class="header1">Tag-IT</div>
 
             <div id="signupContainer">
-                <button @click="goBack" class="closeButton">X</button>
                 <form id="signupForm">
                     <div class="grid-container">
                         <div class="form-group">
@@ -13,6 +12,7 @@
                             <input
                                 class="signUpInput"
                                 type="text"
+                                v-model="loggedName"
                                 placeholder="First Name"
                                 id="signUpFirstName"
                                 required="yes"
@@ -33,9 +33,9 @@
                             <input
                                 class="signUpInput"
                                 type="text"
-                                placeholder="Email"
+                                v-model="this.loggedEmail"
                                 id="signupEmail"
-                                required="yes"
+                                readonly
                             />
                         </div>
 
@@ -55,44 +55,15 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="signupPassword1">Password: </label
-                            ><br />
-                            <input
-                                class="signUpInput"
-                                type="password"
-                                placeholder="Password"
-                                id="signupPassword1"
-                                required="yes"
-                            />
-                            <div class="footnote">
-                                Your password must be at least 8 characters long
-                                and a combination of uppercase letters,
-                                lowercase letters, numbers and symbols
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="signupPassword2"
-                                >Confirm Password: </label
-                            ><br />
-                            <input
-                                class="signUpInput"
-                                type="password"
-                                placeholder="Confirm Password"
-                                id="signupPassword2"
-                                required="yes"
-                            /><br />
-                        </div>
-
-                        <div class="form-group">
                             <label for="signupMobile">Mobile Number: </label
                             ><br />
                             <input
                                 class="signUpInput"
-                                type="number"
+                                type="text"
                                 placeholder="Mobile Number"
                                 id="signupMobile"
                                 required="yes"
+                                v-model="loggedMobile"
                             />
                             <div class="footnote">
                                 Valid Singapore numbers only, without Country
@@ -122,7 +93,10 @@
 </template>
 
 <script>
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+} from "firebase/auth";
 import router from "../router/index.js";
 import { auth } from "../firebase.js";
 import {
@@ -138,10 +112,15 @@ import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
 export default {
-    name: "SignUp",
+    name: "GoogleSignUp",
 
     data() {
-        return { errorMessage: "" };
+        return {
+            errorMessage: "",
+            loggedEmail: null,
+            loggedName: null,
+            loggedMobile: null,
+        };
     },
 
     mounted() {
@@ -157,8 +136,23 @@ export default {
         hideSignUpError();
     },
 
+    created() {
+        this.monitorAuthState();
+    },
+
     methods: {
+        monitorAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    this.loggedEmail = user.email;
+                    this.loggedName = user.displayName;
+                    this.loggedMobile = user.phoneNumber;
+                }
+            });
+        },
+
         goBack() {
+            // Using Vue Router to go back to the previous page
             router.go(-1);
         },
 
@@ -224,78 +218,31 @@ export default {
             signUpErrorMessage.innerHTML = "";
 
             // STEP 1: Check if a) email b) username c) mobile number has been taken
-            const signupEmail = document
-                .getElementById("signupEmail")
-                .value.toLowerCase();
-            const signupUsername = document
-                .getElementById("signupUsername")
-                .value.toLowerCase();
+            const signupEmail = document.getElementById("signupEmail").value;
+            const signupUsername =
+                document.getElementById("signupUsername").value;
             const signupMobile = document.getElementById("signupMobile").value;
 
-            await this.checkProfile(signupEmail, signupUsername, signupMobile);
-
-            // STEP 2a: Check if Password and Confirm Password Matches
-            const loginPassword =
-                document.getElementById("signupPassword1").value;
-            const loginPassword2 =
-                document.getElementById("signupPassword2").value;
-
-            if (loginPassword != loginPassword2) {
-                this.addError("Passwords do not match!");
-            }
-
-            // STEP 2b: Check if Password Matches Criteria
-            if (!this.checkPassword(loginPassword)) {
-                this.addError("Password does not meet requirements!");
-            }
+            this.checkProfile(signupEmail, signupUsername, signupMobile);
 
             // STEP 2c: Check if Mobile Number is valid
-            if (signupMobile.length != 8) {
+            var regEx = /^[0-9]{8}$/;
+            if (!regEx.test(signupMobile)) {
                 this.addError("Please enter a valid SG mobile number.");
             }
 
             // // CHECK IF ERROR
-            toast.promise(this.checkSignUpErrorThenSignup(), {
+            toast.promise(this.populateProfile(), {
                 pending: "Signing up...",
                 success: "Successfully signed up & logged in!",
                 error: "Failed to sign up",
             });
-
-            // // OLD IMPLEMENTATION
-            // if (signUpErrorMessage.innerHTML != "") {
-            //     console.log("PENDING ERRORS!!");
-            //     this.showSignUpError();
-            //     return;
-            // } else {
-            //     // STEP 3: ACTUALLY LOG IN!!
-            // const firstName =
-            //     document.getElementById("signUpFirstName").value;
-            // const lastName =
-            //     document.getElementById("signUpLastName").value;
-            // try {
-            //     await createUserWithEmailAndPassword(
-            //         auth,
-            //         signupEmail,
-            //         loginPassword
-            //     );
-
-            //     await this.createProfile(
-            //         firstName,
-            //         lastName,
-            //         signupUsername,
-            //         signupEmail,
-            //         signupMobile
-            //     );
-            //     // router.push({ name: "Home" });
-            // } catch (error) {
-            //     this.showSignUpError();
-            // }
-            // }
         },
 
-        async checkSignUpErrorThenSignup() {
+        async populateProfile() {
             return new Promise(async (resolve, reject) => {
                 try {
+                    // console.log(signUpErrorMessage.innerHTML);
                     if (signUpErrorMessage.innerHTML !== "") {
                         this.showSignUpError();
                         reject();
@@ -310,14 +257,12 @@ export default {
                             document.getElementById("signUpFirstName").value;
                         const lastName =
                             document.getElementById("signUpLastName").value;
-                        const loginPassword =
-                            document.getElementById("signupPassword1").value;
 
-                        await createUserWithEmailAndPassword(
-                            auth,
-                            signupEmail,
-                            loginPassword
-                        );
+                        // await createUserWithEmailAndPassword(
+                        //     auth,
+                        //     signupEmail,
+                        //     loginPassword
+                        // );
                         await this.createProfile(
                             firstName,
                             lastName,
@@ -325,7 +270,7 @@ export default {
                             signupEmail,
                             signupMobile
                         );
-
+                        router.push({ name: "Home" });
                         resolve();
                     }
                 } catch (error) {
@@ -341,7 +286,8 @@ export default {
             );
 
             if (typeof error == "string") {
-                signUpErrorMessage.innerHTML += error + "<br>";
+                signUpErrorMessage.innerHTML =
+                    signUpErrorMessage.innerHTML + error + "<br>";
             }
         },
 
@@ -356,7 +302,6 @@ export default {
             lastName,
             username,
             email,
-
             mobileNumber
         ) {
             const newUserData = {

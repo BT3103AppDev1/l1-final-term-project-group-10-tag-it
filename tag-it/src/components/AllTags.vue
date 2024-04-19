@@ -10,6 +10,7 @@
         <table id = "AllTagsTable" class = "auto-index">
             <tr>
                 <th></th>
+                
                 <th><div class="filter-container">TITLE
                     <i @click="filterTitle">
                         <BIconSortAlphaDown v-if="this.buttonOptions.title"/>
@@ -51,6 +52,7 @@
                         </i> 
                     </div>
                 </th>
+
                 <th>
                     <div class="filter-container">
                         <i @click="filterImpt">

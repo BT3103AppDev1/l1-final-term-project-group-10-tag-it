@@ -1,24 +1,27 @@
 <template>
-    <div class="full-page-bg">
-        <div class="texts">
-            <h1 class="welcome-msg">
-                Welcome Mervyn! 
-                <!-- name will be accessed from the database -->
-            </h1>
-            <h1 class="tags-msg">
-                Your have 4 Tags today! 
-                <!-- number of Tags will be accessed from the database -->
-            </h1>
+    <div>
+        <!-- <Navbar /> -->
+        <div class="full-page-bg">
+            <div class="texts">
+                <h1 class="welcome-msg">
+                    Welcome {{ username }}!
+                    <!-- name will be accessed from the database -->
+                </h1>
+                <h1 class="tags-msg">
+                    Your have 4 Tags today!
+                    <!-- number of Tags will be accessed from the database -->
+                </h1>
+            </div>
+            <Footer2 />
         </div>
-        <Footer2/>
     </div>
 </template>
 
 <script>
-import firebaseApp from '../firebase.js';
-import { getFirestore, updateDoc } from 'firebase/firestore';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import firebaseApp, { auth } from "../firebase.js";
+import { getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Footer2 from "@/components/Footer2.vue";
 import Navbar from "@/components/Navbar.vue";
 
@@ -33,25 +36,33 @@ export default {
         };
     },
 
-    mounted() {},
+    mounted() {
+        this.getName();
+    },
     components: {
+        // Navbar,
         Footer2,
     },
-    methods: {
-        async mounted() {
-        this.getName(); //add authentication
-        },
 
+    methods: {
         async getName() {
-            let userDoc = await getDocs(collection(db, "User")).data();
-            this.username = userDoc.first_name;
-        }
-    }
+            const db = getFirestore();
+            const user = auth.currentUser;
+            const userDocRef = doc(db, "User", user.uid);
+            try {
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    this.username = userDocSnap.data().firstName;
+                }
+            } catch (error) {
+                console.error("Error fetching user data: ", error);
+            }
+        },
+    },
 };
 </script>
 
 <style scoped>
-
 .texts {
     display: flex;
     flex-direction: column;
@@ -72,8 +83,8 @@ export default {
 }
 
 .full-page-bg {
-  height: 100vh; /* make sure it covers the full viewport height */
-  /* background-color: #343a40;  */
-  background-image: linear-gradient(#fff, #0A42AD);
-} 
+    height: 100vh; /* make sure it covers the full viewport height */
+    /* background-color: #343a40;  */
+    background-image: linear-gradient(#fff, #0a42ad);
+}
 </style>

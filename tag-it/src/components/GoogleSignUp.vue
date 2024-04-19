@@ -1,7 +1,7 @@
 <template>
     <div class="myContainer">
         <div id="signupPage" class="curvedRectangle">
-            <div class="header2">testing... SIGN UP WITH</div>
+            <div class="header2">SIGN UP WITH</div>
             <div class="header1">Tag-IT</div>
 
             <div id="signupContainer">
@@ -305,11 +305,11 @@ export default {
             mobileNumber
         ) {
             const newUserData = {
-                firstName: firstName,
-                lastName: lastName,
+                first_name: firstName,
+                last_name: lastName,
                 username: username,
                 email: email,
-                mobileNumber: mobileNumber,
+                mobile_number: mobileNumber,
             };
             const db = getFirestore();
             const user = auth.currentUser;

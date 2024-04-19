@@ -32,16 +32,6 @@ export default {
     },
 
     mounted() {
-        // async function hideLoginError() {
-        //     const divLoginError = document.querySelector("#divLoginError");
-        //     const lblLoginErrorMessage = document.querySelector(
-        //         "#lblLoginErrorMessage"
-        //     );
-        //     divLoginError.style.display = "none";
-        //     lblLoginErrorMessage.innerHTML = "";
-        // }
-
-        // hideLoginError();
         const divLoginError = document.querySelector("#divLoginError");
         const lblLoginErrorMessage = document.querySelector(
             "#lblLoginErrorMessage"
@@ -50,14 +40,6 @@ export default {
         lblLoginErrorMessage.innerHTML = "";
 
         async function monitorAuthState() {
-            // onAuthStateChanged(auth, (user) => {
-            //     if (user) {
-            //         // console.log(user);
-            //         // hideLoginError();
-            //         router.push({ name: "Home" });
-            //     }
-
-            // });
             // check if new user or logged in before
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -88,16 +70,15 @@ export default {
                                 // push to signup page
 
                                 const newUserData = {
-                                    firstName: loggedName,
-                                    lastName: null,
+                                    first_name: loggedName,
+                                    last_name: null,
                                     username: null,
                                     email: loggedEmail,
-                                    mobileNumber: loggedEmail,
+                                    mobile_number: loggedEmail,
                                 };
                                 const db = getFirestore();
                                 const user = auth.currentUser;
                                 const userDocRef = doc(db, "User", user.uid);
-                                // setDoc(userDocRef, newUserData); // UNCOMMENT THIS!!
                                 router.push({ name: "GoogleSignUp" });
                             }
                         })
@@ -152,13 +133,6 @@ export default {
                 error: "Failed to log in",
             });
         },
-
-        // // OLD IMPLEMENTATION (without PROMISE)
-        // async googleLogin() {
-        //     console.log("logging in with google");
-        //     const provider = new GoogleAuthProvider();
-        //     return signInWithPopup(auth, provider);
-        // },
 
         async googleLogin() {
             return new Promise((resolve, reject) => {

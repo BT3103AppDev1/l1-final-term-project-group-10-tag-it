@@ -10,34 +10,59 @@
         <table id = "AllTagsTable" class = "auto-index">
             <tr>
                 <th></th>
-                <th>TITLE</th>
-                <th>CALENDAR</th>
-                <th>START</th>
-                <th>END</th>
-                <th></th>
-                <th>
-                    <div class="filter-container">
-                        <BIconFunnelFill class="filterbutton" @click="filter"/> 
-                        <div id="filterDropdown" class="dropdown-content" v-if="active">
-                            <label>
-                                <input type="checkbox" v-model="filterConditions.importance" @change="applyFilters">
-                                Importance
-                                <span class="checkmark"></span>
-                    
-                            </label>
-                            <label>
-                                <input type="checkbox" v-model="filterConditions.startDate" @change="applyFilters">
-                                Sort by Start Date
-                            </label>
-                            <label>
-                                <input type="checkbox" v-model="filterConditions.endDate" @change="applyFilters">
-                                Sort by End Date
-                            </label>
+                
+                <th><div class="filter-container">TITLE
+                    <i @click="filterTitle">
+                        <BIconSortAlphaDown v-if="this.buttonOptions.title"/>
+                        <BIconSortAlphaDownAlt v-if="this.buttonOptions.TitleDsc" />
+                        <BIconSortAlphaDown v-if="this.buttonOptions.TitleAsc" /> 
+                    </i> 
+                    </div></th>
+                <th><div class="filter-container">CALENDAR
+                        <BIconArrowBarDown class="filterbutton" @click="filter"/> 
+                        <div v-if="active">
+                            <div class="dropdown-content">
+                                <div class="opt-labels" v-for="(opt, index) in cals" :key="opt.cal_id">
+                                    <input 
+                                    type="checkbox" 
+                                    :value="opt.cal_id" 
+                                    @change="getCal($event, opt.cal_id)">
+                                        {{ opt.calendar_name }}
+                                    <span class="checkmark"></span>
+                                </div>
+                                <!-- <label class="cal-option" v-for="(opt, index) in cals" :key="opt.cal_id"> -->
+                                   
+                                <!-- </label> -->
+                            </div>
                         </div>
                     </div>
                 </th>
-                
-                <!--need to add a filer-->
+                <th>
+                    <div class="filter-container">START
+                        <i @click="filterStartDate">
+                            <BIconSortDown v-if="!this.filterSettings.filterStartDate"/>
+                            <BIconSortDown v-if="this.filterSettings.filterStartDate" /> 
+                        </i>
+                    </div>
+                </th>
+                <th><div class="filter-container">END
+                        <i @click="filterEndDate">
+                            <BIconSortDown v-if="!this.filterSettings.filterEndDate"/>
+                            <BIconSortDown v-if="this.filterSettings.filterEndDate" /> 
+                        </i> 
+                    </div>
+                </th>
+
+                <th>
+                    <div class="filter-container">
+                        <i @click="filterImpt">
+                            <BIconFlag v-if="!this.filterSettings.filterImpt"/>
+                            <BIconFlagFill v-if="this.filterSettings.filterImpt" /> 
+                        </i>
+                    </div>
+                </th>
+                <th>
+                </th>
             </tr>
 
             <tr v-for="(row,index) in tableRows" :key="row.tag_id">
@@ -66,33 +91,6 @@
                 <td><i class="trash" @click="deleteTag(row.tag_id)"><BIconTrashFill /></i></td>
 
             </tr>
-
-
-            <!--the following are just placeholders for the data-->
-            <!-- need to obtain this whole list from firestore, iterate though the list -->
-            <!-- <tr>
-                <td><i @click="checkbutton"> 
-                    <BIconCircle v-if="isChecked ==='unchecked'" />
-                    <BIconCheckCircleFill v-else class="check"/>
-                </i></td>
-                <td>Lunch with Alvern</td>  
-                <td><label for="category"></label>
-                    <select name="category" id="category">
-                        <option value="select category" class="select-category" >Select Category</option> 
-                        <option value="personal" class="personal">Personal</option>
-                        <option value="work" class="work">Work</option>
-                        <option value="bt3103 group" class="bt3103">BT3103 Grroup</option>
-                    </select>
-                </td>   
-                <td>05/07/2024</td> 
-                <td> <i @click="flagbutton">
-                    <BIconFlag v-if="isFlagged==='unflagged'" />
-                    <BIconFlagFill v-else class="flagged" />
-                    </i>
-                </td>
-                <td><i class="trash" @click="deleteTag"><BIconTrashFill /></i></td> 
-            </tr> -->
-
             <br>
         </table> </div>
     </div> 
@@ -101,37 +99,195 @@
 
 <script>
 
-import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCheckCircleFill, BIconFunnelFill } from 'bootstrap-icons-vue';
+import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCaretUpFill, BIconCheckCircleFill,BIconCaretRightFill, BIconFunnelFill, BIconCaretDownFill, BIconSortAlphaDownAlt, BIconSortAlphaDown, BIconSortDown, BIconArrowBarDown} from 'bootstrap-icons-vue';
 import firebaseApp from '../firebase.js';
+import { ref } from 'vue';
 import { getFirestore, updateDoc } from 'firebase/firestore';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, deleteDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
 
 export default{
+    // setup() {
+    //     const checkedCal = ref([]);
+    //     return {
+    //         checkedCal  
+    //     };
+    // },
     components: {
+        BIconArrowBarDown,
+        BIconSortDown,
         BIconFlag,
+        BIconSortAlphaDown,
+        BIconSortAlphaDownAlt,
         BIconFlagFill,
+        BIconCaretRightFill,
         BIconTrashFill,
         BIconCircle,
         BIconCheckCircleFill,
         BIconFunnelFill,
+        BIconCaretDownFill,
+        BIconCaretUpFill
     },
     data(){
         return {
             tableRows: [],
+            cals: [],
+            filterCals: [],
             active: false,
+            filterSettings : {
+                filterStartDate: false,
+                filterEndDate: false,
+                filterTitleAsc: false,
+                filterTitleDsc: false,
+                filterImpt: false,
+                filterCal: false,
+            },
             filterConditions: {
                 importance: false,
                 startDate: false,
                 endDate: false,
-            }
+                titleAsc: false,
+                titleDsc: false,
+
+            },
+            buttonOptions: {
+                TitleAsc: false,
+                TitleDsc: false,
+                title: true,
+            },
         };
     },
+
     methods: {
         async filter() {
             this.active = !this.active;
+        },
+
+        async filterStartDate() {
+            this.filterSettings.filterStartDate = !this.filterSettings.filterStartDate;
+            if (this.filterSettings.filterStartDate) {
+                this.filterConditions.startDate = true;
+                this.applyFilters();
+            } else { // reset
+                // this.buttonOptions.startDateBtn = !this.buttonOptions.startDateBtn;
+                this.filterConditions.startDate = false;
+                this.applyFilters();
+            }
+        },
+
+        async filterEndDate() {
+            this.filterSettings.filterEndDate = !this.filterSettings.filterEndDate;
+            if (this.filterSettings.filterEndDate) {
+                this.filterConditions.endDate = true;
+                this.applyFilters();
+            } else { // reset
+                this.filterConditions.endDate = false;
+                this.applyFilters();
+            }
+        },
+
+        async filterImpt() {
+            this.filterSettings.filterImpt = !this.filterSettings.filterImpt;
+            this.filterConditions.importance = !this.filterConditions.importance;
+            this.applyFilters();
+        },
+
+        async fetchCal() {
+            let allDocuments = await getDocs(collection(db, "Calendar"))
+            this.cals = await Promise.all(
+                allDocuments.docs.map(async (doc) => {
+                    let documentData = doc.data();
+                    let calendar_name = documentData.calendar_name;
+                    let cal_id = doc.id;
+                    return {
+                        calendar_name,
+                        cal_id,
+                    };
+                })
+            );
+        },
+
+        async getCal(event, cal_id) {
+            const isChecked = event.target.checked;
+            if (isChecked) {
+                this.filterCals.push(cal_id);
+                this.loadCals();
+                // if (docSnapshot.exists()) {
+                //     console.log("Document data:", docSnapshot.data().tags);
+                // } else {
+                //     console.log("No 3such document!");
+                // }
+            } else {
+                this.filterCals = this.filterCals.filter(item => item !== cal_id);
+                console.log("this is removed",cal_id);
+                this.loadCals();
+            }
+        },
+
+        async loadCals() {
+            if (this.filterCals.length === 0) {
+                this.fetchAndUpdateData();
+            } else {
+                let newRows = [];
+                for (let i = 0; i < this.filterCals.length; i++) {
+                    let docRef = doc(db, "Calendar", this.filterCals[i]);
+                    let docSnapshot = await getDoc(docRef);
+                    let tags = docSnapshot.data().tags;
+                    for (let i = 0; i < tags.length; i++) {
+                        const tagRef = doc(db, "Tags", tags[i]);  // Reference to the tag document
+                        const tagDoc = await getDoc(tagRef);      // Fetch the document
+                        if (tagDoc.exists()) {
+                            const documentData = tagDoc.data();  // Get the data of the tag document
+                            const tagData = {
+                                title: documentData.title,
+                                completed: documentData.completed,
+                                end: documentData.end,
+                                start: documentData.start,
+                                calendar: documentData.calendar_name,
+                                tag_id: tagDoc.id,  // Use the document ID
+                                flagged: documentData.flagged
+                            };
+                            newRows.push(tagData);  // Append the tag data to the results array
+                        } else {
+                            console.log("Document does not exist for tag:", tags[i]);
+                        }
+                    }
+                }
+                this.tableRows = newRows; 
+            }
+        },
+
+        async filterTitle() {
+            if (!this.filterSettings.filterTitleAsc && !this.filterSettings.filterTitleDsc) {
+                this.buttonOptions.TitleDsc = false;
+                this.buttonOptions.TitleAsc = true;
+                this.buttonOptions.title = false;
+
+                this.filterSettings.filterTitleAsc = true;
+                this.filterConditions.titleAsc = true;
+                this.applyFilters();
+            }
+            else if (this.filterSettings.filterTitleAsc && !this.filterSettings.filterTitleDsc) {
+                this.buttonOptions.TitleDsc = true;
+                this.buttonOptions.TitleAsc = false;
+                this.buttonOptions.title = false;
+
+                this.filterSettings.filterTitleDsc = true;
+                this.filterSettings.filterTitleAsc = false;
+                this.filterConditions.titleDsc = true;
+                this.applyFilters();
+            } else {
+                this.buttonOptions.TitleDsc = false;
+                this.buttonOptions.TitleAsc = false;
+                this.buttonOptions.title = true;
+
+                this.filterSettings.filterTitleDsc = false;
+                this.filterSettings.filterTitleAsc = false;
+                this.buttonOptions.title = true;
+                this.applyFilters();
+            }
         },
 
         async applyFilters() {
@@ -139,7 +295,6 @@ export default{
             this.tableRows = await Promise.all(
                 allDocuments.docs.map(async (doc) => {
                     let documentData = doc.data();
-
                     let title = documentData.title;
                     let completed = documentData.completed;
                     let end = documentData.end;
@@ -161,6 +316,7 @@ export default{
                 })
             );
             let filteredRows = this.tableRows;
+
             if (this.filterConditions.importance) {
                 filteredRows = filteredRows.filter(row => row.flagged);
             }
@@ -196,6 +352,17 @@ export default{
                     }
                 });            
             }
+
+            if (this.filterConditions.titleAsc) {
+                filteredRows = filteredRows.sort((a, b) => a.title.localeCompare(b.title));
+                this.filterConditions.titleAsc = false;
+            }
+
+            if (this.filterConditions.titleDsc) {
+                filteredRows = filteredRows.sort((a, b) => b.title.localeCompare(a.title));
+                this.filterConditions.titleDsc = false;
+            }
+
             this.tableRows = filteredRows;
         },
 
@@ -232,14 +399,13 @@ export default{
             await this.fetchAndUpdateData();
             console.log('sucessfullly deleted!', tag_id)
             
-        },
+        }, 
         async fetchAndUpdateData() {
             let allDocuments = await getDocs(collection(db, "Tags"))
 
             this.tableRows = await Promise.all(
                 allDocuments.docs.map(async (doc) => {
                     let documentData = doc.data();
-
                     let title = documentData.title;
                     let completed = documentData.completed;
                     let end = documentData.end;
@@ -265,6 +431,7 @@ export default{
     },
     async mounted() {
         this.fetchAndUpdateData(); //add authentication
+        this.fetchCal();
     }
 }
 </script>
@@ -355,10 +522,6 @@ export default{
 
         cursor: pointer;
         position: absolute;
-        left: -300%;
-        top: 100%;
-        /* display:block; */
-        /* position: absolute; */
         background-color: #fff;
         min-width: 160px;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);

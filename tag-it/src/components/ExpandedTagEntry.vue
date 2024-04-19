@@ -3,7 +3,7 @@
     <br><br>
 
     <h5>Expanded Tag Entry</h5>
-    <p> changing the calendar description </p>
+    <p> are we allowing users to add tags to the shared calendars here? if yes, we need a field in calendars to check if it is shared or not </p>
 
     <div class="expandedTEBox">
         <br>
@@ -60,11 +60,12 @@
                         placeholder="Select Calendar"
                         id="selectInputCalendarName"
                         v-model="cal_name"
-                        list="categories"
+                        list="calendars"
                         required="no"
                     />
                         
-                    <datalist id="categories">
+
+                    <datalist id="calendars">
                         <option v-for="(cal_color, cal_name) in calName_calColor" :value="cal_name">{{ cal_name }}</option>
                     </datalist>
                     <div class="CalendarColors">
@@ -128,7 +129,7 @@
 
 import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg, BIconTriangleFill, BIconCircleFill } from 'bootstrap-icons-vue';
 import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
-import firebaseApp from '../firebase.js';
+import firebaseApp, { auth } from '../firebase.js';
 import { getFirestore } from "firebase/firestore"
 import { doc, addDoc, setDoc, getDoc, getDocs, updateDoc, collection } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -148,14 +149,18 @@ export default {
     data() {
         return {
             flagged: false, //initialise to false
-            //cal_id: '',
             cal_name: '',
             cal_color: '',
             calName_calColor: {}, //populate with data from firebase
-            calName_calId:{}
+            calName_calId:{},
+            user_id: '',
+            user_calendars: [],
         }
     },
-    mounted() {
+    async mounted() {
+        const user = auth.currentUser;
+        this.user_id = user.uid;
+
         this.fetchData();
     },
     methods: {
@@ -163,22 +168,48 @@ export default {
             this.flagged = this.flagged === false? true: false;
         },
 
-        async fetchData(){
-            // need to get specific calendars of the users
-            let allDocuments = await getDocs(collection(db, "Calendar"));
-            await Promise.all(
-                allDocuments.docs.map(async (doc) => {
-                    let documentData = doc.data();
-                    let cal_id = doc.id;
-                    let cal_name = documentData.calendar_name;
-                    let cal_color = documentData.color;
-        
-                    //setting up the dictionary of category to their specific colors
-                    this.calName_calColor[cal_name] = cal_color;
-                    this.calName_calId[cal_name] = cal_id;
-                    
+        async getUserCalendars() {
+
+            const objToMap = obj => new Map(Object.entries(obj));
+
+            let user_data = await getDoc(doc(db, "User", String(this.user_id)))
+            let personal_calendars = objToMap(user_data.data().personal_calendars)
+            let shared_calendars = objToMap(user_data.data().shared_calendars)
+
+            //adding personal calendar id from personal calendars
+            if (personal_calendars.size > 0) {
+                personal_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
                 })
-            )
+            }
+
+            //adding shared calendar id from shared calendars
+            if (shared_calendars.size > 0) {
+                shared_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
+                })
+            }
+        },
+
+        async fetchData(){
+
+            // get calendars of the current users
+            await this.getUserCalendars();
+            console.log(this.user_calendars)
+            
+            //iterate through user calendars
+            this.user_calendars.map(async (calId) => {
+                let cur_cal_doc = await getDoc(doc(db, "Calendar", calId));
+                let documentData = cur_cal_doc.data();
+                let cal_id = cur_cal_doc.id;
+                let cal_name = documentData.calendar_name;
+                let cal_color = documentData.color;
+    
+                //setting up the dictionary of category to their specific colors
+                this.calName_calColor[cal_name] = cal_color;
+                this.calName_calId[cal_name] = cal_id;
+                
+            })
 
         },
 
@@ -194,12 +225,10 @@ export default {
             let docCompleted = false;
             
 
-            //have not synced specific tag to user
             try {
                 alert('saving entry to database')
 
                 //create a new tag
-                //const docRef = await setDoc(doc(db, "Tags", docId),{
                 const tagDocRef = await addDoc(collection(db, "Tags"),{
                     //id: docId,
                     title: docTitle,
@@ -220,14 +249,13 @@ export default {
                     
                     
                     //* assuming no repetition of calendar names
+                    
                     if (this.cal_name in this.calName_calId) {
                         //if calendar already exists, get the current calendar_id
                         cal_id = this.calName_calId[this.cal_name]
-
                         const calDocExistRef = doc(db, "Calendar", cal_id)
-                        //const calDoc = await getDoc(calDocRef)
-
                         console.log("updating: " + docCalendar_name)
+
                         // add tag_id to tag array
                         await updateDoc(calDocExistRef, {
                             tags: arrayUnion(tag_id)
@@ -235,22 +263,27 @@ export default {
 
 
                     } else {
-                        //if calendar does not exist, add to users . 
+                        //if calendar does not exist, add to users, currently supports adding to personal calendars. 
                         console.log("creating a new calendar: " + docCalendar_name)
                         
                         //create a new calendar
                         const calDocNewRef = await addDoc(collection(db, 'Calendar'), {
                             calendar_name: docCalendar_name,
                             color: docColor,
-                            tags: [tag_id]
-                            //users:[] add current userid in
+                            tags: [tag_id],
+                            users:[this.user_id],
                         })
-                        
-                        //(update in current user)
+                    
 
                         //get id of new calendar
                         cal_id = calDocNewRef.id
                         
+                        //update in current user
+                        const userDocRef = doc(db, "User", String(this.user_id))
+                        await updateDoc(userDocRef, {
+                            //currently only adding to personal calendars, discuss with group & check again
+                            [`personal_calendars.${cal_id}`]: true
+                        })
                     }
                 }
                 await updateDoc(tagDocRef, {
@@ -287,7 +320,7 @@ export default {
     @import '@/assets/main.css';
 
     .expandedTEBox {
-        background-color: #a0b6db;
+        background-color: rgb(87, 139, 207);
         width: 390px;
         height: 520px;
         border-radius: 20px;

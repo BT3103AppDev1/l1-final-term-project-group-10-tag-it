@@ -4,8 +4,10 @@
 
     <div class="miscTagBox">
         <div id="topContents">
-            <h3 id="miscTagHeader"> Miscellaneous Tags</h3>
-            <div class="tableDiv">
+            <h3 id="miscTagHeader"> Miscellaneous Tags </h3>
+        </div>
+        <hr class="header" />
+        <div class="tableDiv">
             <table id = "miscTagTable">
                 <tr v-for="(row,index) in tableRows" :key="row.tag_id">
                     <td><i @click="checkbutton(row.tag_id, row.completed)"> 
@@ -14,10 +16,9 @@
                     </i></td>
                     <td> {{ row.title }}</td>
                     <td><i class="trash" @click="deleteTag(row.tag_id)"><BIconTrashFill /></i></td>
-                </tr>
-                    
+                </tr>    
             </table></div>
-        </div>
+        
         <div class="quickTagComponent" @click="addQuickTag">
             <BIconPlusCircleFill v-if="addingtag === false" class="addQuickTagButton"/>
             <QuickTagEntry v-else class="quickTagEntry"/>
@@ -155,9 +156,9 @@ export default{
     }
 
     .addQuickTagButton{
-        color:#a0b6db;
+        color:rgb(87, 139, 207);
         font-size: 80px;
-        text-shadow: #788db0;
+        text-shadow: rgb(87, 139, 207);
         text-align: center;
         padding: 15px;
         bottom: 0;
@@ -167,13 +168,25 @@ export default{
 
 
     #miscTagHeader {
-        padding: 30px;
-        font-size: 30px;
+        padding: 30px 30px 15px 30px;
+        font-size: 32.5px;
+        font-weight: bold;
         letter-spacing: 2px;
         /* font-family: Montserrat; */
-        color: white;
-        background-color: #a0b6db;
+        color: rgb(87, 139, 207);
+        /* background-color: #a0b6db; */
         border-radius: 20px 20px 0px 0px;
+    }
+
+    hr {
+        height: 2px;
+        width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid;
+        color: rgb(87, 139, 207);
+        opacity: 100%;
+        background-color: rgb(87, 139, 207);
     }
 
     table{

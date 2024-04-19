@@ -71,15 +71,11 @@
                     <BIconCheckCircleFill v-else class="check"/>
                 </i></td>
                 <td> {{ row.title }}</td>
-                <td id="category">
-                    {{ row.calendar }}
-                    <!--colour should change based on the category -->
-                    <!--also need to obtain the categories from the firestore pump and into inputs-->
-                    <!-- <label for="category"></label>
-                    <select name="category" id="category"> 
-                        
-                        <option value="select category" class="select-category" >Select Category</option> 
-                    </select> -->
+                <td>
+                    <div class="calendar" :style="{'background-color': row.color}">
+                        {{ row.calendar }}
+                    </div>
+                    
                 </td>
                 <td>{{ row.start }}</td>
                 <td>{{ row.end }}</td>
@@ -246,6 +242,7 @@ export default{
                                 end: documentData.end,
                                 start: documentData.start,
                                 calendar: documentData.calendar_name,
+                                color: documentData.color,
                                 tag_id: tagDoc.id,  // Use the document ID
                                 flagged: documentData.flagged
                             };
@@ -300,6 +297,7 @@ export default{
                     let end = documentData.end;
                     let start = documentData.start;
                     let calendar = documentData.calendar_name;
+                    let color = documentData.color;
                     // let id = documentData.id;
                     let tag_id = doc.id;
                     let flagged = documentData.flagged;
@@ -310,6 +308,7 @@ export default{
                         end,
                         start,
                         calendar,
+                        color,
                         tag_id,
                         flagged
                     };
@@ -411,6 +410,7 @@ export default{
                     let end = documentData.end;
                     let start = documentData.start;
                     let calendar = documentData.calendar_name;
+                    let color = documentData.color;
                     //let id = documentData.id;
                     let tag_id = doc.id;
                     let flagged = documentData.flagged;
@@ -421,6 +421,7 @@ export default{
                         end,
                         start,
                         calendar,
+                        color,
                         tag_id,
                         flagged
                     };
@@ -487,6 +488,10 @@ export default{
         border-bottom: 1.5px solid #cccaca
     }
 
+    .calendar{
+        border-radius: 25px;
+        color:white;
+    }
 
     .unchecked{
         font-size: 30px;

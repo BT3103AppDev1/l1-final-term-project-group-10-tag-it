@@ -4,7 +4,7 @@
 
     <h5>Expanded Tag Entry</h5>
     <p> are we allowing users to add tags to the shared calendars here? if yes, we need a field in calendars to check if it is shared or not </p>
-
+    <p> also make sure to log in to access these features: </p>
     <div class="expandedTEBox">
         <br>
         <BIconXLg class="cross" @click="closeExpandedTEBox" />
@@ -78,7 +78,7 @@
                             disabled
                         >
                         <input
-                            v-else
+                             v-else
                             type="color"
                             id="customColor"
                             value="#cccaca"
@@ -155,6 +155,7 @@ export default {
             calName_calId:{},
             user_id: '',
             user_calendars: [],
+            miscCal_id: '',
         }
     },
     async mounted() {
@@ -172,7 +173,8 @@ export default {
 
             const objToMap = obj => new Map(Object.entries(obj));
 
-            let user_data = await getDoc(doc(db, "User", String(this.user_id)))
+            let user_data = await getDoc(doc(db, "User", this.user_id
+        ))
             let personal_calendars = objToMap(user_data.data().personal_calendars)
             let shared_calendars = objToMap(user_data.data().shared_calendars)
 
@@ -242,7 +244,8 @@ export default {
 
                 const tag_id = tagDocRef.id
                 let cal_id = ''
-                //if there user set a calendar, create/update calendar
+
+                //if the user chooses/creates a calendar, create/update calendar
                 if (docCalendar_name != "") {
                     // add tag to calendar
                     console.log("adding to calendar: " + this.cal_name)
@@ -285,6 +288,21 @@ export default {
                             [`personal_calendars.${cal_id}`]: true
                         })
                     }
+                } else {
+                    //user creates a misc tags, update in user's misc calendars
+
+                    //get user's misc calendar id
+                    let user_data = await getDoc(doc(db, "User", this.user_id))
+                    cal_id = user_data.data().misc_calendar
+
+                    const miscCalDocRef = doc(db, "Calendar", cal_id)
+                    console.log("updating Misc Calendar")
+
+                    // add tag_id to tag array
+                    await updateDoc(miscCalDocRef, {
+                        tags: arrayUnion(tag_id)
+                    })
+
                 }
                 await updateDoc(tagDocRef, {
                         calendar_id: cal_id

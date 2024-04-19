@@ -33,9 +33,9 @@
 <script>
 import QuickTagEntry from '@/components/QuickTagEntry.vue'
 import { BIconFlagFill, BIconTrashFill, BIconCircle, BIconCheckCircleFill, BIconPlusCircleFill } from 'bootstrap-icons-vue';
-import firebaseApp from '../firebase.js';
+import firebaseApp, { auth } from '../firebase.js';
 import { getFirestore, updateDoc } from 'firebase/firestore';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDoc, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
@@ -52,11 +52,16 @@ export default{
     data(){
         return {
             tableRows: [],
-            addingtag: false 
+            addingtag: false,
+            user_id: '',
+            miscCal_id: '' 
         };
     },
     async mounted() {
-        this.fetchAndUpdateData(); //add authentication
+        const user = auth.currentUser;
+        this.user_id = user.uid;
+
+        this.fetchAndDisplayData(); //add authentication
     },
     methods: {
 
@@ -68,7 +73,7 @@ export default{
                 await updateDoc(doc(db, "Tags", tag_id), fieldToUpdate)
                 console.log("current state: " + toggle_completed);
 
-                await this.fetchAndUpdateData();
+                await this.fetchAndDisplayData();
             } catch (error) {
                 console.log("CAUGHT ERROR!", error);
             }
@@ -82,19 +87,30 @@ export default{
             
         },
         
-        async fetchAndUpdateData() {
-            let allDocuments = await getDocs(collection(db, "Tags"))
+        async fetchAndDisplayData() {
+
+            //get user's misc calendar id
+            let user_data = await getDoc(doc(db, "User", this.user_id))
+            this.miscCal_id = user_data.data().misc_calendar
+
+            let miscCalDoc = await getDoc(doc(db, "Calendar", this.miscCal_id))
+            let miscTags = miscCalDoc.data().tags;
+
+            console.log(miscTags)
 
             this.tableRows = await Promise.all(
-                allDocuments.docs.map(async (doc) => {
-                    let documentData = doc.data();
+                miscTags.map(async (tagId) => {
+                    let cur_tag_doc = await getDoc(doc(db, "Tags", tagId))
+
+                    let documentData = cur_tag_doc.data();
 
                     let title = documentData.title;
                     let completed = documentData.completed;
                     let end = documentData.end;
                     let start = documentData.start;
                     let calendar_id = documentData.calendar_id;
-                    let tag_id = doc.id;
+                    let calendar_name = documentData.calendar_name;
+                    let tag_id = cur_tag_doc.id;
                     let flagged = documentData.flagged;
                     
 
@@ -104,13 +120,14 @@ export default{
                             end,
                             start,
                             calendar_id,
+                            calendar_name,
                             tag_id,
                             flagged
                         };
                 })
             );
             //filter for those that have no calendar 
-            this.tableRows = this.tableRows.filter(row => !row.calendar_id);
+            this.tableRows = this.tableRows.filter(row => !row.calendar_name);
         },
 
         addQuickTag(event) {

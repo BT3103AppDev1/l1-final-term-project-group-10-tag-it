@@ -52,7 +52,7 @@ export default {
             try {
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
-                    this.username = userDocSnap.data().firstName;
+                    this.username = userDocSnap.data().first_name;
                 }
             } catch (error) {
                 console.error("Error fetching user data: ", error);

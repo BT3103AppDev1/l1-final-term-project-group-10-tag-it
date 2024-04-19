@@ -360,11 +360,11 @@ export default {
             mobileNumber
         ) {
             const newUserData = {
-                firstName: firstName,
-                lastName: lastName,
+                first_name: firstName,
+                last_name: lastName,
                 username: username,
                 email: email,
-                mobileNumber: mobileNumber,
+                mobile_number: mobileNumber,
             };
             const db = getFirestore();
             const user = auth.currentUser;

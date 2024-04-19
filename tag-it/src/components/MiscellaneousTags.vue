@@ -34,8 +34,8 @@
 import QuickTagEntry from '@/components/QuickTagEntry.vue'
 import { BIconFlagFill, BIconTrashFill, BIconCircle, BIconCheckCircleFill, BIconPlusCircleFill } from 'bootstrap-icons-vue';
 import firebaseApp, { auth } from '../firebase.js';
-import { getFirestore, updateDoc } from 'firebase/firestore';
-import { collection, getDoc, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { Firestore, getFirestore, updateDoc } from 'firebase/firestore';
+import { collection, getDoc, getDocs, doc, deleteDoc, arrayRemove } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
@@ -58,10 +58,11 @@ export default{
         };
     },
     async mounted() {
-        const user = auth.currentUser;
+        auth.onAuthStateChanged(user => {
         this.user_id = user.uid;
 
         this.fetchAndDisplayData(); //add authentication
+        })
     },
     methods: {
 
@@ -80,9 +81,17 @@ export default{
         },
         async deleteTag(tag_id) {
             alert("You are going to delete: " + tag_id);
+            console.log("removing " + tag_id + " from " + this.miscCal_id)
+
+            //remove the tag from tags field in misc calendar
+            const miscCalDocRef = doc(db, "Calendar", this.miscCal_id)
+            await updateDoc(miscCalDocRef, {
+                tags: arrayRemove(tag_id)
+            })
+
             await deleteDoc(doc(db, "Tags", tag_id))
 
-            await this.fetchAndUpdateData();
+            await this.fetchAndDisplayData();
             console.log('sucessfullly deleted!', tag_id)
             
         },

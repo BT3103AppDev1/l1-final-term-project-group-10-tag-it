@@ -159,10 +159,11 @@ export default {
         }
     },
     async mounted() {
-        const user = auth.currentUser;
+        auth.onAuthStateChanged(user => {
         this.user_id = user.uid;
 
         this.fetchData();
+        })
     },
     methods: {
         updateFlagged() {
@@ -314,7 +315,6 @@ export default {
                 console.log(tagDocRef);
                 document.getElementById("expandedTEForm").reset();
                 this.$emit("added")
-                mounted()
             } catch(error) {
                 console.error("Error adding document: ", error);
             }

@@ -1,11 +1,12 @@
-import "./assets/main.css";
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import vuetify from './plugins/vuetify'
+import { loadFonts } from './plugins/webfontloader'
 
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from './router/index.js'
+loadFonts()
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import bootstrap from 'bootstrap/dist/js/bootstrap.bundle'
-import 'bootstrap/dist/css/bootstrap.css';
-
-createApp(App).use(router).mount("#app");
+createApp(App)
+  .use(router)
+  .use(vuetify)
+  .mount('#app')

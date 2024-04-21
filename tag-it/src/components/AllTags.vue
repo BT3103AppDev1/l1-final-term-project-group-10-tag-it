@@ -421,7 +421,7 @@ export default {
                 console.log("CAUGHT ERROR!", error);
             }
         },
-
+// s
         async deleteTag(tag_id) {
             alert("You are going to delete: " + tag_id);
             await deleteDoc(doc(db, "Tags", tag_id))

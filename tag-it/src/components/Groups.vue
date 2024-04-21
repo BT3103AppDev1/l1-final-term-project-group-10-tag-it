@@ -1,39 +1,43 @@
 <template>
-  <div class="grid-container">
-    <button id="create-item" @click="showModal = !showModal">
-      <img src="../assets/create-group.png" width="120" />
-      <p>Create a Group</p>
-    </button>
-    <button class="grid-item" v-for="(calendar, index) in calendars" :key="index" @click="openCalendarModal(calendar)">
-      <p>{{ calendar.calendar_name }}</p>
-      <img src="../assets/group.png" width="120" />
-      <p>{{ calendar.users.length }} Members</p>
-    </button>
-    <CreateGroup
-      v-if="showModal"
-      @closeModal="showModal = false"
-      :showModal="showModal"
-    />
+  <div v-if="loading">Loading...</div>
+  <div v-else>
+    <div class="grid-container">
+      <button id="create-item" @click="showModal = !showModal">
+        <img src="../assets/create-group.png" width="120" />
+        <p>Create a Group</p>
+      </button>
+      <button
+        class="grid-item"
+        v-for="(calendar, index) in calendars"
+        :key="index"
+        @click="openCalendarModal(calendar)"
+      >
+        <p>{{ calendar.calendar_name }}</p>
+        <img src="../assets/group.png" width="120" />
+        <p>{{ calendar.users.length }} Members</p>
+      </button>
+      <CreateGroup
+        v-if="showModal"
+        @closeModal="showModal = false"
+        :showModal="showModal"
+      />
 
-    <EditGroup
-      v-if="showPopup"
-      @closePopup="showPopup = false"
-      :showPopup="showPopup"
-      :calendarData="selectedCalendar"
-    />
+      <EditGroup
+        v-if="showPopup"
+        @closePopup="showPopup = false"
+        @groupDeleted="handleGroupDeleted"
+        :showPopup="showPopup"
+        :calendarData="selectedCalendar"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-// load the data first before page is rendered
 import CreateGroup from "@/components/CreateGroup.vue";
 import EditGroup from "@/components/EditGroup.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 export default {
   components: {
@@ -46,12 +50,18 @@ export default {
       showPopup: false,
       selectedCalendar: {},
       calendars: [],
+      loading: true,
     };
   },
   async created() {
     this.initializeAuthStateListener();
   },
   methods: {
+    handleGroupDeleted(deletedGroupId) {
+      this.calendars = this.calendars.filter(
+        (calendar) => calendar.id !== deletedGroupId
+      );
+    },
     initializeAuthStateListener() {
       const auth = getAuth();
       onAuthStateChanged(auth, (user) => {
@@ -59,6 +69,7 @@ export default {
           this.fetchCalendars(user);
         } else {
           console.log("User is not logged in.");
+          this.loading = false;
         }
       });
     },
@@ -91,6 +102,8 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching calendars:", error);
+      } finally {
+        this.loading = false;
       }
     },
     openCalendarModal(calendar) {
@@ -105,7 +118,9 @@ export default {
 .grid-container {
   display: grid;
   grid-template-columns: auto auto auto;
-  padding: 1% 10% 1% 10%;
+  padding: 1% 10%;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 #create-item {
@@ -113,8 +128,10 @@ export default {
   padding: 1%;
   font-size: x-large;
   text-align: center;
-  margin: 5% 5% 10% 5%;
+  margin: 5% 5% 5% 5%;
   border-radius: 10px;
+  height: 34vh;
+  width: 20vw;
 }
 
 .grid-item {
@@ -122,7 +139,9 @@ export default {
   padding: 1%;
   font-size: x-large;
   text-align: center;
-  margin: 5% 4% 10% 4%;
+  margin: 5% 5% 5% 5%;
   border-radius: 10px;
+  height: 34vh;
+  width: 20vw;
 }
 </style>

@@ -1,5 +1,33 @@
 <template>
   <div>
+    <div class="filter-container">
+      FILTER CALENDARS
+      <BIconArrowBarDown class="filterbutton" @click="filter" />
+      <div v-if="active">
+        <div class="dropdown-content">
+          <div
+            class="opt-labels"
+            v-for="(opt, index) in cals"
+            :key="opt.cal_id"
+          >
+            <input
+              id="checkboxes"
+              type="checkbox"
+              :value="opt.cal_id"
+              :checked="checkedStates[opt.cal_id]"
+              @change="getCal($event, opt.cal_id)"
+            />
+            {{ opt.calendar_name }}
+            <span class="checkmark"></span>
+          </div>
+          <!-- <label class="cal-option" v-for="(opt, index) in cals" :key="opt.cal_id"> -->
+
+          <!-- </label> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
     <vue-cal
       class="vuecal--blue-theme"
       :time-from="1 * 60"
@@ -48,6 +76,7 @@ export default {
     BIconCircle,
     BIconCheckCircleFill,
     BIconFunnelFill,
+    BIconArrowBarDown,
   },
 
   data() {
@@ -163,7 +192,7 @@ export default {
           calTags.forEach((tagId) => {
             let tagPromise = getDoc(doc(db, "Tags", tagId)).then((tagDoc) => {
               let tagData = tagDoc.data();
-              this.injectStyles(tagData)
+              this.injectStyles(tagData);
               if (tagData) {
                 console.log(tagData.color);
                 this.events.push({
@@ -183,7 +212,13 @@ export default {
       }
     },
 
-    /* //check for checkboxes in the calendar filters
+    //controls the dropdown for filter
+    //if true then menu drops down, if false then it doesnt
+    async filter() {
+      this.active = !this.active;
+    },
+
+    //check for checkboxes in the calendar filters
     async getCal(event, cal_id) {
       this.checkedStates[cal_id] = event.target.checked;
       console.log(this.checkedStates);
@@ -201,9 +236,10 @@ export default {
     // only load the calendar tags from the filtered calendars
     async loadCals() {
       if (this.filterCals.length === 0) {
-        this.fetchAndUpdateData();
+        this.events = [];
+        this.load_tags_from_firebase_to_calendar();
       } else {
-        let newRows = [];
+        this.events = [];
         for (let i = 0; i < this.filterCals.length; i++) {
           let docRef = doc(db, "Calendar", this.filterCals[i]);
           let docSnapshot = await getDoc(docRef);
@@ -212,26 +248,24 @@ export default {
             const tagRef = doc(db, "Tags", tags[i]); // Reference to the tag document
             const tagDoc = await getDoc(tagRef); // Fetch the document
             if (tagDoc.exists()) {
-              const documentData = tagDoc.data(); // Get the data of the tag document
-              const tagData = {
-                title: documentData.title,
-                completed: documentData.completed,
-                end: documentData.end,
-                start: documentData.start,
-                calendar: documentData.calendar_name,
-                color: documentData.color,
-                tag_id: tagDoc.id, // Use the document ID
-                flagged: documentData.flagged,
-              };
-              newRows.push(tagData); // Append the tag data to the results array
+              const tagData = tagDoc.data();
+              this.events.push({
+                title: tagData.title,
+                completed: tagData.completed,
+                end: tagData.end,
+                start: tagData.start,
+                class: tagData.calendar_name,
+                color: tagData.color,
+                tag_id: tagDoc.id,
+                flagged: tagData.flagged,
+              }); // Append the tag data to the results array
             } else {
-              console.log("Document does not exist for tag:", tags[i]);
+              console.log("Document does not exist for tag:");
             }
           }
         }
-        this.tableRows = newRows;
       }
-    }, */
+    },
 
     // read the tags from the data base
     // need to update with dionnes method
@@ -242,7 +276,7 @@ export default {
     }, */
 
     injectStyles(tag) {
-      console.log('calling inject')
+      console.log("calling inject");
       // Ensure the className is valid
       const className = tag.calendar_name;
       if (!className) {
@@ -251,12 +285,14 @@ export default {
 
       const color = tag.color || "#a04646"; // Default color
       const cssRule = `.vuecal__event.${className} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
-      console.log(cssRule)
+      console.log(cssRule);
       try {
         const style = document.createElement("style");
         document.head.appendChild(style);
         style.sheet.insertRule(cssRule, style.sheet.cssRules.length);
-      } catch (e) {console.error("Failed to insert CSS rule:", cssRule, e);}
+      } catch (e) {
+        console.error("Failed to insert CSS rule:", cssRule, e);
+      }
     },
 
     // add the tags to calendar and update styles
@@ -325,5 +361,9 @@ export default {
   padding: auto;
 }
 
-.vuecal__event.sports {background-color: rgba(255, 102, 102, 0.9);border: 1px solid rgb(235, 82, 82);color: #fff;}
+.vuecal__event.sports {
+  background-color: rgba(255, 102, 102, 0.9);
+  border: 1px solid rgb(235, 82, 82);
+  color: #fff;
+}
 </style>

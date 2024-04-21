@@ -359,16 +359,29 @@ export default {
 
             mobileNumber
         ) {
+
+            const db = getFirestore();
+            const user = auth.currentUser;
+            const userDocRef = doc(db, "User", user.uid);
+
+            const miscDocRef = await addDoc(collection(db, 'Calendar'), {
+                calendar_name: "",
+                color: "#cccaca",
+                tags: [],
+                users: [user.uid],
+            })
+
             const newUserData = {
                 first_name: firstName,
                 last_name: lastName,
                 username: username,
                 email: email,
                 mobile_number: mobileNumber,
+                misc_calendar: String(miscDocRef.id),
+                personal_calendars: {},
+                shared_calendars: {},
             };
-            const db = getFirestore();
-            const user = auth.currentUser;
-            const userDocRef = doc(db, "User", user.uid);
+            
             setDoc(userDocRef, newUserData);
         },
     },

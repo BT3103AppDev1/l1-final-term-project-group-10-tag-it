@@ -78,7 +78,7 @@
                             disabled
                         >
                         <input
-                             v-else
+                            v-else
                             type="color"
                             id="customColor"
                             value="#cccaca"
@@ -267,7 +267,7 @@ export default {
 
 
                     } else {
-                        //if calendar does not exist, add to users, currently supports adding to personal calendars. 
+                        //if calendar does not exist, add to userSs, currently supports adding to personal calendars. 
                         console.log("creating a new calendar: " + docCalendar_name)
                         
                         //create a new calendar
@@ -313,7 +313,7 @@ export default {
 
 
                 console.log(tagDocRef);
-                document.getElementById("expandedTEForm").reset();
+                document.getElementById("expandedTEForm").reset(); // eslint-disable-next-line
                 this.$emit("added")
             } catch(error) {
                 console.error("Error adding document: ", error);

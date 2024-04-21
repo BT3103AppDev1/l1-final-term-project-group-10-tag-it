@@ -3,8 +3,8 @@
     <br><br>
 
     <h5>Expanded Tag Entry</h5>
-    <p> changing the category description </p>
-
+    <p> are we allowing users to add tags to the shared calendars here? if yes, we need a field in calendars to check if it is shared or not </p>
+    <p> also make sure to log in to access these features: </p>
     <div class="expandedTEBox">
         <br>
         <BIconXLg class="cross" @click="closeExpandedTEBox" />
@@ -48,17 +48,42 @@
                     /> 
                 </div>
 
-                <div class="labelcontainer">
-                    <label for="inputCategory" class="input_label">
-                        <BIconCollectionFill /> Categories
+
+                <!-- DATA VALIDATION: CANNOT HAVE SAME CALENDAR NAME -->
+
+                <div class="calendarContainer">
+                    <label for="selectInputCalendarName" class="input_label">
+                        <BIconCollectionFill /> Calendar
                     </label>
-                    <!--should this be a drop down?-->
                     <input
                         type="text" 
-                        placeholder="Select Category"
-                        id="inputCategory"
+                        placeholder="Select Calendar"
+                        id="selectInputCalendarName"
+                        v-model="cal_name"
+                        list="calendars"
                         required="no"
-                    /> 
+                    />
+                        
+
+                    <datalist id="calendars">
+                        <option v-for="(cal_color, cal_name) in calName_calColor" :value="cal_name">{{ cal_name }}</option>
+                    </datalist>
+                    <div class="CalendarColors">
+                        <input 
+                            v-if="calName_calColor[cal_name]"
+                            type="color"
+                            id="customColor"
+                            :style="{color: calName_calColor[cal_name]}"
+                            v-model="calName_calColor[cal_name]"
+                            disabled
+                        >
+                        <input
+                            v-else
+                            type="color"
+                            id="customColor"
+                            value="#cccaca"
+                        />
+                    </div>     
                 </div>
 
                 <!-- <div class="labelcontainer">
@@ -102,11 +127,11 @@
 
 <script>
 
-import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg } from 'bootstrap-icons-vue';
-import { deleteAllPersistentCacheIndexes } from 'firebase/firestore';
-import firebaseApp from '../firebase.js';
+import { BIconTagsFill, BIconFlagFill, BIconCalendarDateFill, BIconCollectionFill, BIconXLg, BIconTriangleFill, BIconCircleFill } from 'bootstrap-icons-vue';
+import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
+import firebaseApp, { auth } from '../firebase.js';
 import { getFirestore } from "firebase/firestore"
-import { doc, setDoc } from "firebase/firestore";
+import { doc, addDoc, setDoc, getDoc, getDocs, updateDoc, collection } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const db = getFirestore(firebaseApp);
@@ -118,43 +143,177 @@ export default {
         BIconCollectionFill,
         BIconFlagFill,
         BIconXLg,
+        BIconTriangleFill,
+        BIconCircleFill,
     },
     data() {
         return {
-            flagged: false //initialise to false
+            flagged: false, //initialise to false
+            cal_name: '',
+            cal_color: '',
+            calName_calColor: {}, //populate with data from firebase
+            calName_calId:{},
+            user_id: '',
+            user_calendars: [],
+            miscCal_id: '',
         }
+    },
+    async mounted() {
+        auth.onAuthStateChanged(user => {
+        this.user_id = user.uid;
+
+        this.fetchData();
+        })
     },
     methods: {
         updateFlagged() {
             this.flagged = this.flagged === false? true: false;
         },
 
+        async getUserCalendars() {
+
+            const objToMap = obj => new Map(Object.entries(obj));
+
+            let user_data = await getDoc(doc(db, "User", this.user_id
+        ))
+            let personal_calendars = objToMap(user_data.data().personal_calendars)
+            let shared_calendars = objToMap(user_data.data().shared_calendars)
+
+            //adding personal calendar id from personal calendars
+            if (personal_calendars.size > 0) {
+                personal_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
+                })
+            }
+
+            //adding shared calendar id from shared calendars
+            if (shared_calendars.size > 0) {
+                shared_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
+                })
+            }
+        },
+
+        async fetchData(){
+
+            // get calendars of the current users
+            await this.getUserCalendars();
+            console.log(this.user_calendars)
+            
+            //iterate through user calendars
+            this.user_calendars.map(async (calId) => {
+                let cur_cal_doc = await getDoc(doc(db, "Calendar", calId));
+                let documentData = cur_cal_doc.data();
+                let cal_id = cur_cal_doc.id;
+                let cal_name = documentData.calendar_name;
+                let cal_color = documentData.color;
+    
+                //setting up the dictionary of category to their specific colors
+                this.calName_calColor[cal_name] = cal_color;
+                this.calName_calId[cal_name] = cal_id;
+                
+            })
+
+        },
+
         async saveEntryButton() {
             console.log('saving')
             
-            //maybe can generate a unique id instead?
-            let docId = document.getElementById("inputTagName").value; 
             let docTitle = document.getElementById("inputTagName").value;
             let docStart = document.getElementById("inputStartDate").value.replace('T', ' ');
             let docEnd = document.getElementById("inputEndDate").value.replace('T', ' ');
-            let docCategory = document.getElementById("inputCategory").value;
+            let docCalendar_name = document.getElementById("selectInputCalendarName").value;
+            //add calendar id later on
+            let docColor = document.getElementById("customColor").value;
             let docCompleted = false;
             
 
-            //have not synced specific tag to user
             try {
                 alert('saving entry to database')
-                const docRef = await setDoc(doc(db, "Tags", docId),{
-                    id: docId,
+
+                //create a new tag
+                const tagDocRef = await addDoc(collection(db, "Tags"),{
+                    //id: docId,
                     title: docTitle,
                     start: docStart,
                     end: docEnd,
-                    class: docCategory,
+                    calendar_name: docCalendar_name,
+                    color: docColor,
                     completed: docCompleted,
                     flagged: this.flagged,
                 })
-                console.log(docRef);
-                document.getElementById("expandedTEForm").reset();
+
+                const tag_id = tagDocRef.id
+                let cal_id = ''
+
+                //if the user chooses/creates a calendar, create/update calendar
+                if (docCalendar_name != "") {
+                    // add tag to calendar
+                    console.log("adding to calendar: " + this.cal_name)
+                    
+                    
+                    //* assuming no repetition of calendar names
+                    
+                    if (this.cal_name in this.calName_calId) {
+                        //if calendar already exists, get the current calendar_id
+                        cal_id = this.calName_calId[this.cal_name]
+                        const calDocExistRef = doc(db, "Calendar", cal_id)
+                        console.log("updating: " + docCalendar_name)
+
+                        // add tag_id to tag array
+                        await updateDoc(calDocExistRef, {
+                            tags: arrayUnion(tag_id)
+                        })
+
+
+                    } else {
+                        //if calendar does not exist, add to userSs, currently supports adding to personal calendars. 
+                        console.log("creating a new calendar: " + docCalendar_name)
+                        
+                        //create a new calendar
+                        const calDocNewRef = await addDoc(collection(db, 'Calendar'), {
+                            calendar_name: docCalendar_name,
+                            color: docColor,
+                            tags: [tag_id],
+                            users:[this.user_id],
+                        })
+                    
+
+                        //get id of new calendar
+                        cal_id = calDocNewRef.id
+                        
+                        //update in current user
+                        const userDocRef = doc(db, "User", String(this.user_id))
+                        await updateDoc(userDocRef, {
+                            //currently only adding to personal calendars, discuss with group & check again
+                            [`personal_calendars.${cal_id}`]: true
+                        })
+                    }
+                } else {
+                    //user creates a misc tags, update in user's misc calendars
+
+                    //get user's misc calendar id
+                    let user_data = await getDoc(doc(db, "User", this.user_id))
+                    cal_id = user_data.data().misc_calendar
+
+                    const miscCalDocRef = doc(db, "Calendar", cal_id)
+                    console.log("updating Misc Calendar")
+
+                    // add tag_id to tag array
+                    await updateDoc(miscCalDocRef, {
+                        tags: arrayUnion(tag_id)
+                    })
+
+                }
+                await updateDoc(tagDocRef, {
+                        calendar_id: cal_id
+                })
+
+                //if no calendar stated, add tagid to user?
+
+
+                console.log(tagDocRef);
+                document.getElementById("expandedTEForm").reset(); // eslint-disable-next-line
                 this.$emit("added")
             } catch(error) {
                 console.error("Error adding document: ", error);
@@ -179,7 +338,7 @@ export default {
     @import '@/assets/main.css';
 
     .expandedTEBox {
-        background-color: #a0b6db;
+        background-color: rgb(87, 139, 207);
         width: 390px;
         height: 520px;
         border-radius: 20px;
@@ -223,7 +382,7 @@ export default {
         text-align: left;
     }
 
-    .labelcontainer{
+    .labelcontainer, .calendarContainer{
         display:flex;
         flex-direction: column;
     }
@@ -247,7 +406,7 @@ export default {
         margin-bottom: 5px;
     }
 
-    textarea {
+    /* textarea {
         padding: 0px 5px 0px 5px;
         height: 60px;
         width: 320px;
@@ -262,7 +421,19 @@ export default {
         color: #919191;
         margin: auto;
         margin-bottom: 3px;
+    } */
+
+    input[type='color'] {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: 265px;
+        right: 10px;
+        transform: translateY(-50%);
+        pointer-events: auto;
     }
+
 
     input[type=checkbox] {
         width: 5%;

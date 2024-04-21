@@ -7,6 +7,16 @@ import {
     signInWithPopup,
 } from "firebase/auth";
 
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+} from "firebase/firestore";
+
 import { auth } from "../firebase.js";
 import router from "../router/index.js";
 import { toast } from "vue3-toastify";
@@ -22,16 +32,6 @@ export default {
     },
 
     mounted() {
-        // async function hideLoginError() {
-        //     const divLoginError = document.querySelector("#divLoginError");
-        //     const lblLoginErrorMessage = document.querySelector(
-        //         "#lblLoginErrorMessage"
-        //     );
-        //     divLoginError.style.display = "none";
-        //     lblLoginErrorMessage.innerHTML = "";
-        // }
-
-        // hideLoginError();
         const divLoginError = document.querySelector("#divLoginError");
         const lblLoginErrorMessage = document.querySelector(
             "#lblLoginErrorMessage"
@@ -40,11 +40,53 @@ export default {
         lblLoginErrorMessage.innerHTML = "";
 
         async function monitorAuthState() {
+            // check if new user or logged in before
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // console.log(user);
-                    // hideLoginError();
-                    router.push({ name: "Home" });
+                    const loggedName = user.displayName;
+                    const loggedEmail = user.email;
+                    const loggedUID = user.uid;
+                    const loggedMobile = user.phoneNumber;
+
+                    const db = getFirestore();
+                    const usersCollection = collection(db, "User");
+
+                    const queryByEmail = query(
+                        usersCollection,
+                        where("email", "==", loggedEmail)
+                    );
+
+                    const queryByMobileNumber = query(
+                        usersCollection,
+                        where("mobile_number", "==", loggedMobile)
+                    );
+
+                    Promise.all([getDocs(queryByEmail)])
+                        .then(([emailSnapshot]) => {
+                            if (!emailSnapshot.empty) {
+                                router.push({ name: "Home" });
+                            } else {
+                                // create db
+                                // push to signup page
+
+                                const newUserData = {
+                                    first_name: loggedName,
+                                    last_name: null,
+                                    username: null,
+                                    email: loggedEmail,
+                                    mobile_number: loggedEmail,
+                                };
+                                const db = getFirestore();
+                                const user = auth.currentUser;
+                                const userDocRef = doc(db, "User", user.uid);
+                                router.push({ name: "GoogleSignUp" });
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error querying database: ", error);
+                        });
+
+                    // router.push({ name: "Home" });
                 }
             });
         }
@@ -66,22 +108,6 @@ export default {
                 this.errorMessage = error.message;
             }
         },
-
-        // // OLD IMPLEMENTATION (WITHOUT PROMISE)
-        // async loginEmailPassword() {
-        //     const loginEmail = document.getElementById("inputEmail").value;
-        //     const loginPassword =
-        //         document.getElementById("inputPassword").value;
-        //     try {
-        //         const userCredential = await signInWithEmailAndPassword(
-        //             auth,
-        //             loginEmail,
-        //             loginPassword
-        //         );
-        //     } catch (error) {
-        //         this.showLoginError(error);
-        //     }
-        // },
 
         async loginEmailPassword() {
             return new Promise((resolve, reject) => {
@@ -107,13 +133,6 @@ export default {
                 error: "Failed to log in",
             });
         },
-
-        // // OLD IMPLEMENTATION (without PROMISE)
-        // async googleLogin() {
-        //     console.log("logging in with google");
-        //     const provider = new GoogleAuthProvider();
-        //     return signInWithPopup(auth, provider);
-        // },
 
         async googleLogin() {
             return new Promise((resolve, reject) => {

@@ -68,7 +68,7 @@ export default {
     return {
       addMembers: "",
       groupName: "",
-      memberList: new Set(),
+      memberList: [],
       currentUserUsername: "",
     };
   },
@@ -95,13 +95,12 @@ export default {
           alert("User does not exist!");
           console.error("User does not exist!");
         } else {
-          if (usernameSnapshot.docs[0].id == user.uid) {
-            alert("You are already a member!");
-            console.error("You are already a member!");
-          } else {
-            this.memberList.add(username);
+          if (!this.memberList.includes(username)) {
+            this.memberList.push(username);
             this.addMembers = "";
-            console.log(this.memberList);
+            console.log("Member list updated:", this.memberList);
+          } else {
+            alert("Member already added");
           }
         }
       });
@@ -122,14 +121,30 @@ export default {
         }
       }
     },
-    createGroup() {
-      const calendarList = new Set([...this.memberList]);
-      calendarList.add(this.currentUserUsername);
+    /* async createGroup() {
       const db = getFirestore();
       const calendarCollection = collection(db, "Calendar");
+      const usersCollection = collection(db, "User");
+      const calendarList = new Set([...this.memberList]);
+      calendarList.add(this.currentUserUsername);
+
+      let userUIDs = await Promise.all(
+        [...this.memberList, this.currentUserUsername].map(async (username) => {
+          const userQuery = query(
+            usersCollection,
+            where("username", "==", username)
+          );
+          const querySnapshot = await getDocs(userQuery);
+          if (!querySnapshot.empty) {
+            return querySnapshot.docs[0].id;
+          } else {
+            throw new Error(`No user found for username: ${username}`);
+          }
+        })
+      );
       const newGroup = {
         calendar_name: this.groupName,
-        users: Array.from(calendarList),
+        users: userUIDs,
       };
 
       setDoc(doc(calendarCollection), newGroup)
@@ -145,7 +160,6 @@ export default {
           const docId =
             calendarNameSnapshot.docs[calendarNameSnapshot.docs.length - 1].id;
 
-          const usersCollection = collection(db, "User");
           calendarList.forEach(async (username) => {
             const userQuery = query(
               usersCollection,
@@ -155,11 +169,11 @@ export default {
             if (!userQuerySnapshot.empty) {
               const userDoc = userQuerySnapshot.docs[0].ref;
               const userData = userQuerySnapshot.docs[0].data();
-              const updatedCalendars = userData.calendars || [];
-              updatedCalendars.push(docId);
+              const updatedCalendars = userData.calendars || {};
+              updatedCalendars[docId] = true;
               await setDoc(
                 userDoc,
-                { ...userData, calendars: updatedCalendars },
+                { ...userData, shared_calendars: updatedCalendars },
                 { merge: true }
               );
             }
@@ -171,6 +185,69 @@ export default {
           console.error("Error creating group: ", error);
           alert("Error creating group. Please try again later.");
         });
+    }, */
+    async createGroup() {
+      const db = getFirestore();
+      const calendarCollection = collection(db, "Calendar");
+      const usersCollection = collection(db, "User");
+      const calendarList = new Set([
+        ...this.memberList,
+        this.currentUserUsername,
+      ]);
+
+      try {
+        // Collect user UIDs
+        const userUIDs = await Promise.all(
+          [...calendarList].map(async (username) => {
+            const userQuery = query(
+              usersCollection,
+              where("username", "==", username)
+            );
+            const querySnapshot = await getDocs(userQuery);
+            if (!querySnapshot.empty) {
+              return querySnapshot.docs[0].id;
+            } else {
+              throw new Error(`No user found for username: ${username}`);
+            }
+          })
+        );
+
+        // Create calendar
+        const newCalendarRef = doc(calendarCollection);
+        const newGroup = {
+          calendar_name: this.groupName,
+          users: userUIDs,
+        };
+        await setDoc(newCalendarRef, newGroup);
+
+        // Update each user document with the new calendar ID
+        const updatePromises = userUIDs.map(async (userId) => {
+          const userDocRef = doc(usersCollection, userId);
+          const userDocSnapshot = await getDoc(userDocRef);
+          if (userDocSnapshot.exists()) {
+            const userData = userDocSnapshot.data();
+            const updatedCalendars = userData.shared_calendars || {};
+            updatedCalendars[newCalendarRef.id] = true;
+            return setDoc(
+              userDocRef,
+              { shared_calendars: updatedCalendars },
+              { merge: true }
+            );
+          } else {
+            throw new Error("User document does not exist.");
+          }
+        });
+
+        // Wait for all updates to complete
+        await Promise.all(updatePromises);
+
+        console.log("Group created and users updated successfully!");
+        this.closeModal();
+        window.location.reload();
+      } catch (error) {
+        console.error("Error creating group or updating users: ", error);
+        alert("Error creating group. Please try again later.");
+      }
     },
   },
 };

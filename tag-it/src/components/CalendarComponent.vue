@@ -13,13 +13,16 @@
 
 <script>
 import firebaseApp from "../firebase.js";
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   getFirestore,
-  collection,
+  doc,
+  query,
+  where,
   getDoc,
   getDocs,
-  doc,
+  collection,
+  documentId,
 } from "firebase/firestore";
 import VueCal from "vue-cal";
 import "vue-cal/dist/vue-cal.css";
@@ -87,7 +90,7 @@ export default {
       let personal_calendars = objToMap(user_data.data().personal_calendars);
       let shared_calendars = objToMap(user_data.data().shared_calendars);
       let miscCal_id = objToMap(user_data.data().misc_calendar);
-      console.log('all calenders loading works')
+      console.log("all calenders loading works");
       //adding personal calendar id from personal calendars
       if (personal_calendars.size > 0) {
         personal_calendars.forEach((value, key) => {
@@ -122,7 +125,7 @@ export default {
           }))
         );
       }
-      console.log('load_tags_from_firebase_to_calendar')
+      console.log("load_tags_from_firebase_to_calendar");
       this.load_tags_from_firebase_to_calendar();
     },
 
@@ -149,24 +152,26 @@ export default {
 
     // get the data from all user calendars and update the calendar
     async load_tags_from_firebase_to_calendar() {
-      console.log('in load_tags_from_firebase_to_calendar')
+      console.log("in load_tags_from_firebase_to_calendar");
       let tagPromises = [];
       for (let i = 0; i < this.cals.length; i++) {
         let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"]));
         let calTags = calDoc.data().tags;
-        console.log('calTags');
+        console.log("calTags");
 
         if (calTags && Array.isArray(calTags)) {
           calTags.forEach((tagId) => {
             let tagPromise = getDoc(doc(db, "Tags", tagId)).then((tagDoc) => {
               let tagData = tagDoc.data();
+              this.injectStyles(tagData)
               if (tagData) {
+                console.log(tagData.color);
                 this.events.push({
                   title: tagData.title,
                   completed: tagData.completed,
                   end: tagData.end,
                   start: tagData.start,
-                  calendar: this.cals[i]["calendar_name"],
+                  class: tagData.calendar_name,
                   color: tagData.color,
                   tag_id: tagDoc.id,
                   flagged: tagData.flagged,
@@ -237,6 +242,7 @@ export default {
     }, */
 
     injectStyles(tag) {
+      console.log('calling inject')
       // Ensure the className is valid
       const className = tag.calendar_name;
       if (!className) {
@@ -245,12 +251,12 @@ export default {
 
       const color = tag.color || "#a04646"; // Default color
       const cssRule = `.vuecal__event.${className} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
-
+      console.log(cssRule)
       try {
         const style = document.createElement("style");
         document.head.appendChild(style);
         style.sheet.insertRule(cssRule, style.sheet.cssRules.length);
-      } catch (e) {}
+      } catch (e) {console.error("Failed to insert CSS rule:", cssRule, e);}
     },
 
     // add the tags to calendar and update styles
@@ -318,4 +324,6 @@ export default {
   margin: auto;
   padding: auto;
 }
+
+.vuecal__event.sports {background-color: rgba(255, 102, 102, 0.9);border: 1px solid rgb(235, 82, 82);color: #fff;}
 </style>

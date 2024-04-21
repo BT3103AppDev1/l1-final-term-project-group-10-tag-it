@@ -11,21 +11,25 @@
             <tr>
                 <th></th>
                 
-                <th><div class="filter-container">TITLE
-                    <i @click="filterTitle">
-                        <BIconSortAlphaDown v-if="this.buttonOptions.title"/>
-                        <BIconSortAlphaDownAlt v-if="this.buttonOptions.TitleDsc" />
-                        <BIconSortAlphaDown v-if="this.buttonOptions.TitleAsc" /> 
-                    </i> 
-                    </div></th>
+                <th>
+                    <div class="filter-container">TITLE
+                        <i @click="filterTitle">
+                            <BIconSortAlphaDown v-if="this.buttonOptions.title"/>
+                            <BIconSortAlphaDownAlt v-if="this.buttonOptions.TitleDsc" />
+                            <BIconSortAlphaDown v-if="this.buttonOptions.TitleAsc" /> 
+                        </i> 
+                    </div>
+                </th>
                 <th><div class="filter-container">CALENDAR
                         <BIconArrowBarDown class="filterbutton" @click="filter"/> 
                         <div v-if="active">
                             <div class="dropdown-content">
                                 <div class="opt-labels" v-for="(opt, index) in cals" :key="opt.cal_id">
                                     <input 
+                                    id="checkboxes"
                                     type="checkbox" 
                                     :value="opt.cal_id" 
+                                    :checked="checkedStates[opt.cal_id]"
                                     @change="getCal($event, opt.cal_id)">
                                         {{ opt.calendar_name }}
                                     <span class="checkmark"></span>
@@ -75,7 +79,6 @@
                     <div class="calendar" :style="{'background-color': row.color}">
                         {{ row.calendar }}
                     </div>
-                    
                 </td>
                 <td>{{ row.start }}</td>
                 <td>{{ row.end }}</td>
@@ -96,21 +99,14 @@
 <script>
 
 import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCaretUpFill, BIconCheckCircleFill,BIconCaretRightFill, BIconFunnelFill, BIconCaretDownFill, BIconSortAlphaDownAlt, BIconSortAlphaDown, BIconSortDown, BIconArrowBarDown} from 'bootstrap-icons-vue';
-import firebaseApp from '../firebase.js';
-import { ref } from 'vue';
-import { getFirestore, updateDoc } from 'firebase/firestore';
-import { collection, getDocs, getDoc, doc, deleteDoc } from 'firebase/firestore';
+import firebaseApp, { auth } from '../firebase.js';
+import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
+import { getFirestore, doc, addDoc, query, where,  setDoc, updateDoc, getDoc, getDocs, deleteDoc, collection, documentId } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
 
-export default{
-    // setup() {
-    //     const checkedCal = ref([]);
-    //     return {
-    //         checkedCal  
-    //     };
-    // },
+export default {
     components: {
         BIconArrowBarDown,
         BIconSortDown,
@@ -129,10 +125,12 @@ export default{
     data(){
         return {
             tableRows: [],
-            cals: [],
+            cals: [], // main array to store calendars in tuples
             filterCals: [],
+            originalRows: [],
+            checkedStates: {}, // for checked cals to remain checked even when dropdown is closed
             active: false,
-            filterSettings : {
+            filterSettings : { // filter tools
                 filterStartDate: false,
                 filterEndDate: false,
                 filterTitleAsc: false,
@@ -140,7 +138,7 @@ export default{
                 filterImpt: false,
                 filterCal: false,
             },
-            filterConditions: {
+            filterConditions: { // what is being filtered
                 importance: false,
                 startDate: false,
                 endDate: false,
@@ -148,73 +146,132 @@ export default{
                 titleDsc: false,
 
             },
-            buttonOptions: {
+            buttonOptions: { // buttons
                 TitleAsc: false,
                 TitleDsc: false,
                 title: true,
             },
+
+            // user auth
+            cal_name: '',
+            cal_color: '',
+            calName_calColor: {}, //populate with data from firebase
+            calName_calId:{}, 
+            user_id: '',
+            user_calendars: [], // only their id
+            miscCal_id: '',
         };
     },
+
+    async mounted() {
+        auth.onAuthStateChanged(user => {
+        if (user) {
+            this.user_id = user.uid;
+            this.fetchData();
+
+        }
+    })},
 
     methods: {
         async filter() {
             this.active = !this.active;
         },
 
+        async getUserCalendars() {
+
+            const objToMap = obj => new Map(Object.entries(obj));
+
+            let user_data = await getDoc(doc(db, "User", this.user_id))
+            let personal_calendars = objToMap(user_data.data().personal_calendars)
+            let shared_calendars = objToMap(user_data.data().shared_calendars)
+            let miscCal_id = objToMap(user_data.data().misc_calendar)
+
+            //adding personal calendar id from personal calendars
+            if (personal_calendars.size > 0) {
+                personal_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
+                })
+            }
+
+            //adding shared calendar id from shared calendars
+            if (shared_calendars.size > 0) {
+                shared_calendars.forEach((value, key) => {
+                    this.user_calendars.push(key)
+                })
+            }
+
+            // populating this.cals
+            if (this.user_calendars.length > 0) {
+                const calendarCollection = collection(db, "Calendar");
+                const chunks = [];
+                for (let i = 0; i < this.user_calendars.length; i += 10) {
+                    const chunk = this.user_calendars.slice(i, i + 10);
+                    const querySnapshotPromise = getDocs(query(calendarCollection, where(documentId(), 'in', chunk)));
+                    chunks.push(querySnapshotPromise);
+                }
+                
+                const results = await Promise.all(chunks); // Resolve all batch queries
+                this.cals = results.flatMap(querySnapshot => querySnapshot.docs.map(doc => ({
+                    calendar_name: doc.data().calendar_name,
+                    cal_id: doc.id
+                })));
+            }
+            console.log("This is cals", this.cals[1]);
+            this.fetchAndUpdateData();
+        },
+
+        async fetchData(){
+
+            // get calendars of the current users
+            await this.getUserCalendars();
+            console.log(this.user_calendars)
+
+            //iterate through user calendars
+            this.user_calendars.map(async (calId) => {
+                let cur_cal_doc = await getDoc(doc(db, "Calendar", calId));
+                let documentData = cur_cal_doc.data();
+                let cal_id = cur_cal_doc.id;
+                let cal_name = documentData.calendar_name;
+                let cal_color = documentData.color;
+
+                //setting up the dictionary of category to their specific colors
+                this.calName_calColor[cal_name] = cal_color;
+                this.calName_calId[cal_name] = cal_id;
+                
+            })
+        },
+
         async filterStartDate() {
             this.filterSettings.filterStartDate = !this.filterSettings.filterStartDate;
-            if (this.filterSettings.filterStartDate) {
-                this.filterConditions.startDate = true;
-                this.applyFilters();
-            } else { // reset
-                // this.buttonOptions.startDateBtn = !this.buttonOptions.startDateBtn;
-                this.filterConditions.startDate = false;
-                this.applyFilters();
-            }
+            this.filterConditions.startDate = !this.filterConditions.startDate;
+            this.applyFilters();
         },
 
         async filterEndDate() {
             this.filterSettings.filterEndDate = !this.filterSettings.filterEndDate;
-            if (this.filterSettings.filterEndDate) {
-                this.filterConditions.endDate = true;
-                this.applyFilters();
-            } else { // reset
-                this.filterConditions.endDate = false;
-                this.applyFilters();
-            }
+            this.filterConditions.endDate = !this.filterConditions.endDate;
+            this.applyFilters();
         },
 
         async filterImpt() {
             this.filterSettings.filterImpt = !this.filterSettings.filterImpt;
-            this.filterConditions.importance = !this.filterConditions.importance;
-            this.applyFilters();
-        },
-
-        async fetchCal() {
-            let allDocuments = await getDocs(collection(db, "Calendar"))
-            this.cals = await Promise.all(
-                allDocuments.docs.map(async (doc) => {
-                    let documentData = doc.data();
-                    let calendar_name = documentData.calendar_name;
-                    let cal_id = doc.id;
-                    return {
-                        calendar_name,
-                        cal_id,
-                    };
-                })
-            );
+            if (this.filterSettings.filterImpt) {
+                this.filterConditions.importance = !this.filterConditions.importance;
+                this.applyFilters();
+            } else {
+                this.filterConditions.importance = !this.filterConditions.importance;
+                this.tableRows = this.originalRows;
+            }
+            
         },
 
         async getCal(event, cal_id) {
+            this.checkedStates[cal_id] = event.target.checked;
+            console.log(this.checkedStates);
             const isChecked = event.target.checked;
             if (isChecked) {
                 this.filterCals.push(cal_id);
                 this.loadCals();
-                // if (docSnapshot.exists()) {
-                //     console.log("Document data:", docSnapshot.data().tags);
-                // } else {
-                //     console.log("No 3such document!");
-                // }
             } else {
                 this.filterCals = this.filterCals.filter(item => item !== cal_id);
                 console.log("this is removed",cal_id);
@@ -288,33 +345,7 @@ export default{
         },
 
         async applyFilters() {
-            let allDocuments = await getDocs(collection(db, "Tags"));
-            this.tableRows = await Promise.all(
-                allDocuments.docs.map(async (doc) => {
-                    let documentData = doc.data();
-                    let title = documentData.title;
-                    let completed = documentData.completed;
-                    let end = documentData.end;
-                    let start = documentData.start;
-                    let calendar = documentData.calendar_name;
-                    let color = documentData.color;
-                    // let id = documentData.id;
-                    let tag_id = doc.id;
-                    let flagged = documentData.flagged;
-                    
-                    return {
-                        title,
-                        completed,
-                        end,
-                        start,
-                        calendar,
-                        color,
-                        tag_id,
-                        flagged
-                    };
-                })
-            );
-            let filteredRows = this.tableRows;
+            let filteredRows = this.originalRows;
 
             if (this.filterConditions.importance) {
                 filteredRows = filteredRows.filter(row => row.flagged);
@@ -339,7 +370,6 @@ export default{
                 filteredRows = filteredRows.sort((a, b) => {
                     const dA = new Date(a.end);
                     const dB = new Date(b.end);
-                    console.log(dA);
                     if (!isNaN(dA) && !isNaN(dB)) {
                         return dA - dB;
                     } else if (isNaN(dA) && isNaN(dB)) {
@@ -391,6 +421,7 @@ export default{
                 console.log("CAUGHT ERROR!", error);
             }
         },
+
         async deleteTag(tag_id) {
             alert("You are going to delete: " + tag_id);
             await deleteDoc(doc(db, "Tags", tag_id))
@@ -399,42 +430,41 @@ export default{
             console.log('sucessfullly deleted!', tag_id)
             
         }, 
+
         async fetchAndUpdateData() {
-            let allDocuments = await getDocs(collection(db, "Tags"))
+            let tagPromises = [];
+            for (let i = 0; i < this.cals.length; i++) {
+                let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"]));
+                let calTags = calDoc.data().tags;
+                console.log(calTags); 
 
-            this.tableRows = await Promise.all(
-                allDocuments.docs.map(async (doc) => {
-                    let documentData = doc.data();
-                    let title = documentData.title;
-                    let completed = documentData.completed;
-                    let end = documentData.end;
-                    let start = documentData.start;
-                    let calendar = documentData.calendar_name;
-                    let color = documentData.color;
-                    //let id = documentData.id;
-                    let tag_id = doc.id;
-                    let flagged = documentData.flagged;
-                    
-                    return {
-                        title,
-                        completed,
-                        end,
-                        start,
-                        calendar,
-                        color,
-                        tag_id,
-                        flagged
-                    };
-                })
-            );
-        },
-
+                if (calTags && Array.isArray(calTags)) {
+                    calTags.forEach(tagId => {
+                        let tagPromise = getDoc(doc(db, "Tags", tagId)).then(tagDoc => {
+                            let tagData = tagDoc.data();
+                            if (tagData) {
+                                return {
+                                    title: tagData.title,
+                                    completed: tagData.completed,
+                                    end: tagData.end,
+                                    start: tagData.start,
+                                    calendar: this.cals[i]["calendar_name"],
+                                    color: tagData.color,
+                                    tag_id: tagDoc.id,
+                                    flagged: tagData.flagged
+                                };
+                            }
+                        });
+                        tagPromises.push(tagPromise);
+                    });
+                }
+            }
+            this.originalRows =  await Promise.all(tagPromises);
+            this.tableRows = this.originalRows;
+        }
     },
-    async mounted() {
-        this.fetchAndUpdateData(); //add authentication
-        this.fetchCal();
-    }
 }
+
 </script>
 
 <style scoped>

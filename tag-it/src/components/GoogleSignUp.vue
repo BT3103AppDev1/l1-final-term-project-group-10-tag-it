@@ -349,6 +349,7 @@ export default {
                 color: "#cccaca",
                 tags: [],
                 users: [user.uid],
+            })
 
             const newUserData = {
                 first_name: firstName,

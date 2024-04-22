@@ -14,9 +14,9 @@
                 <th>
                     <div class="filter-container">TITLE
                         <i @click="filterTitle">
-                            <BIconSortAlphaDown v-if="this.buttonOptions.title"/>
-                            <BIconSortAlphaDownAlt v-if="this.buttonOptions.TitleDsc" />
-                            <BIconSortAlphaDown v-if="this.buttonOptions.TitleAsc" /> 
+                            <BIconSortAlphaDown v-if="this.filterSettings.sortState === 'ascending'" />
+                            <BIconSortAlphaDownAlt v-if="this.filterSettings.sortState === 'descending'" />
+                            <BIconSortAlphaDown v-if="this.filterSettings.sortState === 'none'" /> 
                         </i> 
                     </div>
                 </th>
@@ -101,7 +101,8 @@
 import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCaretUpFill, BIconCheckCircleFill,BIconCaretRightFill, BIconFunnelFill, BIconCaretDownFill, BIconSortAlphaDownAlt, BIconSortAlphaDown, BIconSortDown, BIconArrowBarDown} from 'bootstrap-icons-vue';
 import firebaseApp, { auth } from '../firebase.js';
 import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
-import { getFirestore, doc, addDoc, query, where,  setDoc, updateDoc, getDoc, getDocs, deleteDoc, collection, documentId } from "firebase/firestore";
+import { getFirestore, arrayRemove, doc, addDoc, query, where,  setDoc, updateDoc, getDoc, getDocs, deleteDoc, collection, documentId } from "firebase/firestore";
+
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
@@ -133,25 +134,10 @@ export default {
             filterSettings : { // filter tools
                 filterStartDate: false,
                 filterEndDate: false,
-                filterTitleAsc: false,
-                filterTitleDsc: false,
+                sortState: "none",
                 filterImpt: false,
                 filterCal: false,
             },
-            filterConditions: { // what is being filtered
-                importance: false,
-                startDate: false,
-                endDate: false,
-                titleAsc: false,
-                titleDsc: false,
-
-            },
-            buttonOptions: { // buttons
-                TitleAsc: false,
-                TitleDsc: false,
-                title: true,
-            },
-
             // user auth
             cal_name: '',
             cal_color: '',
@@ -182,10 +168,10 @@ export default {
             const objToMap = obj => new Map(Object.entries(obj));
 
             let user_data = await getDoc(doc(db, "User", this.user_id))
-            let personal_calendars = objToMap(user_data.data().personal_calendars)
+            let personal_calendars = objToMap(user_data.data().personal_calendars) 
             let shared_calendars = objToMap(user_data.data().shared_calendars)
-            let miscCal_id = objToMap(user_data.data().misc_calendar)
-
+            let cal = user_data.data().misc_calendar
+            this.miscCal_id = cal;
             //adding personal calendar id from personal calendars
             if (personal_calendars.size > 0) {
                 personal_calendars.forEach((value, key) => {
@@ -216,7 +202,6 @@ export default {
                     cal_id: doc.id
                 })));
             }
-            console.log("This is cals", this.cals[1]);
             this.fetchAndUpdateData();
         },
 
@@ -224,7 +209,6 @@ export default {
 
             // get calendars of the current users
             await this.getUserCalendars();
-            console.log(this.user_calendars)
 
             //iterate through user calendars
             this.user_calendars.map(async (calId) => {
@@ -233,7 +217,6 @@ export default {
                 let cal_id = cur_cal_doc.id;
                 let cal_name = documentData.calendar_name;
                 let cal_color = documentData.color;
-
                 //setting up the dictionary of category to their specific colors
                 this.calName_calColor[cal_name] = cal_color;
                 this.calName_calId[cal_name] = cal_id;
@@ -242,27 +225,57 @@ export default {
         },
 
         async filterStartDate() {
+            let filteredRows = Array.from(this.originalRows);
             this.filterSettings.filterStartDate = !this.filterSettings.filterStartDate;
-            this.filterConditions.startDate = !this.filterConditions.startDate;
-            this.applyFilters();
+            if (this.filterSettings.filterStartDate) {
+                filteredRows = filteredRows.sort((a, b) => {
+                    const dA = new Date(a.start);
+                    const dB = new Date(b.start);
+                    console.log(dA);
+                    if (!isNaN(dA) && !isNaN(dB)) {
+                        return dA - dB;
+                    } else if (isNaN(dA) && isNaN(dB)) {
+                        return 0;
+                    } else if (isNaN(dA) && !isNaN(dB)) {
+                        return 1;
+                    } else if (!isNaN(dA) && isNaN(dB)) {
+                        return -1;
+                    }
+                });            
+            }
+            this.tableRows = filteredRows;
         },
 
         async filterEndDate() {
+            let filteredRows = Array.from(this.originalRows);
             this.filterSettings.filterEndDate = !this.filterSettings.filterEndDate;
-            this.filterConditions.endDate = !this.filterConditions.endDate;
-            this.applyFilters();
+            if (this.filterSettings.filterEndDate) {
+                console.log("SORTING END")
+                filteredRows = filteredRows.sort((a, b) => {
+                    const dA = new Date(a.end);
+                    const dB = new Date(b.end);
+                    if (!isNaN(dA) && !isNaN(dB)) {
+                        return dA - dB;
+                    } else if (isNaN(dA) && isNaN(dB)) {
+                        return 0;
+                    } else if (isNaN(dA) && !isNaN(dB)) {
+                        return 1;
+                    } else if (!isNaN(dA) && isNaN(dB)) {
+                        return -1;
+                    }
+                });            
+            }
+            this.tableRows = filteredRows;
         },
 
         async filterImpt() {
+            let filteredRows = Array.from(this.originalRows);
             this.filterSettings.filterImpt = !this.filterSettings.filterImpt;
             if (this.filterSettings.filterImpt) {
-                this.filterConditions.importance = !this.filterConditions.importance;
-                this.applyFilters();
-            } else {
-                this.filterConditions.importance = !this.filterConditions.importance;
-                this.tableRows = this.originalRows;
+                filteredRows = filteredRows.filter(row => row.flagged);
             }
-            
+            this.tableRows = filteredRows;
+
         },
 
         async getCal(event, cal_id) {
@@ -274,7 +287,6 @@ export default {
                 this.loadCals();
             } else {
                 this.filterCals = this.filterCals.filter(item => item !== cal_id);
-                console.log("this is removed",cal_id);
                 this.loadCals();
             }
         },
@@ -314,84 +326,14 @@ export default {
         },
 
         async filterTitle() {
-            if (!this.filterSettings.filterTitleAsc && !this.filterSettings.filterTitleDsc) {
-                this.buttonOptions.TitleDsc = false;
-                this.buttonOptions.TitleAsc = true;
-                this.buttonOptions.title = false;
-
-                this.filterSettings.filterTitleAsc = true;
-                this.filterConditions.titleAsc = true;
-                this.applyFilters();
-            }
-            else if (this.filterSettings.filterTitleAsc && !this.filterSettings.filterTitleDsc) {
-                this.buttonOptions.TitleDsc = true;
-                this.buttonOptions.TitleAsc = false;
-                this.buttonOptions.title = false;
-
-                this.filterSettings.filterTitleDsc = true;
-                this.filterSettings.filterTitleAsc = false;
-                this.filterConditions.titleDsc = true;
-                this.applyFilters();
-            } else {
-                this.buttonOptions.TitleDsc = false;
-                this.buttonOptions.TitleAsc = false;
-                this.buttonOptions.title = true;
-
-                this.filterSettings.filterTitleDsc = false;
-                this.filterSettings.filterTitleAsc = false;
-                this.buttonOptions.title = true;
-                this.applyFilters();
-            }
-        },
-
-        async applyFilters() {
-            let filteredRows = this.originalRows;
-
-            if (this.filterConditions.importance) {
-                filteredRows = filteredRows.filter(row => row.flagged);
-            }
-            if (this.filterConditions.startDate) {
-                filteredRows = filteredRows.sort((a, b) => {
-                    const dA = new Date(a.start);
-                    const dB = new Date(b.start);
-                    console.log(dA);
-                    if (!isNaN(dA) && !isNaN(dB)) {
-                        return dA - dB;
-                    } else if (isNaN(dA) && isNaN(dB)) {
-                        return 0;
-                    } else if (isNaN(dA) && !isNaN(dB)) {
-                        return 1;
-                    } else if (!isNaN(dA) && isNaN(dB)) {
-                        return -1;
-                    }
-                });            
-            }
-            if (this.filterConditions.endDate) {
-                filteredRows = filteredRows.sort((a, b) => {
-                    const dA = new Date(a.end);
-                    const dB = new Date(b.end);
-                    if (!isNaN(dA) && !isNaN(dB)) {
-                        return dA - dB;
-                    } else if (isNaN(dA) && isNaN(dB)) {
-                        return 0;
-                    } else if (isNaN(dA) && !isNaN(dB)) {
-                        return 1;
-                    } else if (!isNaN(dA) && isNaN(dB)) {
-                        return -1;
-                    }
-                });            
-            }
-
-            if (this.filterConditions.titleAsc) {
-                filteredRows = filteredRows.sort((a, b) => a.title.localeCompare(b.title));
-                this.filterConditions.titleAsc = false;
-            }
-
-            if (this.filterConditions.titleDsc) {
-                filteredRows = filteredRows.sort((a, b) => b.title.localeCompare(a.title));
-                this.filterConditions.titleDsc = false;
-            }
-
+            let filteredRows = Array.from(this.originalRows);
+            if (this.filterSettings.sortState === "none") {
+                this.filterSettings.sortState = "ascending";
+                filteredRows.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (this.filterSettings.sortState === "ascending") {
+                this.filterSettings.sortState = "descending";
+                filteredRows.sort((a, b) => b.title.localeCompare(a.title));
+            } 
             this.tableRows = filteredRows;
         },
 
@@ -423,25 +365,55 @@ export default {
         },
 
         async deleteTag(tag_id) {
-            alert("You are going to delete: " + tag_id);
-            await deleteDoc(doc(db, "Tags", tag_id))
+            const tagRef = doc(db, "Tags", tag_id);
+            const tagDoc = await getDoc(tagRef);
 
+            if (tagDoc.exists()) {
+                const tagData = tagDoc.data();
+                const calendarId = tagData.calendar_id;
+                await deleteDoc(tagRef);
+                if (calendarId) {
+                    const calendarRef = doc(db, "Calendar", calendarId);
+                    await updateDoc(calendarRef, {
+                        tags: arrayRemove(tag_id)
+                    });
+                }
+            }
             await this.fetchAndUpdateData();
-            console.log('sucessfullly deleted!', tag_id)
-            
+            console.log('Successfully deleted tag and updated calendar!', tag_id);
         }, 
-
         async fetchAndUpdateData() {
-            let tagPromises = [];
-            for (let i = 0; i < this.cals.length; i++) {
-                let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"]));
-                let calTags = calDoc.data().tags;
-                console.log(calTags); 
+            let tagPromises = []; 
+            let miscDoc = await getDoc(doc(db, "Calendar", this.miscCal_id)); // fetch calendar doc via calendar cal_id
+            let miscTags = miscDoc.data().tags;
+            if (miscTags && Array.isArray(miscTags)) {
+                miscTags.forEach(tagId => { 
+                        let tagPromise = getDoc(doc(db, "Tags", tagId)).then(tagDoc => { // make a promise to fetch each tag via id
+                            let tagData = tagDoc.data(); 
+                            if (tagData) {
+                                return {
+                                    title: tagData.title,
+                                    completed: tagData.completed,
+                                    end: tagData.end,
+                                    start: tagData.start,
+                                    calendar: "",
+                                    color: tagData.color,
+                                    tag_id: tagDoc.id,
+                                    flagged: tagData.flagged
+                                };
+                            }
+                        });
+                        tagPromises.push(tagPromise);
+                });
+            }
 
-                if (calTags && Array.isArray(calTags)) {
-                    calTags.forEach(tagId => {
-                        let tagPromise = getDoc(doc(db, "Tags", tagId)).then(tagDoc => {
-                            let tagData = tagDoc.data();
+            for (let i = 0; i < this.cals.length; i++) {
+                let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"])); // fetch calendar doc via calendar cal_id
+                let calTags = calDoc.data().tags; // get array of tag_id's of calendar
+                if (calTags && Array.isArray(calTags)) { // ensure that array of tag_id's is not empty 
+                    calTags.forEach(tagId => { 
+                        let tagPromise = getDoc(doc(db, "Tags", tagId)).then(tagDoc => { // make a promise to fetch each tag via id
+                            let tagData = tagDoc.data(); 
                             if (tagData) {
                                 return {
                                     title: tagData.title,
@@ -459,7 +431,7 @@ export default {
                     });
                 }
             }
-            this.originalRows =  await Promise.all(tagPromises);
+            this.originalRows =  await Promise.all(tagPromises); // fulfill all promises at once then populate the rows 
             this.tableRows = this.originalRows;
         }
     },

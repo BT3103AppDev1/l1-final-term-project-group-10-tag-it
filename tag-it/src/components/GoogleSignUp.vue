@@ -343,13 +343,12 @@ export default {
             const db = getFirestore();
             const user = auth.currentUser;
             const userDocRef = doc(db, "User", user.uid);
+            const miscDocRef = await addDoc(collection(db, 'Calendar'), {
 
-            const miscDocRef = await addDoc(collection(db, "Calendar"), {
                 calendar_name: "",
                 color: "#cccaca",
                 tags: [],
                 users: [user.uid],
-            });
 
             const newUserData = {
                 first_name: firstName,
@@ -361,7 +360,6 @@ export default {
                 personal_calendars: {},
                 shared_calendars: {},
             };
-
             setDoc(userDocRef, newUserData);
         },
     },

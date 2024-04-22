@@ -352,10 +352,10 @@ export default {
             email,
             mobileNumber
         ) {
+
             const db = getFirestore();
             const user = auth.currentUser;
             const userDocRef = doc(db, "User", user.uid);
-
             try {
                 const miscDocRef = await addDoc(collection(db, "Calendar"), {
                     calendar_name: "",

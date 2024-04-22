@@ -63,19 +63,9 @@ export default {
 </template>
 
 <style scoped>
-/* #passwordContainer {
-    text-align: center;
-    background-color: #f2f2f2;
-    border-radius: 10px;
-    width: 40%;
-    padding: 2%;
-    margin: auto;
-    box-shadow: 0px 3px #c9c9c9;
-    font-family: cabin;
-} */
-
 #passwordContainer {
     width: 40%;
+    min-width: 25em;
 }
 
 #passwordPage {
@@ -110,17 +100,6 @@ export default {
     border-width: 1.5px;
 }
 
-/* #passwordButton {
-    background-color: #406cbe;
-    color: white;
-    display: flex;
-    margin: auto;
-    margin-top: 5%;
-    border-radius: 5px;
-    padding: 10px 20px;
-    
-} */
-
 #passwordButton {
     width: 50%;
 }
@@ -135,10 +114,5 @@ export default {
     font-size: 20px;
     color: #0641ad;
     padding: 15px;
-}
-
-.form {
-    /* margin: 5px; */
-    /* padding: 5px; */
 }
 </style>

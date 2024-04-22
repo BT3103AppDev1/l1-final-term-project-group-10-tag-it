@@ -27,7 +27,8 @@
                     <router-link to="/alltags">All Tags</router-link> 
                 </li>
                 <li class="nav-item-group">
-                <a class="nav-link ml-10" href="#">Groups</a>
+                    <router-link to="/groups">Groups</router-link>
+                <!-- <a class="nav-link ml-10" href="#">Groups</a>o -->
                 </li>
                 <li class="nav-item" id="logOut">
                     <div @click="signOutToast()">LogOut</div>

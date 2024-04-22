@@ -100,9 +100,8 @@
 
 import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCaretUpFill, BIconCheckCircleFill,BIconCaretRightFill, BIconFunnelFill, BIconCaretDownFill, BIconSortAlphaDownAlt, BIconSortAlphaDown, BIconSortDown, BIconArrowBarDown} from 'bootstrap-icons-vue';
 import firebaseApp, { auth } from '../firebase.js';
-import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
+import { arrayUnion, deleteField, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
 import { getFirestore, arrayRemove, doc, addDoc, query, where,  setDoc, updateDoc, getDoc, getDocs, deleteDoc, collection, documentId } from "firebase/firestore";
-
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
@@ -138,6 +137,7 @@ export default {
                 filterImpt: false,
                 filterCal: false,
             },
+
             // user auth
             cal_name: '',
             cal_color: '',
@@ -164,6 +164,9 @@ export default {
         },
 
         async getUserCalendars() {
+
+            this.user_calendars = [];
+            this.cals = [];
 
             const objToMap = obj => new Map(Object.entries(obj));
 
@@ -202,13 +205,16 @@ export default {
                     cal_id: doc.id
                 })));
             }
+            // this.miscCal_id = this.miscCal_id;
             this.fetchAndUpdateData();
         },
 
         async fetchData(){
+            
 
             // get calendars of the current users
             await this.getUserCalendars();
+            console.log(this.cals);
 
             //iterate through user calendars
             this.user_calendars.map(async (calId) => {
@@ -222,6 +228,7 @@ export default {
                 this.calName_calId[cal_name] = cal_id;
                 
             })
+            
         },
 
         async filterStartDate() {
@@ -366,22 +373,42 @@ export default {
 
         async deleteTag(tag_id) {
             const tagRef = doc(db, "Tags", tag_id);
-            const tagDoc = await getDoc(tagRef);
+            try {
+                const tagDoc = await getDoc(tagRef);
 
-            if (tagDoc.exists()) {
-                const tagData = tagDoc.data();
-                const calendarId = tagData.calendar_id;
-                await deleteDoc(tagRef);
-                if (calendarId) {
-                    const calendarRef = doc(db, "Calendar", calendarId);
-                    await updateDoc(calendarRef, {
-                        tags: arrayRemove(tag_id)
-                    });
+                if (tagDoc.exists()) {
+                    const tagData = tagDoc.data();
+                    const calendarId = tagData.calendar_id;
+                    await deleteDoc(tagRef);
+
+                    if (calendarId) {
+                        const calendarRef = doc(db, "Calendar", calendarId);
+                        await updateDoc(calendarRef, {
+                            tags: arrayRemove(tag_id)
+                        });
+
+                        const calDoc = await getDoc(calendarRef);
+                        const calDelTags = calDoc.data().tags;
+                        const calUsers = calDoc.data().users;
+
+                        console.log("Remaining tags:", calDelTags.length, "Cal ID:", calendarId);
+                
+                        if (calDelTags.length === 0 && calendarId !== this.miscCal_id && calUsers.length === 1) {
+                            const userRef = doc(db, "User", this.user_id);
+                            await updateDoc(userRef, {
+                                [`personal_calendars.${calendarId}`]: deleteField(),                                
+                            });
+                            await deleteDoc(calendarRef);
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error("Error processing deleteTag:", error);
             }
-            await this.fetchAndUpdateData();
+            await this.getUserCalendars();
             console.log('Successfully deleted tag and updated calendar!', tag_id);
         }, 
+
         async fetchAndUpdateData() {
             let tagPromises = []; 
             let miscDoc = await getDoc(doc(db, "Calendar", this.miscCal_id)); // fetch calendar doc via calendar cal_id
@@ -431,6 +458,8 @@ export default {
                     });
                 }
             }
+
+
             this.originalRows =  await Promise.all(tagPromises); // fulfill all promises at once then populate the rows 
             this.tableRows = this.originalRows;
         }

@@ -147,8 +147,8 @@ export default {
 </script>
 
 <template>
-    <div class="myContainer">
-        <div class="myContainer" id="testC">
+    <div class="myContainer" id="loginComponent">
+        <div class="myContainer" id="leftSide">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />
             <h3>Tag-IT, don't forget it!</h3>
         </div>
@@ -220,12 +220,17 @@ export default {
 </template>
 
 <style scoped>
+#loginComponent {
+    padding-bottom: 5em;
+    vertical-align: middle;
+}
+
 .icon {
     border: none;
     height: 18px;
     vertical-align: middle;
 }
-#testC {
+#leftSide {
     display: inline;
     width: 100%;
     padding: 10px;
@@ -235,6 +240,7 @@ export default {
 
 #loginContainer {
     width: 50%;
+    min-width: 20em;
 }
 
 form {
@@ -248,7 +254,7 @@ form {
     text-align: left;
     margin-bottom: 10px;
     border-radius: 10px;
-    border-width: 2px;
+    border-width: 1.5px;
 }
 
 #googleLoginButton {
@@ -259,6 +265,10 @@ form {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+}
+
+#googleLoginButton:hover {
+    background-color: #f2f2f2;
 }
 
 .errorlabel {

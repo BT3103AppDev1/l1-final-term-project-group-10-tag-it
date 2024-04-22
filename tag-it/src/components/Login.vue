@@ -43,10 +43,7 @@ export default {
             // check if new user or logged in before
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    const loggedName = user.displayName;
                     const loggedEmail = user.email;
-                    const loggedUID = user.uid;
-                    const loggedMobile = user.phoneNumber;
 
                     const db = getFirestore();
                     const usersCollection = collection(db, "User");
@@ -56,37 +53,20 @@ export default {
                         where("email", "==", loggedEmail)
                     );
 
-                    const queryByMobileNumber = query(
-                        usersCollection,
-                        where("mobile_number", "==", loggedMobile)
-                    );
-
+                    // checking if email has been occupied
                     Promise.all([getDocs(queryByEmail)])
                         .then(([emailSnapshot]) => {
                             if (!emailSnapshot.empty) {
+                                // PROFILE CREATED --> GO TO HOME
                                 router.push({ name: "Home" });
-                            } else {
-                                // create db
-                                // push to signup page
-
-                                const newUserData = {
-                                    first_name: loggedName,
-                                    last_name: null,
-                                    username: null,
-                                    email: loggedEmail,
-                                    mobile_number: loggedEmail,
-                                };
-                                const db = getFirestore();
-                                const user = auth.currentUser;
-                                const userDocRef = doc(db, "User", user.uid);
+                            } else if (emailSnapshot.empty) {
+                                // NO PROFILE YET --> GO TO GOOGLESIGNUP
                                 router.push({ name: "GoogleSignUp" });
                             }
                         })
                         .catch((error) => {
                             console.error("Error querying database: ", error);
                         });
-
-                    // router.push({ name: "Home" });
                 }
             });
         }

@@ -89,7 +89,7 @@
                             ><br />
                             <input
                                 class="signUpInput"
-                                type="number"
+                                type="text"
                                 placeholder="Mobile Number"
                                 id="signupMobile"
                                 required="yes"
@@ -128,6 +128,7 @@ import { auth } from "../firebase.js";
 import {
     getFirestore,
     doc,
+    addDoc,
     setDoc,
     collection,
     query,
@@ -136,6 +137,24 @@ import {
 } from "firebase/firestore";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+
+/*
+SIGN UP LOGIC: everything is under createAccount()
+
+Within createAccount(), it will checkProfile() and checkPassword()
+to check if details have been used and if password matches the password requirement
+
+Every undesirable edge case would be added to "errorMessage"
+
+createAccount() will then call checkSignUpErrorThenSignup() checking if 
+there is anything added to errorMessage
+
+=> if errorMessage, it will bounce and cause an error
+=> if no errorMessage, it will TRY createUserWithEmailAndPassword() and createProfile()
+
+createUserWithEmailAndPassword() is firebase's implementation of user authentication
+while createProfile is our implementation to store users in our firestore database
+*/
 
 export default {
     name: "SignUp",
@@ -162,6 +181,7 @@ export default {
             router.go(-1);
         },
 
+        // to check if 1) email 2) username 3) mobile number has been used
         checkProfile(signupEmail, signupUsername, signupMobile) {
             const db = getFirestore();
             const usersCollection = collection(db, "User");
@@ -207,6 +227,7 @@ export default {
                 });
         },
 
+        // check if password meets password requirements
         checkPassword(pw) {
             return (
                 /[A-Z]/.test(pw) &&
@@ -217,6 +238,7 @@ export default {
             );
         },
 
+        // MAIN FUNCTION HERE !!
         async createAccount() {
             const signUpErrorMessage = document.querySelector(
                 "#signUpErrorMessage"
@@ -232,7 +254,7 @@ export default {
                 .value.toLowerCase();
             const signupMobile = document.getElementById("signupMobile").value;
 
-            await this.checkProfile(signupEmail, signupUsername, signupMobile);
+            this.checkProfile(signupEmail, signupUsername, signupMobile);
 
             // STEP 2a: Check if Password and Confirm Password Matches
             const loginPassword =
@@ -250,47 +272,19 @@ export default {
             }
 
             // STEP 2c: Check if Mobile Number is valid
-            if (signupMobile.length != 8) {
+            var regEx = /^[0-9]{8}$/;
+            if (!regEx.test(signupMobile)) {
                 this.addError("Please enter a valid SG mobile number.");
             }
 
-            // // CHECK IF ERROR
+            // CHECK IF ERROR
             toast.promise(this.checkSignUpErrorThenSignup(), {
                 pending: "Signing up...",
                 success: "Successfully signed up & logged in!",
                 error: "Failed to sign up",
             });
 
-            // // OLD IMPLEMENTATION
-            // if (signUpErrorMessage.innerHTML != "") {
-            //     console.log("PENDING ERRORS!!");
-            //     this.showSignUpError();
-            //     return;
-            // } else {
-            //     // STEP 3: ACTUALLY LOG IN!!
-            // const firstName =
-            //     document.getElementById("signUpFirstName").value;
-            // const lastName =
-            //     document.getElementById("signUpLastName").value;
-            // try {
-            //     await createUserWithEmailAndPassword(
-            //         auth,
-            //         signupEmail,
-            //         loginPassword
-            //     );
-
-            //     await this.createProfile(
-            //         firstName,
-            //         lastName,
-            //         signupUsername,
-            //         signupEmail,
-            //         signupMobile
-            //     );
-            //     // router.push({ name: "Home" });
-            // } catch (error) {
-            //     this.showSignUpError();
-            // }
-            // }
+            // router.push({ name: "Home" });
         },
 
         async checkSignUpErrorThenSignup() {
@@ -356,33 +350,34 @@ export default {
             lastName,
             username,
             email,
-
             mobileNumber
         ) {
 
             const db = getFirestore();
             const user = auth.currentUser;
             const userDocRef = doc(db, "User", user.uid);
+            try {
+                const miscDocRef = await addDoc(collection(db, "Calendar"), {
+                    calendar_name: "",
+                    color: "#cccaca",
+                    tags: [],
+                    users: [user.uid],
+                });
 
-            const miscDocRef = await addDoc(collection(db, 'Calendar'), {
-                calendar_name: "",
-                color: "#cccaca",
-                tags: [],
-                users: [user.uid],
-            })
-
-            const newUserData = {
-                first_name: firstName,
-                last_name: lastName,
-                username: username,
-                email: email,
-                mobile_number: mobileNumber,
-                misc_calendar: String(miscDocRef.id),
-                personal_calendars: {},
-                shared_calendars: {},
-            };
-            
-            setDoc(userDocRef, newUserData);
+                const newUserData = {
+                    first_name: firstName,
+                    last_name: lastName,
+                    username: username,
+                    email: email,
+                    mobile_number: mobileNumber,
+                    misc_calendar: String(miscDocRef.id),
+                    personal_calendars: {},
+                    shared_calendars: {},
+                };
+                await setDoc(userDocRef, newUserData);
+            } catch (error) {
+                console.error("Error creating profile: ", error);
+            }
         },
     },
 };
@@ -410,7 +405,9 @@ export default {
     padding: 3%;
     vertical-align: middle;
     display: inline-block;
+    margin-bottom: 5em;
 }
+
 #signupContainer {
     max-width: 800px;
     /* padding: 20px; */
@@ -440,7 +437,7 @@ export default {
     text-align: left;
     margin-bottom: 10px;
     border-radius: 10px;
-    border-width: 2px;
+    border-width: 1.5px;
 }
 
 .closeButton {

@@ -125,6 +125,40 @@ export default {
     },
 
     mounted() {
+        async function monitorAuthState() {
+            // check if new user or logged in before
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const loggedEmail = user.email;
+
+                    const db = getFirestore();
+                    const usersCollection = collection(db, "User");
+
+                    const queryByEmail = query(
+                        usersCollection,
+                        where("email", "==", loggedEmail)
+                    );
+
+                    // checking if email has been occupied
+                    Promise.all([getDocs(queryByEmail)])
+                        .then(([emailSnapshot]) => {
+                            if (!emailSnapshot.empty) {
+                                // PROFILE CREATED --> GO TO HOME
+                                router.push({ name: "Home" });
+                            } else if (emailSnapshot.empty) {
+                                // NO PROFILE YET --> GO TO GOOGLESIGNUP
+                                router.push({ name: "GoogleSignUp" });
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error querying database: ", error);
+                        });
+                }
+            });
+        }
+
+        monitorAuthState();
+
         async function hideSignUpError() {
             const signUpError = document.querySelector("#signUpError");
             const signUpErrorMessage = document.querySelector(
@@ -220,8 +254,9 @@ export default {
 
             // STEP 1: Check if a) email b) username c) mobile number has been taken
             const signupEmail = document.getElementById("signupEmail").value;
-            const signupUsername =
-                document.getElementById("signupUsername").value;
+            const signupUsername = document
+                .getElementById("signupUsername")
+                .value.toLowerCase();
             const signupMobile = document.getElementById("signupMobile").value;
 
             this.checkProfile(signupEmail, signupUsername, signupMobile);
@@ -305,12 +340,11 @@ export default {
             email,
             mobileNumber
         ) {
-
             const db = getFirestore();
             const user = auth.currentUser;
             const userDocRef = doc(db, "User", user.uid);
-
             const miscDocRef = await addDoc(collection(db, 'Calendar'), {
+
                 calendar_name: "",
                 color: "#cccaca",
                 tags: [],
@@ -327,7 +361,6 @@ export default {
                 personal_calendars: {},
                 shared_calendars: {},
             };
-            
             setDoc(userDocRef, newUserData);
         },
     },

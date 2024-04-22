@@ -324,7 +324,7 @@ export default {
 <style>
 .vuecal {
   height: 100%;
-  width: 80%;
+  width: 100%;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -366,4 +366,99 @@ export default {
   border: 1px solid rgb(235, 82, 82);
   color: #fff;
 }
+
+/* Base container styling */
+.filter-container {
+    position: relative;
+    padding: 10px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Filter button styling */
+.filter-container .filterbutton {
+    cursor: pointer;
+    color: #0056b3;
+    background: none; /* Remove the background color */
+    border: none;
+    margin-left: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.filter-container .filterbutton:hover {
+    transform: rotate(360deg); /* Optional: Rotate the icon on hover */
+}
+
+/* Dropdown content box */
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    padding: 10px;
+    margin-top: 2px;
+    z-index: 1000;
+}
+
+/* Option label styling */
+.opt-labels {
+    display: block;
+    margin: 5px 0;
+    cursor: pointer;
+    padding: 3px;
+    transition: background-color 0.3s;
+}
+
+.opt-labels:hover {
+    background-color: #f8f8f8;
+}
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+    position: relative;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #fff;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+input[type="checkbox"]:checked:after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Text next to checkbox */
+.opt-labels span {
+    padding-left: 8px;
+}
+
+/* Hide the checkmark span used originally */
+.checkmark {
+    display: none;
+}
+
 </style>

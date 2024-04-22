@@ -6,8 +6,18 @@
       </button>
       <div secondContainer>
         <div id="col1">
-          <label>Group Name</label>
-          <input id="groupName" v-model="groupName" required />
+          <div class="groupName">
+            <label>Group Name</label>
+            <input id="groupName" v-model="groupName" required />
+            <div class="CalendarColors">
+                <input
+                    type="color"
+                    id="customColor"
+                    v-model="color"
+                    value="#cccaca"
+                >
+            </div> 
+          </div>
           <label>Add Members</label>
           <input
             id="addMembers"
@@ -213,10 +223,15 @@ export default {
         );
 
         // Create calendar
+
+        let docColor = document.getElementById("customColor").value;
+
         const newCalendarRef = doc(calendarCollection);
         const newGroup = {
           calendar_name: this.groupName,
+          color: docColor,
           users: userUIDs,
+          tags: [],
         };
         await setDoc(newCalendarRef, newGroup);
 
@@ -262,9 +277,10 @@ export default {
 .modal-content {
   background-color: #f2f2f2;
   margin: auto;
-  width: 50%;
-  height: 60%;
+  width: 820px;
+  height: 600px;
   border-radius: 20px;
+  position: relative;
 }
 
 h2 {
@@ -326,7 +342,7 @@ h3 {
   border: none;
   background: none;
   margin-top: 9px;
-  margin-left: 9px;
+  margin-left: 18px;
   width: 3%;
   height: 6%;
   border-radius: 8px;
@@ -342,6 +358,9 @@ h3 {
   width: 24%;
   text-align: center;
   font-family: cabin;
+  position: absolute;
+  bottom: 20px;
+  left: 300px;
 }
 
 #createButton p {
@@ -378,4 +397,20 @@ hr {
   float: right;
   margin-right: 10px;
 }
+
+.groupName{
+  text-align: left;
+  position: relative;
+}
+
+input[type='color'] {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      top: 60px;
+      right: 40px;
+      transform: translateY(-50%);
+      pointer-events: auto;
+}
+
 </style>

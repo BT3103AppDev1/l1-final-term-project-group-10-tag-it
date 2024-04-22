@@ -297,6 +297,16 @@ export default {
           await Promise.all(userUpdates);
           console.log("Shared calendars updated successfully.");
 
+          if (calendarSnap.data().hasOwnProperty("tags")) {
+            const tagIDs = calendarSnap.data().tags;
+            tagIDs.map(async (tagDocRef) => 
+              await deleteDoc(doc(db, "Tags", tagDocRef))
+            );
+            console.log("Deleted Shared Tags successfully.");
+          }
+
+
+
           await deleteDoc(calendarDocRef);
           console.log("Calendar deleted successfully.");
           this.$emit('groupDeleted', this.calendarData.id);
@@ -328,8 +338,8 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: start;
-  width: 60%;
-  height: 70%;
+  width: 820px;
+  height: 600px;
   border-radius: 20px;
 }
 
@@ -338,7 +348,7 @@ export default {
   border: none;
   background: none;
   margin-top: 9px;
-  margin-left: 9px;
+  margin-left: 18px;
   width: 3%;
   height: 6%;
   border-radius: 8px;

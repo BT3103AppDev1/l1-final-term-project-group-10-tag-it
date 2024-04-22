@@ -11,6 +11,7 @@
         v-for="(calendar, index) in calendars"
         :key="index"
         @click="openCalendarModal(calendar)"
+        :style="{'background-color': calendar.color}"
       >
         <p>{{ calendar.calendar_name }}</p>
         <img src="../assets/group.png" width="120" />
@@ -130,8 +131,9 @@ export default {
   text-align: center;
   margin: 5% 5% 5% 5%;
   border-radius: 10px;
+  min-height: 250px;
   height: 34vh;
-  width: 20vw;
+  width: 22.5vw;
 }
 
 .grid-item {
@@ -141,7 +143,8 @@ export default {
   text-align: center;
   margin: 5% 5% 5% 5%;
   border-radius: 10px;
+  min-height: 250px;
   height: 34vh;
-  width: 20vw;
+  width: 22.5vw;
 }
 </style>

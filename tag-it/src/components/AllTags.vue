@@ -102,6 +102,7 @@ import { BIconFlag, BIconFlagFill, BIconTrashFill, BIconCircle, BIconCaretUpFill
 import firebaseApp, { auth } from '../firebase.js';
 import { arrayUnion, deleteAllPersistentCacheIndexes } from 'firebase/firestore';
 import { getFirestore, arrayRemove, doc, addDoc, query, where,  setDoc, updateDoc, getDoc, getDocs, deleteDoc, collection, documentId } from "firebase/firestore";
+
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const db = getFirestore(firebaseApp);
@@ -137,7 +138,6 @@ export default {
                 filterImpt: false,
                 filterCal: false,
             },
-
             // user auth
             cal_name: '',
             cal_color: '',
@@ -202,7 +202,6 @@ export default {
                     cal_id: doc.id
                 })));
             }
-            // this.miscCal_id = this.miscCal_id;
             this.fetchAndUpdateData();
         },
 
@@ -223,7 +222,6 @@ export default {
                 this.calName_calId[cal_name] = cal_id;
                 
             })
-            
         },
 
         async filterStartDate() {
@@ -384,7 +382,6 @@ export default {
             await this.fetchAndUpdateData();
             console.log('Successfully deleted tag and updated calendar!', tag_id);
         }, 
-
         async fetchAndUpdateData() {
             let tagPromises = []; 
             let miscDoc = await getDoc(doc(db, "Calendar", this.miscCal_id)); // fetch calendar doc via calendar cal_id
@@ -434,8 +431,6 @@ export default {
                     });
                 }
             }
-
-
             this.originalRows =  await Promise.all(tagPromises); // fulfill all promises at once then populate the rows 
             this.tableRows = this.originalRows;
         }

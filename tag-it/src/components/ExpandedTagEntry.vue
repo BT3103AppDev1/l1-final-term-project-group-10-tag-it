@@ -367,7 +367,6 @@ export default {
     }
 
 
-    /* not sure why cannot align left :( */
     label {
         text-align: left;
         color: white;
@@ -427,7 +426,6 @@ export default {
         position: absolute;
         width: 30px;
         height: 30px;
-        position: absolute;
         top: 265px;
         right: 10px;
         transform: translateY(-50%);

@@ -30,7 +30,7 @@ div {
 .curvedRectangle {
     background-color: #f2f2f2;
     color: #686868;
-    filter: drop-shadow(2px 2px);
+    filter: drop-shadow(2px 2px #919191);
     border-radius: 25px;
     padding: 20px;
 }
@@ -38,12 +38,19 @@ div {
 .blueButton {
     /* width: 190px; */
     width: 65%;
-    height: 35px;
+    min-height: 35px;
     background-color: #406cbe;
     border-radius: 10px;
     border-width: 2px;
     color: #fcfbf4;
     font-size: medium;
+    font-family: cabin;
+}
+
+.blueButton:hover {
+    background-color: #0641ad;
+    /* color: #406cbe; */
+    cursor: pointer;
 }
 
 /* custom fonts */

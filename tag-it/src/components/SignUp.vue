@@ -405,7 +405,9 @@ export default {
     padding: 3%;
     vertical-align: middle;
     display: inline-block;
+    margin-bottom: 5em;
 }
+
 #signupContainer {
     max-width: 800px;
     /* padding: 20px; */
@@ -435,7 +437,7 @@ export default {
     text-align: left;
     margin-bottom: 10px;
     border-radius: 10px;
-    border-width: 2px;
+    border-width: 1.5px;
 }
 
 .closeButton {

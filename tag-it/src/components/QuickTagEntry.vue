@@ -1,17 +1,17 @@
 <template>
     <div class="quickAddTag">
-        <form class="quickAddTagForm">
+        <form class="quickAddTagForm" @submit.prevent="massAddTags">
             <input
                 type="text"
                 placeholder="Quick add tag..."
+                v-model="inputData"
                 id="quickAddTag"
                 required="yes"
-                @keyup.enter="massAddTags"
             />
             <!-- not sure how to put icon over form -->
             <i class="expandTag" @click="expandTagEntry">
-                <BIconArrowsAngleExpand
-            /></i>
+                <BIconArrowsAngleExpand />
+            </i>
         </form>
     </div>
 </template>
@@ -22,8 +22,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import {
     getFirestore,
     doc,
+    getDoc,
+    addDoc,
     setDoc,
     collection,
+    updateDoc,
+    arrayUnion,
     query,
     where,
     getDocs,
@@ -37,6 +41,7 @@ export default {
     data() {
         return {
             user: null,
+            inputData: "",
         };
     },
     created() {
@@ -51,25 +56,79 @@ export default {
             });
         },
         expandTagEntry(event) {
-            console.log("expanding tag");
             alert(
                 "expand button works, will need to route to expanded tag entry"
             );
         },
-        massAddTags() {
+
+        async massAddTags() {
+            // take the input and split it into an array
             const rawString = document.getElementById("quickAddTag").value;
             const splitList = rawString.split(",");
 
-            Promise.all(db.collection("Users").doc(this.user.uid).get())
-                .then((doc) => {
-                    if (doc.exists) {
-                        const misc_calendar_id = doc.data().misc_calendar;
-                    }
-                })
-                .catch((error) => {
-                    console.error("error getting doc");
+            let miscCalendarId;
+            // get the user's misc_calendar id
+            try {
+                const user = auth.currentUser;
+                const userDocRef = doc(db, "User", user.uid);
+
+                const docSnapshot = await getDoc(userDocRef);
+                if (docSnapshot.exists()) {
+                    miscCalendarId = docSnapshot.data().misc_calendar;
+                }
+            } catch (error) {
+                console.error("Error getting Misc Calendar ID: ", error);
+            }
+
+            // get misc_calendar name (not relevant since it should always be "")
+            // try {
+            //     const miscCalRef = doc(db, "Calendar", miscCalendarId);
+
+            //     await getDoc(miscCalRef).then((docuSnapshot) => {
+            //         if (docuSnapshot.exists()) {
+            //             const miscCalendarName =
+            //                 docSnapshot.data().calendar_name;
+            //             console.log(miscCalendarName);
+            //         }
+            //     });
+            // } catch (error) {
+            //     console.error("Error getting Misc Calendar Name: ", error);
+            // }
+
+            const miscCalDocRef = doc(db, "Calendar", miscCalendarId);
+
+            // iterate through the array
+            for (let i = 0; i < splitList.length; i++) {
+                const tagTitle = splitList[i].trim();
+
+                let tagImportance;
+                // check if important
+                if (tagTitle.includes("!")) {
+                    tagImportance = false;
+                } else {
+                    tagImportance = true;
+                }
+                // for each tag, add into tag DB
+                const tagDocRef = await addDoc(collection(db, "Tags"), {
+                    title: tagTitle,
+                    calendar_id: miscCalendarId,
+                    calendar_name: "",
+                    flagged: tagImportance,
                 });
+                const tag_id = tagDocRef.id;
+
+                // for each tag, add into calendar DB
+                await updateDoc(miscCalDocRef, {
+                    tags: arrayUnion(tag_id),
+                });
+            }
+
+            this.inputData = "";
         },
+    },
+
+    components: {
+        BIconArrowsAngleExpand,
     },
 
     props: {
@@ -96,13 +155,17 @@ export default {
 
 input {
     border-radius: 25px;
-    border-color: #a0b6db;
-    background-color: #a0b6db;
+    border-color: rgb(87, 139, 207);
+    background-color: rgb(87, 139, 207);
     width: 340px;
     height: 52px;
     /* text-align: left; */
     border-width: 1px;
     padding: 0px 10px 0px 10px;
+}
+
+#quickAddTag {
+    padding-right: 2.5em;
 }
 
 input::placeholder {

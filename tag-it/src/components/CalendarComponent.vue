@@ -326,7 +326,7 @@ export default {
 /* @import "@/assets/main.css"; */
 
 
-::v-deep .vuecal {
+:deep(.vuecal) {
   height: 90%;
   width: 100%;
   border-radius: 10px;
@@ -335,14 +335,14 @@ export default {
 
 }
 
-::v-deep .vuecal__title-bar {
+:deep(.vuecal__title-bar) {
     background-color: rgb(87, 139, 207);
 }
-::v-deep .vuecal__title-bar button {
+:deep(.vuecal__title-bar button){
     color: #f5f5f5;
 }
 
-::v-deep .vuecal__view-btn button aria-label {
+:deep(.vuecal__view-btn button aria-label) {
   color: #0641AD;
 }
 

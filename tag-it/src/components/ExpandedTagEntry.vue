@@ -3,8 +3,6 @@
     <br><br>
 
     <h5>Expanded Tag Entry</h5>
-    <p> are we allowing users to add tags to the shared calendars here? if yes, we need a field in calendars to check if it is shared or not </p>
-    <p> also make sure to log in to access these features: </p>
     <div class="expandedTEBox">
         <br>
         <BIconXLg class="cross" @click="closeExpandedTEBox" />
@@ -314,7 +312,7 @@ export default {
 
                 console.log(tagDocRef);
                 document.getElementById("expandedTEForm").reset(); // eslint-disable-next-line
-                this.$emit("added")
+                this.$emit("returnToMiscTags")
             } catch(error) {
                 console.error("Error adding document: ", error);
             }
@@ -326,6 +324,7 @@ export default {
             console.log('close expanded tag entry box')
             alert('contents will not be saved. Continue?')
             //reroute to miscellaneous tags page
+            this.$emit("returnToMiscTags")
         }
     }
 

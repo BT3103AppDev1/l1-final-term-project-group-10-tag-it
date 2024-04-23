@@ -1,6 +1,7 @@
 <template>
     <div>
-        <!-- <Navbar /> -->
+        <Navbar />
+        <router-view />
         <div class="full-page-bg">
             <div class="texts">
                 <h1 class="welcome-msg">
@@ -11,7 +12,6 @@
                     Your have {{ tags }} Tags today!
                     <!-- number of Tags will be accessed from the database -->
                 </h1>
-                <!-- <ChartTest/> -->
             </div>
             <Footer2 />
         </div>
@@ -25,7 +25,6 @@ import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Footer2 from "@/components/Footer2.vue";
 import Navbar from "@/components/Navbar.vue";
-// import ChartTest from "@/components/ChartTest.vue";
 
 const db = getFirestore(firebaseApp);
 
@@ -59,9 +58,8 @@ export default {
         });    
     },
     components: {
-        // Navbar,
         Footer2,
-        // ChartTest,
+        Navbar
     },
 
     methods: {
@@ -128,7 +126,7 @@ export default {
     height: 60vh;
 }
 .welcome-msg {
-    color: #fff;
+    color: #0a42ad;
     font-size: 7vh;
     margin-top: 30px;
     margin-bottom: 40px;

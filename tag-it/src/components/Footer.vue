@@ -7,9 +7,7 @@
         <div class="col-lg-8 col-md-12 mb-4">
         <h5 class="mb-3" style="letter-spacing: 2px; font-weight:bold; color: #fff;">About Tag-It</h5>
         <p style="color: #fff; text-align: left;">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste atque ea quis
-            molestias. Fugiat pariatur maxime quis culpa corporis vitae repudiandae aliquam
-            voluptatem veniam, est atque cumque eum delectus sint!
+            All your productivity needs in one application! Tag-It is a user-friendly, free for all and open source project by a group of NUS students.
         </p>
         </div>
         <div class="col-lg-4 col-md-6 mb-4">

@@ -56,7 +56,6 @@ export default {
             });
         },
         expandTagEntry(event) {
-            alert("expanding tag entry");
             this.$emit('openExpandedTagEntry')
 
         },

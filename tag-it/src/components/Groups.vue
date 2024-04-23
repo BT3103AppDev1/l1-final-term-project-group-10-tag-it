@@ -1,6 +1,6 @@
 <template>
-  <Navbar/>
-  <router-view/>
+  <Navbar />
+  <router-view />
   <div v-if="loading">Loading...</div>
   <div v-else>
     <div class="grid-container">
@@ -13,10 +13,13 @@
         v-for="(calendar, index) in calendars"
         :key="index"
         @click="openCalendarModal(calendar)"
-        :style="{'background-color': calendar.color}"
+        :style="{ 'background-color': calendar.color }"
+        :class="{ 'dark-background': isDark(calendar.color) }"
       >
         <p>{{ calendar.calendar_name }}</p>
-        <img src="../assets/group.png" width="120" />
+        <!-- <img :src="isDark(calendar.color) ? '../assets/white-group.png' : '../assets/group.png'" width="120" /> -->
+        <img v-if=isDark(calendar.color) src="../assets/white-group.png">
+        <img v-else src="../assets/group.png"/>
         <p>{{ calendar.users.length }} Members</p>
       </button>
       <CreateGroup
@@ -34,20 +37,23 @@
       />
     </div>
   </div>
+  <Footer />
 </template>
 
 <script>
 import CreateGroup from "@/components/CreateGroup.vue";
+import Footer from "@/components/Footer.vue";
 import EditGroup from "@/components/EditGroup.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import Navbar from '@/components/Navbar.vue'
+import Navbar from "@/components/Navbar.vue";
 
 export default {
   components: {
     CreateGroup,
     EditGroup,
     Navbar,
+    Footer,
   },
   data() {
     return {
@@ -62,6 +68,13 @@ export default {
     this.initializeAuthStateListener();
   },
   methods: {
+    isDark(color) {
+      const rgb = color.replace(/^#/, "");
+      const r = parseInt(rgb.substr(0, 2), 16);
+      const g = parseInt(rgb.substr(2, 2), 16);
+      const b = parseInt(rgb.substr(4, 2), 16);
+      return r * 0.299 + g * 0.587 + b * 0.114 < 86;
+    },
     handleGroupDeleted(deletedGroupId) {
       this.calendars = this.calendars.filter(
         (calendar) => calendar.id !== deletedGroupId
@@ -126,6 +139,7 @@ export default {
   padding: 1% 10%;
   justify-content: space-evenly;
   align-items: center;
+  margin-bottom: 20vh;
 }
 
 #create-item {
@@ -133,7 +147,7 @@ export default {
   padding: 1%;
   font-size: x-large;
   text-align: center;
-  margin: 5% 5% 5% 5%;
+  margin: 5%;
   border-radius: 10px;
   min-height: 250px;
   height: 34vh;
@@ -145,10 +159,14 @@ export default {
   padding: 1%;
   font-size: x-large;
   text-align: center;
-  margin: 5% 5% 5% 5%;
+  margin: 5%;
   border-radius: 10px;
   min-height: 250px;
   height: 34vh;
   width: 22.5vw;
+}
+
+.dark-background p, .dark-background button {
+  color: white;
 }
 </style>

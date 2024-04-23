@@ -10,7 +10,7 @@
                     <!-- name will be accessed from the database -->
                 </h1>
                 <h1 class="tags-msg">
-                    Your have {{ tags }} Tags today!
+                    You have {{ tags }} Tags today!
                     <!-- number of Tags will be accessed from the database -->
                 </h1>
             </div>

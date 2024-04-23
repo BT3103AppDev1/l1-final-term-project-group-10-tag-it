@@ -2,6 +2,7 @@
     <div>
         <Navbar />
         <router-view />
+        <ProgressBar />
         <div class="full-page-bg">
             <div class="texts">
                 <h1 class="welcome-msg">
@@ -25,6 +26,8 @@ import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Footer2 from "@/components/Footer2.vue";
 import Navbar from "@/components/Navbar.vue";
+import ProgressBar from "@/components/ProgressBar.vue";
+// import ChartTest from "@/components/ChartTest.vue";
 
 const db = getFirestore(firebaseApp);
 
@@ -58,6 +61,7 @@ export default {
         });    
     },
     components: {
+        ProgressBar,
         Footer2,
         Navbar
     },

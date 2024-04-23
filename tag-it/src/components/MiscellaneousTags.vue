@@ -88,6 +88,7 @@ export default {
             this.fetchAndDisplayData(); //add authentication
         });
     },
+    emits: ['openExpandedTE'],
     methods: {
 
         handleRefresh(){
@@ -197,7 +198,7 @@ export default {
 
 .tableDiv {
     overflow-y: auto;
-    max-height: 335px;
+    max-height: 330px;
 }
 
 .quickTagEntry {

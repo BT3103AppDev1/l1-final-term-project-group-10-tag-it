@@ -172,8 +172,7 @@ export default {
 
             const objToMap = obj => new Map(Object.entries(obj));
 
-            let user_data = await getDoc(doc(db, "User", this.user_id
-        ))
+            let user_data = await getDoc(doc(db, "User", this.user_id))
             let personal_calendars = objToMap(user_data.data().personal_calendars)
             let shared_calendars = objToMap(user_data.data().shared_calendars)
 

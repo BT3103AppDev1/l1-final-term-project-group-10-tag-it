@@ -193,12 +193,13 @@ export default {
               this.injectStyles(tagData);
               if (tagData) {
                 console.log(tagData.color);
+                const safeClassName = tagData.calendar_name.replace(/\s+/g, '-')
                 this.events.push({
                   title: tagData.title,
                   completed: tagData.completed,
                   end: tagData.end,
                   start: tagData.start,
-                  class: tagData.calendar_name,
+                  class: safeClassName,
                   color: tagData.color,
                   tag_id: tagDoc.id,
                   flagged: tagData.flagged,
@@ -282,7 +283,9 @@ export default {
       }
 
       const color = tag.color || "#a04646"; // Default color
-      const cssRule = `.vuecal__event.${className} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
+      const safeClassName = className.replace(/\s+/g, '-');
+
+      const cssRule = `.vuecal__event.${safeClassName} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
       console.log(cssRule);
       try {
         const style = document.createElement("style");

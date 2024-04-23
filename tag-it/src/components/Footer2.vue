@@ -1,5 +1,5 @@
 <template>
-    <div class="container my-5">
+    <div class="containermy-5">
         <footer style="background-color: #fff">
             <div class="container p-4">
                 <div class="row">
@@ -45,6 +45,9 @@
                             </li>
                             <li>
                                 <a href="#!" style="color: #406cbe">Groups</a>
+                            </li>
+                            <li>
+                                <a href="#!" style="color: #406cbe">Profile</a>
                             </li>
                         </ul>
                     </div>

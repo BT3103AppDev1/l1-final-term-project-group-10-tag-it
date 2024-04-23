@@ -34,7 +34,12 @@
           </ul>
         </div>
       </div>
-      <button id="deleteGroupButton" @click="deleteGroup()">Delete Group</button>
+      <div id="buttonContainer">
+        <button id="leaveGroupButton" @click="leaveGroup()">Leave Group</button>
+        <button id="deleteGroupButton" @click="deleteGroup()">
+          Delete Group
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -299,19 +304,24 @@ export default {
 
           if (calendarSnap.data().hasOwnProperty("tags")) {
             const tagIDs = calendarSnap.data().tags;
-            tagIDs.map(async (tagDocRef) => 
-              await deleteDoc(doc(db, "Tags", tagDocRef))
+            tagIDs.map(
+              async (tagDocRef) => await deleteDoc(doc(db, "Tags", tagDocRef))
             );
             console.log("Deleted Shared Tags successfully.");
           }
 
-
+          if (calendarData.hasOwnProperty("tags")) {
+            const tagIDs = calendarData.tags;
+            const tagDeletions = tagIDs.map((tagId) =>
+              deleteDoc(doc(db, "Tags", tagId))
+            );
+            await Promise.all(tagDeletions);
+            console.log("Deleted Shared Tags successfully.");
+          }
 
           await deleteDoc(calendarDocRef);
+          alert("Calendar deleted successfully!")
           console.log("Calendar deleted successfully.");
-          this.$emit('groupDeleted', this.calendarData.id);
-          this.closePopup();
-
         } else {
           console.log(
             "No users associated with this calendar, or calendar does not exist."
@@ -319,6 +329,64 @@ export default {
         }
       } catch (error) {
         console.error("Error deleting group:", error);
+      }
+      this.$emit("groupDeleted", this.calendarData.id);
+      this.closePopup();
+    },
+    async leaveGroup() {
+      const db = getFirestore();
+      const calendarId = this.calendarData.id;
+      const calendarDocRef = doc(db, "Calendar", calendarId);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userDocRef = doc(db, "User", user.uid);
+
+      try {
+        await updateDoc(calendarDocRef, {
+          users: arrayRemove(user.uid),
+        });
+
+        await updateDoc(userDocRef, {
+          [`shared_calendars.${calendarId}`]: deleteField(),
+        });
+
+        const updatedCalendarSnap = await getDoc(calendarDocRef);
+        if (updatedCalendarSnap.exists()) {
+          const updatedCalendarData = updatedCalendarSnap.data();
+          if (
+            !updatedCalendarData.users ||
+            updatedCalendarData.users.length === 0
+          ) {
+            if (updatedCalendarData.hasOwnProperty("tags")) {
+              const tagIDs = updatedCalendarData.tags;
+              const tagDeletions = tagIDs.map((tagId) =>
+                deleteDoc(doc(db, "Tags", tagId))
+              );
+              await Promise.all(tagDeletions);
+              console.log("All associated tags deleted successfully.");
+            }
+            await deleteDoc(calendarDocRef);
+            console.log(
+              "Calendar deleted successfully as no more users are linked."
+            );
+          } else {
+            console.log("Removed from calendar, but other members remain.");
+          }
+        } else {
+          console.error(
+            "Failed to fetch updated calendar data after user removal."
+          );
+        }
+
+        this.memberList = this.memberList.filter(
+          (member) => member !== this.currentUserUsername
+        );
+        this.$emit("groupDeleted", this.calendarData.id);
+        this.closePopup();
+        alert("You have left the group.");
+      } catch (error) {
+        console.error("Error leaving group:", error);
+        alert("Failed to leave the group.");
       }
     },
   },
@@ -444,10 +512,23 @@ hr {
 }
 
 #deleteGroupButton {
-  z-index: 10;
+  /* z-index: 10;
   position: absolute;
   left: 44%;
-  bottom: 10%;
+  bottom: 10%; */
   border-radius: 6px;
+}
+
+#leaveGroupButton {
+  /* z-index: 10;
+  position: absolute;
+  left: 44%;
+  bottom: 10%; */
+  margin-right: 5%;
+  border-radius: 6px;
+}
+
+#buttonContainer {
+  width: 100%;
 }
 </style>

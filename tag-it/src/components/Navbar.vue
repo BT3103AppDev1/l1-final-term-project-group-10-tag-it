@@ -26,17 +26,20 @@
                 <li class="nav-item">
                     <router-link to="/alltags">All Tags</router-link> 
                 </li>
-                <li class="nav-item-group">
+                <li class="nav-item">
                     <router-link to="/groups">Groups</router-link>
                 <!-- <a class="nav-link ml-10" href="#">Groups</a>o -->
                 </li>
-                <li class="nav-item" id="logOut">
+                <li class="nav-item">
+                    <router-link to="/edit-profile">Profile</router-link> 
+                </li>
+                <li class="nav-item-logout" id="logOut">
                     <div @click="signOutToast()">LogOut</div>
                 </li>
             </ul>
         </div></span>
     </div>
-    <hr></hr>
+    <hr>
     
 </template>
 
@@ -80,12 +83,18 @@ export default {
     padding-right: 50px; 
 }
 
-.nav-item-group {
+.nav-item-logout {
     font-family: 'Montserrat', sans-serif;
     margin-right: 50px;
     font-size:  20px;
     font-weight: bold;
+    color: rgb(13, 110, 253);
+    text-decoration: underline;
+}
+
+.nav-item-logout:hover {
     color: #0A42AD;
+    cursor: pointer;
 }
 
 hr {

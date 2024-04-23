@@ -1,8 +1,8 @@
 <template>
-    <h5> ALL TASK LIST</h5>
+    <!-- <h5> ALL TASK LIST</h5>
     <p> reordering of the tasks? yet to enable filter. set specific colors for the specific categories</p>
     <p> also are we able to edit the tags from here?</p>
-    <p>this version doesnt use tag_id but the auto_generated id of the tag</p>
+    <p>this version doesnt use tag_id but the auto_generated id of the tag</p> -->
     <div class="allTagsContainer">
         
         <div id="padding">

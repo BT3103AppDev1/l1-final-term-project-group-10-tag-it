@@ -1,4 +1,6 @@
 <template>
+  <Navbar/>
+  <router-view/>
   <div v-if="loading">Loading...</div>
   <div v-else>
     <div class="grid-container">
@@ -39,11 +41,13 @@ import CreateGroup from "@/components/CreateGroup.vue";
 import EditGroup from "@/components/EditGroup.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
+import Navbar from '@/components/Navbar.vue'
 
 export default {
   components: {
     CreateGroup,
     EditGroup,
+    Navbar,
   },
   data() {
     return {

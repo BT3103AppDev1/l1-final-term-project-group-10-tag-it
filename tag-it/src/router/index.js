@@ -16,6 +16,8 @@ import Login from "@/components/Login.vue";
 import MiscellaneousTags from "@/components/MiscellaneousTags.vue";
 import ResetPassword from "@/components/ResetPassword.vue";
 import SignUp from "@/components/SignUp.vue";
+import CalendarComponent from '@/components/CalendarComponent.vue';
+
 
 const routes = [
     {
@@ -45,6 +47,7 @@ const routes = [
         component: Calendar,
         ExpandedTagEntry,
         MiscellaneousTags,
+        CalendarComponent,
     },
     {
         path: "/forgot-password",

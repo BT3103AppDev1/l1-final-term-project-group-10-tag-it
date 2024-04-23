@@ -14,9 +14,9 @@
         <span class="nav" style="display: flex; justify-content: center; ">
         <div class="center-nav justify-content-between">
             <ul class="navbar-nav justify-content-between flex-row" aria-expanded="false">
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <router-link to="/">Login</router-link> 
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <router-link to="/home">Home</router-link> 
                 </li>

@@ -6,7 +6,7 @@
         <div id="topContents">
             <h3 id="miscTagHeader">Miscellaneous Tags</h3>
         </div>
-        <hr class="header" />
+        <!-- <hr class="header" /> -->
         <div class="tableDiv">
             <table id="miscTagTable">
                 <tr v-for="(row, index) in tableRows" :key="row.tag_id">
@@ -34,7 +34,12 @@
                 v-if="addingtag === false"
                 class="addQuickTagButton"
             />
-            <QuickTagEntry v-else class="quickTagEntry" />
+            <QuickTagEntry
+                v-else
+                class="quickTagEntry"
+                @refresh-required="handleRefresh"
+                @openExpandedTagEntry="openETE"
+            />
         </div>
     </div>
 
@@ -88,7 +93,16 @@ export default {
             this.fetchAndDisplayData(); //add authentication
         });
     },
+    emits: ["openExpandedTE"],
     methods: {
+        handleRefresh() {
+            this.fetchAndDisplayData();
+        },
+
+        openETE() {
+            this.$emit("openExpandedTE");
+        },
+
         async checkbutton(tag_id, completed_status) {
             //when synced with firestore, change to async + put in export default? under mount?
             console.log("Icon clicked!", tag_id, completed_status);
@@ -178,17 +192,17 @@ export default {
     height: 520px;
     border-radius: 20px;
     border-width: 1px;
-    border-color: #919191;
+    border-color: #cacaca;
     margin: auto;
     font-family: cabin;
     font-size: 18px;
     position: relative;
-    filter: drop-shadow(2px 2px #919191);
+    filter: drop-shadow(2px 2px #cacaca);
 }
 
 .tableDiv {
     overflow-y: auto;
-    max-height: 335px;
+    max-height: 330px;
 }
 
 .quickTagEntry {

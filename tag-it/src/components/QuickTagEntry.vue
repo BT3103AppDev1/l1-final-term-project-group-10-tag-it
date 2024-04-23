@@ -56,9 +56,8 @@ export default {
             });
         },
         expandTagEntry(event) {
-            alert(
-                "expand button works, will need to route to expanded tag entry"
-            );
+            alert("expanding tag entry");
+            this.$emit("openExpandedTagEntry");
         },
 
         async massAddTags() {
@@ -124,6 +123,7 @@ export default {
             }
 
             this.inputData = "";
+            this.$emit("refresh-required");
         },
     },
 
@@ -166,6 +166,7 @@ input {
 
 #quickAddTag {
     padding-right: 2.5em;
+    color: #f5f5f5;
 }
 
 input::placeholder {

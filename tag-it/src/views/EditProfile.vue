@@ -1,4 +1,6 @@
 <template>
+  <Navbar />
+  <router-view />
   <form @submit.prevent="editProfile" id="firstContainer">
     <h2>EDIT PROFILE</h2>
     <div id="secondContainer">
@@ -20,12 +22,7 @@
       <p>SAVE</p>
     </button>
   </form>
-
-  <form @submit.prevent="logOut">
-    <button id="logOutButton" type="submit">
-      <p>LOG OUT</p>
-    </button>
-  </form>
+  <Footer />
 </template>
 
 <style scoped>
@@ -40,6 +37,7 @@
   border-radius: 25px;
   padding: 2%;
   font-family: cabin;
+  margin-bottom: 10%;
 }
 
 #secondContainer {
@@ -111,41 +109,22 @@ h2 {
   cursor: pointer;
 }
 
-#logOutButton {
-  background-color: rgb(94, 91, 91);
-  color: white;
-  border-radius: 10px;
-  margin-top: 2%;
-  margin-bottom: 2%;
-  width: 12%;
-  text-align: center;
-  font-family: cabin;
-}
-
-#logOutButton p {
-  text-align: center;
-  font-size: medium;
-  font-family: cabin;
-  margin-top: 7%;
-  margin-bottom: 7%;
-}
-
-#logOutButton:hover {
-  background-color: white;
-  color: rgb(94, 91, 91);
-  cursor: pointer;
-}
-
 form {
   margin-bottom: 5%;
 }
 </style>
 
 <script>
+import Navbar from '@/components/Navbar.vue';
+import Footer from '@/components/Footer.vue';
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, setDoc, collection, query, where, getDocs, getDoc,} from "firebase/firestore";
 
 export default {
+  components: {
+    Navbar,
+    Footer
+  },
   data() {
     return {
       firstName: "",
@@ -231,18 +210,6 @@ export default {
         })
         .catch((error) => {
           console.error("Error querying database:", error);
-        });
-    },
-
-    logOut() {
-      const auth = getAuth();
-      signOut(auth)
-        .then(() => {
-          console.log("User signed out successfully");
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          console.error("Error signing out:", error);
         });
     },
   },

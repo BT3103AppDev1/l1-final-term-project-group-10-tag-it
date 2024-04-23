@@ -1,5 +1,5 @@
 <template>
-    <div class="container my-5">
+    <div class="containermy-5">
 
     <footer style="background-color: #406CBE;">
     <div class="container p-4">
@@ -27,6 +27,9 @@
             <li>
             <a href="#!" style="color: #fff;">Groups</a>
             </li>
+            <li>
+            <a href="#!" style="color: #fff;">Profile</a>
+            </li>
         </ul>
         </div>
 
@@ -49,7 +52,7 @@ footer {
     font-family: 'Montserrat', sans-serif;
     display: flex;
     flex-direction: column;
-    
+    margin-top: 20px;
 }
 
 

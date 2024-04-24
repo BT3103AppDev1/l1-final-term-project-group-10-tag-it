@@ -378,12 +378,14 @@ h3 {
 
 .member-list ul {
   list-style-type: none;
+  font-family: cabin;
 }
 
 .member-list li {
   text-align: left;
   font-size: x-large;
   padding-left: 10px;
+  font-family: cabin;
 }
 
 hr {
@@ -396,11 +398,13 @@ hr {
   background: none;
   float: right;
   margin-right: 10px;
+  font-family: cabin;
 }
 
 .groupName{
   text-align: left;
   position: relative;
+  font-family: cabin;
 }
 
 input[type='color'] {

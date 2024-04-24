@@ -454,6 +454,7 @@ label {
   margin-left: 2%;
   margin-bottom: 3%;
   width: 60px;
+  font-family: cabin;
 }
 
 #calendarName {
@@ -461,6 +462,7 @@ label {
   border-radius: 5px;
   font-size: large;
   margin-bottom: 3%;
+  font-family: cabin;
 }
 
 .member-list {
@@ -472,11 +474,13 @@ label {
 .member-list ul {
   list-style-type: none;
   padding: 0;
+  font-family: cabin;
 }
 
 .member-list li {
   text-align: left;
   font-size: x-large;
+  font-family: cabin;
 }
 
 hr {
@@ -489,6 +493,7 @@ hr {
   background: none;
   float: right;
   margin-right: 10px;
+  font-family: cabin;
 }
 
 #group-container {
@@ -503,12 +508,14 @@ hr {
   height: 36px;
   border-radius: 5px;
   font-size: large;
+  font-family: cabin;
 }
 
 #addButton {
   border-radius: 6px;
   margin-left: 2%;
   width: 60px;
+  font-family: cabin;
 }
 
 #deleteGroupButton {
@@ -517,6 +524,7 @@ hr {
   left: 44%;
   bottom: 10%; */
   border-radius: 6px;
+  font-family: cabin;
 }
 
 #leaveGroupButton {
@@ -526,6 +534,7 @@ hr {
   bottom: 10%; */
   margin-right: 5%;
   border-radius: 6px;
+  font-family: cabin;
 }
 
 #buttonContainer {

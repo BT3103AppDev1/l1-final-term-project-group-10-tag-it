@@ -152,6 +152,7 @@ export default {
   min-height: 250px;
   height: 34vh;
   width: 22.5vw;
+  font-family: cabin;
 }
 
 .grid-item {
@@ -164,6 +165,7 @@ export default {
   min-height: 250px;
   height: 34vh;
   width: 22.5vw;
+  font-family: cabin;
 }
 
 .dark-background p, .dark-background button {

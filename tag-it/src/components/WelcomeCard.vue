@@ -1,35 +1,24 @@
 <template>
     <div>
-        <Navbar />
-        <router-view />
-
-        <div class="full-page-bg">
-            <Bento />
-
-            <Footer2 />
-        </div>
+        <div class="header1">Welcome back {{ username }}!</div>
+        <div class="header2">You have {{ tags }} Tags today!</div>
     </div>
 </template>
 
 <script>
 import firebaseApp, { auth } from "../firebase.js";
 import { getDoc, getFirestore, updateDoc } from "firebase/firestore";
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc } from "firebase/firestore";
 import Footer2 from "@/components/Footer2.vue";
-import Navbar from "@/components/Navbar.vue";
-import ProgressBar from "@/components/ProgressBar.vue";
-import Bento from "@/components/Bento.vue";
-// import ChartTest from "@/components/ChartTest.vue";
 
 const db = getFirestore(firebaseApp);
 
 export default {
-    name: "Home",
+    name: "WelcomeCard",
 
     data() {
         return {
-            username: "",
+            username: "User",
             user_id: "",
             user_calendars: [],
             tags: 0,
@@ -40,28 +29,21 @@ export default {
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 let userDocRef = doc(db, "User", user.uid);
-                // console.log(user.uid);
                 this.user_id = user.uid;
-                // console.log(this.user_id);
                 let userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
                     this.username = userDocSnap.data().first_name;
                 }
             }
-            // console.log(this.user_id);
             this.getTagCount();
         });
     },
     components: {
-        ProgressBar,
         Footer2,
-        Navbar,
-        Bento,
     },
 
     methods: {
         async getTagCount() {
-            console.log(this.user_id);
             const objToMap = (obj) => new Map(Object.entries(obj));
 
             let user_data = await getDoc(doc(db, "User", this.user_id));
@@ -86,11 +68,6 @@ export default {
             }
 
             this.user_calendars.push(miscCal_id);
-            // console.log(this.user_calendars);
-            // console.log(this.user_calendars[0]);
-            // const calDoc = await getDoc(doc(db, "Calendar", this.user_calendars[0]));
-            // const calTags = calDoc.data().tags;
-            // console.log(calTags.length);
 
             let count = 0;
             try {
@@ -105,45 +82,25 @@ export default {
                         Array.isArray(calDoc.data().tags)
                     ) {
                         const calTags = calDoc.data().tags;
-                        // console.log(calTags.length);
                         count += calTags.length;
                     }
                 }
-                // console.log("Total tags:", count);
             } catch (error) {
-                // console.error("Error fetching tags:", error);
+                console.error("Error fetching tags:", error);
                 count = 0;
             }
             this.tags = count;
-            // console.log(this.tags);
         },
     },
 };
 </script>
 
 <style scoped>
-.texts {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 60vh;
-}
-.welcome-msg {
-    color: #0a42ad;
-    font-size: 7vh;
-    margin-top: 30px;
-    margin-bottom: 40px;
+.header1 {
+    font-size: 3em;
 }
 
-.tags-msg {
-    color: #000;
-    font-size: 7vh;
-}
-
-.full-page-bg {
-    height: 100%; /* make sure it covers the full viewport height */
-    /* background-color: #343a40;  */
-    background-image: linear-gradient(#fff, #0a42ad);
+.header2 {
+    font-size: 2.5em;
 }
 </style>

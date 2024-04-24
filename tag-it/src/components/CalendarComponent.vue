@@ -285,6 +285,7 @@ export default {
 
     refreshCalendar() {
       console.log('refreshing')
+      this.events = [];
       this.populate_cal_colour_and_cal_id();
       console.log('methodcalled')
     },

@@ -112,6 +112,10 @@ export default {
           calendar_id: miscCalendarId,
           calendar_name: "",
           flagged: tagImportance,
+          start: "",
+          end: "",
+          color: "",
+          completed: false,
         });
         const tag_id = tagDocRef.id;
 

@@ -118,7 +118,6 @@ export default {
             }
         },
         async deleteTag(tag_id) {
-            alert("You are going to delete: " + tag_id);
             console.log("removing " + tag_id + " from " + this.miscCal_id);
 
             //remove the tag from tags field in misc calendar

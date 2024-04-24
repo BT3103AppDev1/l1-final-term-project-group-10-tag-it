@@ -97,15 +97,12 @@ export default {
   },
 
   async mounted() {
-    console.log("calling on mounted");
     auth.onAuthStateChanged((user) => {
       if (user) {
         this.user_id = user.uid;
-        console.log(this.user_id);
         this.populate_cal_colour_and_cal_id();
       }
     });
-    this.addTagToCal();
   },
 
   methods: {
@@ -117,7 +114,6 @@ export default {
       let personal_calendars = objToMap(user_data.data().personal_calendars);
       let shared_calendars = objToMap(user_data.data().shared_calendars);
       let miscCal_id = objToMap(user_data.data().misc_calendar);
-      console.log("all calenders loading works");
       //adding personal calendar id from personal calendars
       if (personal_calendars.size > 0) {
         personal_calendars.forEach((value, key) => {
@@ -152,16 +148,13 @@ export default {
           }))
         );
       }
-      console.log("load_tags_from_firebase_to_calendar");
       this.load_tags_from_firebase_to_calendar();
     },
 
     // populate the cal name and cal colour
     async populate_cal_colour_and_cal_id() {
       // get calendars of the current users
-      console.log("calling getUSerCalendars");
       await this.getUserCalendars();
-      console.log("done with getting usercals");
 
       //iterate through user calendars
       this.user_calendars.map(async (calId) => {
@@ -179,12 +172,10 @@ export default {
 
     // get the data from all user calendars and update the calendar
     async load_tags_from_firebase_to_calendar() {
-      console.log("in load_tags_from_firebase_to_calendar");
       let tagPromises = [];
       for (let i = 0; i < this.cals.length; i++) {
         let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"]));
         let calTags = calDoc.data().tags;
-        console.log("calTags");
 
         if (calTags && Array.isArray(calTags)) {
           calTags.forEach((tagId) => {
@@ -192,7 +183,6 @@ export default {
               let tagData = tagDoc.data();
               this.injectStyles(tagData);
               if (tagData) {
-                console.log(tagData.color);
                 const safeClassName = tagData.calendar_name.replace(/\s+/g, '-')
                 this.events.push({
                   title: tagData.title,
@@ -220,14 +210,12 @@ export default {
     //check for checkboxes in the calendar filters
     async getCal(event, cal_id) {
       this.checkedStates[cal_id] = event.target.checked;
-      console.log(this.checkedStates);
       const isChecked = event.target.checked;
       if (isChecked) {
         this.filterCals.push(cal_id);
         this.loadCals();
       } else {
         this.filterCals = this.filterCals.filter((item) => item !== cal_id);
-        console.log("this is removed", cal_id);
         this.loadCals();
       }
     },
@@ -275,7 +263,6 @@ export default {
     }, */
 
     injectStyles(tag) {
-      console.log("calling inject");
       // Ensure the className is valid
       const className = tag.calendar_name;
       if (!className) {
@@ -286,7 +273,7 @@ export default {
       const safeClassName = className.replace(/\s+/g, '-');
 
       const cssRule = `.vuecal__event.${safeClassName} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
-      console.log(cssRule);
+      
       try {
         const style = document.createElement("style");
         document.head.appendChild(style);
@@ -296,8 +283,14 @@ export default {
       }
     },
 
+    refreshCalendar() {
+      console.log('refreshing')
+      this.populate_cal_colour_and_cal_id();
+      console.log('methodcalled')
+    },
+
     // add the tags to calendar and update styles
-    async addTagToCal() {
+    /* async addTagToCal() {
       const relevant_tags = await this.readTags();
       let styles = "";
       relevant_tags.forEach((tag_info) => {
@@ -317,7 +310,7 @@ export default {
         });
       });
       this.dynamicCss = styles;
-    },
+    }, */
   },
 };
 </script>

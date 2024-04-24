@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="home-page">
         <Navbar />
         <router-view />
 
@@ -122,6 +122,7 @@ export default {
 </script>
 
 <style scoped>
+
 .texts {
     display: flex;
     flex-direction: column;

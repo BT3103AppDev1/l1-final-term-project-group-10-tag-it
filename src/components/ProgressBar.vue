@@ -150,7 +150,7 @@ export default {
                                 (row) => row.color
                             ),
                             borderSkipped: false,
-                            borderRadius: 10,
+                            // borderRadius: 10,
                             barPercentage: 0.2,
                             categoryPercentage: 0.8,
                         },
@@ -166,6 +166,8 @@ export default {
                     },
                     scales: {
                         x: {
+                            min:0,
+                            max: 100,
                             display: false,
                             grid: {
                                 display: false,
@@ -284,18 +286,20 @@ export default {
 }
 
 .chartContainer {
-    width: 100%;
-    height: 460px;
+    width: 80%;
+    height: 800px;
     top: 20px;
     left: 20px;
     align-items: center;
     vertical-align: middle;
     justify-content: center;
+    margin: auto;
 }
 
 canvas {
     align-items: center;
     vertical-align: middle;
     justify-content: center;
+    width: 80%;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <br /><br />
-    <!-- <h5>MiscellaneousTags</h5> -->
+    <h5>MiscellaneousTags</h5>
 
     <div class="miscTagBox">
         <div id="topContents">
@@ -34,7 +34,12 @@
                 v-if="addingtag === false"
                 class="addQuickTagButton"
             />
-            <QuickTagEntry v-else class="quickTagEntry" @refresh-required="handleRefresh" @openExpandedTagEntry="openETE"/>
+            <QuickTagEntry
+                v-else
+                class="quickTagEntry"
+                @refresh-required="handleRefresh"
+                @openExpandedTagEntry="openETE"
+            />
         </div>
     </div>
 
@@ -88,15 +93,14 @@ export default {
             this.fetchAndDisplayData(); //add authentication
         });
     },
-    emits: ['openExpandedTE'],
+    emits: ["openExpandedTE"],
     methods: {
-
-        handleRefresh(){
+        handleRefresh() {
             this.fetchAndDisplayData();
         },
 
         openETE() {
-            this.$emit('openExpandedTE')
+            this.$emit("openExpandedTE");
         },
 
         async checkbutton(tag_id, completed_status) {

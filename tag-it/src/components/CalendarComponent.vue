@@ -2,37 +2,36 @@
   <div>
     <div class="filter-container">
       Filter Calendars
-    <BIconArrowBarDown class="filterbutton" @click="filter" />
-    
-    <div v-if="active">
-      <div class="dropdown-content">
-        <div
-          class="opt-labels"
-          v-for="(opt, index) in cals"
-          :key="opt.cal_id"
-        >
-          <input
-            id="checkboxes"
-            type="checkbox"
-            :value="opt.cal_id"
-            :checked="checkedStates[opt.cal_id]"
-            @change="getCal($event, opt.cal_id)"
-          />
-          {{ opt.calendar_name }}
-          <span class="checkmark"></span>
+      <BIconArrowBarDown class="filterbutton" @click="filter" />
+
+      <div v-if="active">
+        <div class="dropdown-content">
+          <div
+            class="opt-labels"
+            v-for="(opt, index) in cals"
+            :key="opt.cal_id"
+          >
+            <input
+              id="checkboxes"
+              type="checkbox"
+              :value="opt.cal_id"
+              :checked="checkedStates[opt.cal_id]"
+              @change="getCal($event, opt.cal_id)"
+            />
+            {{ opt.calendar_name }}
+            <span class="checkmark"></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div>
-    <vue-cal
-      :time-from="1 * 60"
-      :time-to="24 * 60"
-      :disable-views="['years']"
-      :events="events"
-    ></vue-cal>
-  </div>
-  
+    <div>
+      <vue-cal
+        :time-from="1 * 60"
+        :time-to="24 * 60"
+        :disable-views="['years']"
+        :events="events"
+      ></vue-cal>
+    </div>
   </div>
   <!-- <button @click="populate_cal_colour_and_cal_id">Add Test Event</button> -->
 </template>
@@ -113,7 +112,8 @@ export default {
       let user_data = await getDoc(doc(db, "User", this.user_id));
       let personal_calendars = objToMap(user_data.data().personal_calendars);
       let shared_calendars = objToMap(user_data.data().shared_calendars);
-      let miscCal_id = objToMap(user_data.data().misc_calendar);
+      let cal = user_data.data().misc_calendar
+      this.miscCal_id = cal;
       //adding personal calendar id from personal calendars
       if (personal_calendars.size > 0) {
         personal_calendars.forEach((value, key) => {
@@ -172,7 +172,32 @@ export default {
 
     // get the data from all user calendars and update the calendar
     async load_tags_from_firebase_to_calendar() {
-      let tagPromises = [];
+      let miscDoc = await getDoc(doc(db, "Calendar", this.miscCal_id)); // fetch calendar doc via calendar cal_id
+      let miscTags = miscDoc.data().tags;
+      if (miscTags && Array.isArray(miscTags)) {
+        miscTags.forEach((tagId) => {
+          let tagPromise = getDoc(doc(db, "Tags", tagId)).then((tagDoc) => {
+            // make a promise to fetch each tag via id
+            let tagData = tagDoc.data();
+            this.injectStyles(tagData);
+            if (tagData) {
+              const safeClassName = tagData.calendar_name.replace(/\s+/g, "-");
+              console.log(tagData.title);
+              this.events.push({
+                title: tagData.title,
+                completed: tagData.completed,
+                end: tagData.end,
+                start: tagData.start,
+                class: safeClassName,
+                color: tagData.color,
+                tag_id: tagDoc.id,
+                flagged: tagData.flagged,
+              });
+            }
+          });
+        });
+      }
+
       for (let i = 0; i < this.cals.length; i++) {
         let calDoc = await getDoc(doc(db, "Calendar", this.cals[i]["cal_id"]));
         let calTags = calDoc.data().tags;
@@ -183,7 +208,11 @@ export default {
               let tagData = tagDoc.data();
               this.injectStyles(tagData);
               if (tagData) {
-                const safeClassName = tagData.calendar_name.replace(/\s+/g, '-')
+                const safeClassName = tagData.calendar_name.replace(
+                  /\s+/g,
+                  "-"
+                );
+                console.log(tagData.title);
                 this.events.push({
                   title: tagData.title,
                   completed: tagData.completed,
@@ -270,10 +299,10 @@ export default {
       }
 
       const color = tag.color || "#a04646"; // Default color
-      const safeClassName = className.replace(/\s+/g, '-');
+      const safeClassName = className.replace(/\s+/g, "-");
 
       const cssRule = `.vuecal__event.${safeClassName} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
-      
+
       try {
         const style = document.createElement("style");
         document.head.appendChild(style);
@@ -285,8 +314,8 @@ export default {
 
     refreshCalendar() {
       console.log('refreshing')
+      this.events = [];
       this.populate_cal_colour_and_cal_id();
-      console.log('methodcalled')
     },
 
     // add the tags to calendar and update styles
@@ -318,30 +347,27 @@ export default {
 <style scoped>
 /* @import "@/assets/main.css"; */
 
-
 :deep(.vuecal) {
   height: 90%;
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
   font-family: cabin;
-
 }
 
 :deep(.vuecal__title-bar) {
-    background-color: rgb(87, 139, 207);
+  background-color: rgb(87, 139, 207);
 }
-:deep(.vuecal__title-bar button){
-    color: #f5f5f5;
+:deep(.vuecal__title-bar button) {
+  color: #f5f5f5;
 }
 
 :deep(.vuecal__view-btn button aria-label) {
-  color: #0641AD;
+  color: #0641ad;
 }
 
 .vuecal--month-view .vuecal__cell {
   height: 80px;
-  
 }
 
 .vuecal--month-view .vuecal__cell-content {
@@ -357,7 +383,6 @@ export default {
 .vuecal--month-view .vuecal__no-event {
   display: none;
 }
-
 
 .vuecal__event-title {
   font-family: cabin, Serif;
@@ -381,97 +406,96 @@ export default {
 
 /* Base container styling */
 .filter-container {
-    position: relative;
-    padding: 10px;
-    background: #f3f4f6;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-family: cabin, sans-serif;
+  position: relative;
+  padding: 10px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: cabin, sans-serif;
 }
 
 /* Filter button styling */
 .filter-container .filterbutton {
-    cursor: pointer;
-    color: #0056b3;
-    background: none; /* Remove the background color */
-    border: none;
-    margin-left: 10px;
-    transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+  color: #0056b3;
+  background: none; /* Remove the background color */
+  border: none;
+  margin-left: 10px;
+  transition: transform 0.3s ease-in-out;
 }
 
 .filter-container .filterbutton:hover {
-    transform: rotate(180deg); /* Optional: Rotate the icon on hover */
+  transform: rotate(180deg); /* Optional: Rotate the icon on hover */
 }
 
 /* Dropdown content box */
 .dropdown-content {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    padding: 10px;
-    margin-top: 2px;
-    z-index: 1000;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  margin-top: 2px;
+  z-index: 1000;
 }
 
 /* Option label styling */
 .opt-labels {
-    display: block;
-    margin: 5px 0;
-    cursor: pointer;
-    padding: 3px;
-    justify-content: left;
-    transition: background-color 0.3s;
+  display: block;
+  margin: 5px 0;
+  cursor: pointer;
+  padding: 3px;
+  justify-content: left;
+  transition: background-color 0.3s;
 }
 
 .opt-labels:hover {
-    background-color: #f8f8f8;
+  background-color: #f8f8f8;
 }
 
 /* Custom checkbox styling */
 input[type="checkbox"] {
-    position: relative;
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: #fff;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    transition: background 0.3s, border-color 0.3s;
+  position: relative;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: background 0.3s, border-color 0.3s;
 }
 
 input[type="checkbox"]:checked {
-    background-color: #0056b3;
-    border-color: #0056b3;
+  background-color: #0056b3;
+  border-color: #0056b3;
 }
 
 input[type="checkbox"]:checked:after {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 1px;
-    width: 6px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 /* Text next to checkbox */
 .opt-labels span {
-    padding-left: 8px;
+  padding-left: 8px;
 }
 
 /* Hide the checkmark span used originally */
 .checkmark {
-    display: none;
+  display: none;
 }
-
 </style>

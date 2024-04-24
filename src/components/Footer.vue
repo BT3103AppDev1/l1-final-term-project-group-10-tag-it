@@ -13,20 +13,20 @@
         <div class="col-lg-4 col-md-6 mb-4">
         <h5 class="mb-3" style="letter-spacing: 2px; font-weight:bold; color: #fff;">Links</h5>
         <ul class="list-unstyled mb-0">
-            <li class="mb-1">
-            <a href="#!" style="color: #fff;">Home</a>
+            <li class="nav-item">
+                <router-link to="/home" style="color: #fff; text-decoration: none;">Home</router-link> 
             </li>
-            <li class="mb-1">
-            <a href="#!" style="color: #fff;">Calendar</a>
+            <li class="nav-item">
+                <router-link to="/calendar" style="color: #fff; text-decoration: none;">Calendar</router-link> 
             </li>
-            <li class="mb-1">
-            <a href="#!" style="color: #fff;">All Tags</a>
+            <li class="nav-item">
+                <router-link to="/alltags" style="color: #fff; text-decoration: none;">All Tags</router-link> 
             </li>
-            <li>
-            <a href="#!" style="color: #fff;">Groups</a>
+            <li class="nav-item">
+                <router-link to="/groups" style="color: #fff; text-decoration: none;">Groups</router-link>
             </li>
-            <li>
-            <a href="#!" style="color: #fff;">Profile</a>
+            <li class="nav-item">
+                <router-link to="/edit-profile" style="color: #fff; text-decoration: none;">Profile</router-link> 
             </li>
         </ul>
         </div>
@@ -53,5 +53,16 @@ footer {
     margin-top: 20px;
 }
 
+router-link {
+    color: #fff;
+}
 
 </style>
+
+<script>
+import router from "../router/index.js";
+
+export default {
+    name: "Footer",
+}
+</script>

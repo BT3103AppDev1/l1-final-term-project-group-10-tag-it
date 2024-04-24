@@ -147,6 +147,10 @@ export default {
 </script>
 
 <template>
+    <nav>
+        <div class="container-fluid" style="height:13vh; padding-left:30px; padding-right:30px;">
+        </div>
+    </nav>
     <div class="myContainer" id="loginComponent">
         <div class="myContainer" id="leftSide">
             <img src="../assets/tagit3.png" width="50%" alt="tag it logo" />

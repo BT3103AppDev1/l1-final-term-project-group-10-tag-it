@@ -63,7 +63,7 @@ export default {
   grid-column-gap: 0px;
   grid-row-gap: 0px;
   height: fit-content;
-  margin-top: -70px;
+  padding-left: 20px;
 }
 
 .div1 {
@@ -72,6 +72,8 @@ export default {
   grid-area: 1 / 1 / 2 / 3;
 }
 .div2 {
+  padding-left: 20px;
+  padding-right: 20px;
   grid-area: 1 / 3 / 2 / 4;
 }
 </style>

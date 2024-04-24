@@ -18,29 +18,28 @@
                     <router-link to="/">Login</router-link> 
                 </li> -->
                 <li class="nav-item">
-                    <router-link to="/home">Home</router-link> 
+                    <router-link to="/home" style="color:#0A42AD; text-decoration: none;">Home</router-link> 
                 </li>
                 <li class="nav-item">
-                    <router-link to="/calendar">Calendar</router-link> 
+                    <router-link to="/calendar" style="color:#0A42AD; text-decoration: none;">Calendar</router-link> 
                 </li>
                 <li class="nav-item">
-                    <router-link to="/alltags">All Tags</router-link> 
+                    <router-link to="/alltags" style="color:#0A42AD; text-decoration: none;">All Tags</router-link> 
                 </li>
                 <li class="nav-item">
-                    <router-link to="/groups">Groups</router-link>
+                    <router-link to="/groups" style="color:#0A42AD; text-decoration: none;">Groups</router-link>
                 <!-- <a class="nav-link ml-10" href="#">Groups</a>o -->
                 </li>
                 <li class="nav-item">
-                    <router-link to="/edit-profile">Profile</router-link> 
+                    <router-link to="/edit-profile" style="color:#0A42AD; text-decoration: none;">Profile</router-link> 
                 </li>
                 <li class="nav-item-logout" id="logOut">
-                    <div @click="signOutToast()">LogOut</div>
+                    <div @click="signOutToast()" style="color:#0A42AD; text-decoration: none;">LogOut</div>
                 </li>
             </ul>
         </div></span>
     </div>
     <hr>
-    
 </template>
 
 <script>
@@ -72,6 +71,10 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+
+navbar {
+    margin-bottom: 0px;
+}
 .nav-item{
     font-family: 'Montserrat', sans-serif;
     margin-right: 50px;
@@ -89,7 +92,6 @@ export default {
     font-size:  20px;
     font-weight: bold;
     color: rgb(13, 110, 253);
-    text-decoration: underline;
 }
 
 .nav-item-logout:hover {
@@ -99,7 +101,7 @@ export default {
 
 hr {
     opacity: 0.5;
-    margin-bottom: 10%;
+    margin-bottom: 2%;
 }
 
 .navbar-nav {

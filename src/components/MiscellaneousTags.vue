@@ -1,6 +1,5 @@
 <template>
     <br /><br />
-    <h5>MiscellaneousTags</h5>
 
     <div class="miscTagBox">
         <div id="topContents">

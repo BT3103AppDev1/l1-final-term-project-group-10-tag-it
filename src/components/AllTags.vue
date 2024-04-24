@@ -9,7 +9,12 @@
         <!-- <BIconFunnelFill class="filterIcon" @click="filter" /> -->
         <table id = "AllTagsTable" class = "auto-index">
             <tr>
-                <th></th>
+                <th>
+                    <td><i @click="filterCompleted"> 
+                        <BIconCircle v-if="!this.filterSettings.filterCompleted" class="unchecked" style="margin-left: 10px;"/>
+                        <BIconCheckCircleFill v-else class="check"/>
+                    </i></td>
+                </th>
                 
                 <th>
                     <div class="filter-container">TITLE
@@ -136,6 +141,7 @@ export default {
                 sortState: "none",
                 filterImpt: false,
                 filterCal: false,
+                filterCompleted: false,
             },
 
             // user auth
@@ -249,6 +255,15 @@ export default {
                         return -1;
                     }
                 });            
+            }
+            this.tableRows = filteredRows;
+        },
+
+        async filterCompleted() {
+            let filteredRows = Array.from(this.originalRows);
+            this.filterSettings.filterCompleted = !this.filterSettings.filterCompleted;
+            if (this.filterSettings.filterCompleted) {
+                filteredRows = filteredRows.filter(row => row.completed);
             }
             this.tableRows = filteredRows;
         },
@@ -500,7 +515,7 @@ export default {
     }
 
 
-    th{
+    th {
         padding: 15px;
         height: 40px;
         font-family: cabin;
@@ -510,7 +525,7 @@ export default {
     }
 
 
-    td{
+    td {
         padding: 13px;
         height: 30px;
         font-family: cabin;

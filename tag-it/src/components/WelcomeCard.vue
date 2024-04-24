@@ -97,10 +97,10 @@ export default {
 
 <style scoped>
 .header1 {
-    font-size: 2.5em;
+    font-size: 3em;
 }
 
 .header2 {
-    font-size: 2em;
+    font-size: 2.5em;
 }
 </style>

@@ -1,7 +1,6 @@
 <template>
     <div class="progressBarContainer">
         <div class="chartContainer">
-            <!-- <div class="header1">Your Progress:</div> -->
             <canvas id="displayData"></canvas>
         </div>
     </div>
@@ -275,10 +274,6 @@ export default {
 
 <style scoped>
 .progressBarContainer {
-    align-items: center;
-    vertical-align: middle;
-    justify-content: center;
-
     /* background-color: #f5f5f5; */
     padding: 10px;
     width: 1000px;
@@ -290,14 +285,9 @@ export default {
 }
 
 .chartContainer {
-    align-items: center;
-    vertical-align: middle;
-    justify-content: center;
-
     position: absolute;
-    width: 90%;
-    /* height: 460px; */
-    height: 80vh;
+    width: 960px;
+    height: 460px;
     top: 20px;
     left: 20px;
 }

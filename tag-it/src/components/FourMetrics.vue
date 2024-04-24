@@ -110,7 +110,10 @@ export default {
         async getTagCount() {
             const objToMap = (obj) => new Map(Object.entries(obj));
 
-            const today = new Date().toISOString().slice(0, 10);
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10); // For string comparison
+            const oneWeekLater = new Date();
+            oneWeekLater.setDate(today.getDate() + 7); // Set date to 7 days in the future
 
             let user_data = await getDoc(doc(db, "User", this.user_id));
             let personal_calendars = objToMap(
@@ -162,22 +165,29 @@ export default {
                             .then((results) => {
                                 results.forEach((doc) => {
                                     if (doc.exists) {
-                                        // check flagged
+                                        const docStartDateStr = doc
+                                            .data()
+                                            .start.slice(0, 10); // Extract the date part
+                                        const docStartDate = new Date(
+                                            doc.data().start
+                                        ); // Parse the full date-time string
+
+                                        // Check if flagged
                                         if (doc.data().flagged) {
-                                            // console.log("found important tag: ", importantTagCount);
                                             importantTagCount++;
                                         }
 
-                                        // check today
-                                        const docDate = doc
-                                            .data()
-                                            .start?.slice(0, 10);
-                                        if (docDate == today) {
-                                            console.log(
-                                                "found one today: ",
-                                                todayTagCount
-                                            );
+                                        // Check if date is today
+                                        if (docStartDateStr === todayStr) {
                                             todayTagCount++;
+                                        }
+
+                                        // Check if date is within the next 7 days
+                                        if (
+                                            docStartDate >= today &&
+                                            docStartDate < oneWeekLater
+                                        ) {
+                                            weekTagCount++;
                                         }
                                     }
                                 });

@@ -93,14 +93,7 @@
         </label>
       </div>
 
-      <button
-        id="saveEntryButton"
-        type="button"
-        v-on:click="
-          saveEntryButton();
-          refreshCalendar();
-        "
-      >
+      <button id="saveEntryButton" type="button" v-on:click="saveEntryButton()">
         SAVE
       </button>
       <br /><br />
@@ -167,11 +160,6 @@ export default {
     });
   },
   methods: {
-    refreshCalendar() {
-      this.$emit("tag-submitted");
-      console.log("emitting event");
-    },
-
     updateFlagged() {
       this.flagged = this.flagged === false ? true : false;
     },
@@ -313,6 +301,7 @@ export default {
         console.log(tagDocRef);
         document.getElementById("expandedTEForm").reset(); // eslint-disable-next-line
         this.$emit("returnToMiscTags");
+        this.$emit("tag-submitted");
       } catch (error) {
         console.error("Error adding document: ", error);
       }

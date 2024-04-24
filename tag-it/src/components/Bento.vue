@@ -8,7 +8,7 @@
                 <FourMetrics />
             </div>
         </div>
-        <ProgressBar />
+        <div id="progressBarDiv"><ProgressBar /></div>
     </div>
 </template>
 
@@ -36,8 +36,7 @@ export default {
     align-items: center;
     vertical-align: middle;
     margin: auto;
-    /* height: auto; */
-    max-height: 65vh;
+    height: auto;
 }
 
 .gridContainer {
@@ -82,5 +81,11 @@ export default {
     display: grid;
     overflow-y: hidden;
     position: relative;
+}
+
+#progressBarDiv {
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center;
 }
 </style>

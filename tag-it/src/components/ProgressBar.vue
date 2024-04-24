@@ -218,9 +218,9 @@ export default {
                             data.datasets[0].data.forEach(
                                 (datapoint, index) => {
                                     //label text
-                                    const fontSizeLabel = 12;
+                                    const fontSizeLabel = 20;
                                     ctx.font = `${fontSizeLabel}px`;
-                                    ctx.fillStyle = "rgba(102,102,102,1)";
+                                    ctx.fillStyle = "rgba(0,0,0,1)";
                                     ctx.textAlign = "left";
                                     ctx.textBaseline = "middle";
                                     ctx.fillText(
@@ -228,13 +228,13 @@ export default {
                                         left,
                                         y.getPixelForValue(index) -
                                             fontSizeLabel -
-                                            5
+                                            15
                                     );
 
                                     //value text
-                                    const fontSizeDatapoint = 15;
+                                    const fontSizeDatapoint = 20;
                                     ctx.font = `bolder ${fontSizeDatapoint}px`;
-                                    ctx.fillStyle = "rbga(102,102,102,1)";
+                                    ctx.fillStyle = "rgba(0,0,0,1)";
                                     ctx.textAlign = "right";
                                     (ctx.textBaseline = "middle"),
                                         ctx.fillText(
@@ -242,7 +242,7 @@ export default {
                                             right,
                                             y.getPixelForValue(index) -
                                                 fontSizeDatapoint -
-                                                5
+                                                15
                                         );
 
                                     ctx.beginPath();
@@ -276,26 +276,26 @@ export default {
 .progressBarContainer {
     /* background-color: #f5f5f5; */
     padding: 10px;
-    width: 1000px;
+    width: 100%;
     height: 500px;
     margin: auto;
     border-radius: 20px;
     filter: drop-shadow(2px 2px #cacaca);
-    position: relative;
 }
 
 .chartContainer {
-    position: absolute;
-    width: 960px;
+    width: 100%;
     height: 460px;
     top: 20px;
     left: 20px;
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center;
 }
 
 canvas {
-    width: 960px;
-    height: 460px;
-    position: absolute;
-    left: 20px;
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center;
 }
 </style>

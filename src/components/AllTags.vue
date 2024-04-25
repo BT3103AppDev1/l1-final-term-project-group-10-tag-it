@@ -10,10 +10,10 @@
         <table id = "AllTagsTable" class = "auto-index">
             <tr>
                 <th>
-                    <td><i @click="filterCompleted"> 
+                    <i @click="filterCompleted"> 
                         <BIconCircle v-if="!this.filterSettings.filterCompleted" class="unchecked" style="margin-left: 10px;"/>
                         <BIconCheckCircleFill v-else class="check"/>
-                    </i></td>
+                    </i>
                 </th>
                 
                 <th>

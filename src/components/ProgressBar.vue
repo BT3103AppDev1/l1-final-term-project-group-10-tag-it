@@ -1,5 +1,6 @@
 <template>
     <div class="progressBarContainer">
+        <br/>
         <div class="chartContainer">
             <canvas id="displayData"></canvas>
         </div>
@@ -124,8 +125,10 @@ export default {
 
         async generateChart() {
             await this.getUserInfo();
+            
+            const activecalendars = this.user_calendars.filter((cal_id) => this.calID_total[cal_id] > 0)
 
-            const progressData = this.user_calendars.map((cal_id) => ({
+            const progressData = activecalendars.map((cal_id) => ({
                 cal_name: this.calID_name[cal_id],
                 percent: parseFloat(
                     (
@@ -226,12 +229,15 @@ export default {
                                     ctx.fillStyle = "rgba(0,0,0,1)";
                                     ctx.textAlign = "left";
                                     ctx.textBaseline = "middle";
+
+                                    // Calculate label position based on chart dimensions
+                                    const labelX = left + 10;
+                                    const labelY = top + (index + 0.5) * (height / data.labels.length) -1.5*barHeight;
+                                    
                                     ctx.fillText(
                                         data.labels[index],
-                                        left,
-                                        y.getPixelForValue(index) -
-                                            fontSizeLabel -
-                                            15
+                                        labelX,
+                                        labelY
                                     );
 
                                     //value text
@@ -239,14 +245,16 @@ export default {
                                     ctx.font = `bolder ${fontSizeDatapoint}px`;
                                     ctx.fillStyle = "rgba(0,0,0,1)";
                                     ctx.textAlign = "right";
-                                    (ctx.textBaseline = "middle"),
-                                        ctx.fillText(
-                                            datapoint,
-                                            right,
-                                            y.getPixelForValue(index) -
-                                                fontSizeDatapoint -
-                                                15
-                                        );
+                                    (ctx.textBaseline = "middle")
+
+                                    // Calculate value position based on chart dimensions
+                                    const valueX = right - 10; 
+                                    const valueY = top + (index + 0.5) * (height / data.labels.length)-1.5*barHeight;
+                                    ctx.fillText(
+                                        datapoint,
+                                        valueX,
+                                        valueY
+                                    );
 
                                     ctx.beginPath();
                                     ctx.fillStyle = "#e3e3e3";
@@ -280,7 +288,7 @@ export default {
     /* background-color: #f5f5f5; */
     padding: 10px;
     width: 100%;
-    height: 500px;
+    /* height: 500px; */
     margin: auto;
     border-radius: 20px;
     filter: drop-shadow(2px 2px #cacaca);

@@ -218,8 +218,28 @@ export default {
 
       try {
         if (docTitle === ""){
-          throw new Error(`Please Enter a Tag Name`)
+          throw new Error(`Please enter a Tag Name`)
         }
+
+        //data validation for start and end date
+        let startDate = new Date(docStart);
+        let endDate = new Date(docEnd);
+
+        if (endDate < startDate) {
+          throw new Error(`End date should be after start date!`)
+        }
+
+        if (docColor === "#cccaca") {
+          throw new Error(`Please select a color`)
+        }
+
+        let letterRegex = /[a-zA-Z]/;
+        let numberRegex = /^\d+$/;
+
+        if (!letterRegex.test(docCalendar_name) && numberRegex.test(docCalendar_name)) {
+          throw new Error(`Please have at least one letter in the category name`)
+        }
+
         //create a new tag
         const tagDocRef = await addDoc(collection(db, "Tags"), {
           title: docTitle,

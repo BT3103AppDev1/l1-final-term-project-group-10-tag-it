@@ -166,6 +166,9 @@ export default {
                     },
                     scales: {
                         x: {
+                            min: 0,
+                            max: 100,
+                            beginAtZero: true,
                             display: false,
                             grid: {
                                 display: false,

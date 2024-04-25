@@ -209,23 +209,19 @@ export default {
       console.log("saving");
 
       let docTitle = document.getElementById("inputTagName").value;
-      let docStart = document
-        .getElementById("inputStartDate")
-        .value.replace("T", " ");
-      let docEnd = document
-        .getElementById("inputEndDate")
-        .value.replace("T", " ");
-      let docCalendar_name = document.getElementById(
-        "selectInputCalendarName"
-      ).value;
-      //add calendar id later on
+      let docStart = document.getElementById("inputStartDate").value.replace("T", " ");
+      let docEnd = document.getElementById("inputEndDate").value.replace("T", " ");
+      let docCalendar_name = document.getElementById("selectInputCalendarName").value;
+
       let docColor = document.getElementById("customColor").value;
       let docCompleted = false;
 
       try {
+        if (docTitle === ""){
+          throw new Error(`Please Enter a Tag Name`)
+        }
         //create a new tag
         const tagDocRef = await addDoc(collection(db, "Tags"), {
-          //id: docId,
           title: docTitle,
           start: docStart,
           end: docEnd,
@@ -304,6 +300,7 @@ export default {
         this.$emit("tag-submitted");
       } catch (error) {
         console.error("Error adding document: ", error);
+        alert(error);
       }
 
       //after save reroute to misc tags

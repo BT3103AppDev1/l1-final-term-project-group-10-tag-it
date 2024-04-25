@@ -150,7 +150,7 @@ export default {
                                 (row) => row.color
                             ),
                             borderSkipped: false,
-                            // borderRadius: 10,
+                            borderRadius: 10,
                             barPercentage: 0.2,
                             categoryPercentage: 0.8,
                         },
@@ -166,8 +166,6 @@ export default {
                     },
                     scales: {
                         x: {
-                            min:0,
-                            max: 100,
                             display: false,
                             grid: {
                                 display: false,

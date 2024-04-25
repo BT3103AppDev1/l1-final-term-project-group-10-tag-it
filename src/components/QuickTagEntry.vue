@@ -7,11 +7,13 @@
         v-model="inputData"
         id="quickAddTag"
         required="yes"
+        title="Enter a Tag name and indicate its importance with '!' e.g. Buy Groceries!"
       />
-      <!-- not sure how to put icon over form -->
+
       <i class="expandTag" @click="expandTagEntry">
         <BIconArrowsAngleExpand />
       </i>
+      
     </form>
   </div>
 </template>
@@ -172,6 +174,7 @@ input {
   color: #f5f5f5;
 }
 
+
 input::placeholder {
   color: #f5f5f5;
 }
@@ -179,4 +182,5 @@ input::placeholder {
 .expandTag {
   color: #f5f5f5;
 }
+
 </style>

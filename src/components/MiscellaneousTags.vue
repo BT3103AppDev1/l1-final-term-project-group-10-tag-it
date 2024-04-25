@@ -168,12 +168,10 @@ export default {
                     };
                 })
             );
-            //filter for those that have no calendar
             this.tableRows = this.tableRows.filter((row) => !row.calendar_name);
         },
 
         addQuickTag(event) {
-            // do we need a cancllation button - or will it auto cancel itself
             console.log("Add Quick Tag");
             this.addingtag = true;
         },

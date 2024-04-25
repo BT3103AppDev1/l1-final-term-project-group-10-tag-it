@@ -104,9 +104,9 @@ export default {
         let tagImportance;
         // check if important
         if (tagTitle.includes("!")) {
-          tagImportance = false;
-        } else {
           tagImportance = true;
+        } else {
+          tagImportance = false;
         }
         // for each tag, add into tag DB
         const tagDocRef = await addDoc(collection(db, "Tags"), {

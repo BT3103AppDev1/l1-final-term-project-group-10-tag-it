@@ -229,15 +229,15 @@ export default {
           throw new Error(`End date should be after start date!`)
         }
 
-        if (docColor === "#cccaca") {
-          throw new Error(`Please select a color`)
-        }
-
         let letterRegex = /[a-zA-Z]/;
         let numberRegex = /^\d+$/;
 
         if (!letterRegex.test(docCalendar_name) && numberRegex.test(docCalendar_name)) {
-          throw new Error(`Please have at least one letter in the category name`)
+          throw new Error(`Please have at least one letter in the calendar name`)
+        }
+
+        if (docCalendar_name !== "" && docColor === "#cccaca") {
+          throw new Error(`Please select color for your calendar`)
         }
 
         //create a new tag

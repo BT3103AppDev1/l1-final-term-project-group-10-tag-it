@@ -278,13 +278,13 @@ export default {
             }
 
             // CHECK IF ERROR
-            toast.promise(this.checkSignUpErrorThenSignup(), {
+            await toast.promise(this.checkSignUpErrorThenSignup(), {
                 pending: "Signing up...",
                 success: "Successfully signed up & logged in!",
                 error: "Failed to sign up",
             });
 
-            // router.push({ name: "Home" });
+            router.push({ name: "Home" });
         },
 
         async checkSignUpErrorThenSignup() {
@@ -352,7 +352,6 @@ export default {
             email,
             mobileNumber
         ) {
-
             const db = getFirestore();
             const user = auth.currentUser;
             const userDocRef = doc(db, "User", user.uid);

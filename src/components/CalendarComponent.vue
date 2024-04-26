@@ -112,7 +112,7 @@ export default {
       let user_data = await getDoc(doc(db, "User", this.user_id));
       let personal_calendars = objToMap(user_data.data().personal_calendars);
       let shared_calendars = objToMap(user_data.data().shared_calendars);
-      let cal = user_data.data().misc_calendar
+      let cal = user_data.data().misc_calendar;
       this.miscCal_id = cal;
       //adding personal calendar id from personal calendars
       if (personal_calendars.size > 0) {
@@ -181,7 +181,10 @@ export default {
             let tagData = tagDoc.data();
             this.injectStyles(tagData);
             if (tagData) {
-              const safeClassName = tagData.calendar_name.replace(/\s+/g, "-");
+              const safeClassName = tagData.calendar_name.replace(
+                /[\s\/\\]+/g,
+                "-"
+              );
               console.log(tagData.title);
               this.events.push({
                 title: tagData.title,
@@ -209,7 +212,7 @@ export default {
               this.injectStyles(tagData);
               if (tagData) {
                 const safeClassName = tagData.calendar_name.replace(
-                  /\s+/g,
+                  /[\s\/\\]+/g,
                   "-"
                 );
                 console.log(tagData.title);
@@ -299,7 +302,7 @@ export default {
       }
 
       const color = tag.color || "#a04646"; // Default color
-      const safeClassName = className.replace(/\s+/g, "-");
+      const safeClassName = className.replace(/[\s\/\\]+/g, "-");
 
       const cssRule = `.vuecal__event.${safeClassName} { background-color: ${color}; border: 0.001px solid #fff; color: #fff; }`;
 
@@ -313,7 +316,7 @@ export default {
     },
 
     refreshCalendar() {
-      console.log('refreshing')
+      console.log("refreshing");
       this.events = [];
       this.populate_cal_colour_and_cal_id();
     },
